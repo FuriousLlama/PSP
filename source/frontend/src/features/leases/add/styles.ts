@@ -64,7 +64,6 @@ export const SmallInlineSelect = styled(InlineSelect)`
 
 export const MediumTextArea = styled(TextArea)`
   textarea.form-control {
-    min-width: 80rem;
     height: 7rem;
     resize: none;
   }

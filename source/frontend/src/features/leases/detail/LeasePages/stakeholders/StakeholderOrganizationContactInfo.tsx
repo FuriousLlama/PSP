@@ -13,7 +13,6 @@ import { FormStakeholder } from './models';
 
 export interface ITenantOrganizationContactInfoProps {
   nameSpace: string;
-  disabled?: boolean;
 }
 
 /**
@@ -34,25 +33,21 @@ export const TenantOrganizationContactInfo: React.FunctionComponent<
   const primaryContactName = formatApiPersonNames(primaryContact);
   return (
     <StyledSectionWrapper>
-      <SectionField labelWidth="2" contentWidth="10" label="Organization">
+      <SectionField labelWidth="3" label="Organization">
         {getIn(values, withNameSpace(nameSpace, 'summary')) && (
           <>
-            <StyledLink to={`/contact/${tenant?.id}`} target="_blank" rel="noopener noreferrer">
+            <Link to={`/contact/${tenant?.id}`} target="_blank" rel="noopener noreferrer">
               {getIn(values, withNameSpace(nameSpace, 'summary'))} <FaExternalLinkAlt />
-            </StyledLink>
+            </Link>
           </>
         )}
       </SectionField>
-      <SectionField labelWidth="2" contentWidth="10" label="Primary Contact">
+      <SectionField labelWidth="3" label="Primary Contact">
         {primaryContact && (
           <>
-            <StyledLink
-              to={`/contact/P${primaryContact?.id}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <Link to={`/contact/P${primaryContact?.id}`} target="_blank" rel="noopener noreferrer">
               {primaryContactName} <FaExternalLinkAlt />
-            </StyledLink>
+            </Link>
           </>
         )}
       </SectionField>
@@ -62,10 +57,7 @@ export const TenantOrganizationContactInfo: React.FunctionComponent<
 
 const StyledSectionWrapper = styled.div`
   border-bottom: 0.1rem gray solid;
-  padding: 0.5rem;
+  padding-top: 0.5rem;
 `;
 
-const StyledLink = styled(Link)`
-  padding: 0.6rem 1.2rem;
-`;
 export default TenantOrganizationContactInfo;

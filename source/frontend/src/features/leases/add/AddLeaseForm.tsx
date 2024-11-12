@@ -55,9 +55,9 @@ const AddLeaseForm: React.FunctionComponent<React.PropsWithChildren<IAddLeaseFor
       >
         {formikProps => (
           <>
-            <LeaseDetailSubForm formikProps={formikProps}></LeaseDetailSubForm>
+            <LeaseDetailSubForm formikProps={formikProps} />
             <LeasePropertySelector formikProps={formikProps} />
-            <AdministrationSubForm formikProps={formikProps}></AdministrationSubForm>
+            <AdministrationSubForm formikProps={formikProps} />
           </>
         )}
       </Formik>
@@ -69,6 +69,4 @@ export default AddLeaseForm;
 
 const StyledFormWrapper = styled.div`
   background-color: ${props => props.theme.css.highlightBackgroundColor};
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
 `;

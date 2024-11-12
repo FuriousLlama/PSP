@@ -11,7 +11,6 @@ import { FormStakeholder } from './models';
 
 export interface ITenantPersonContactInfoProps {
   nameSpace: string;
-  disabled?: boolean;
 }
 
 /**
@@ -25,7 +24,7 @@ export const TenantPersonContactInfo: React.FunctionComponent<
   const tenant: FormStakeholder = getIn(values, nameSpace);
   return (
     <StyledSectionWrapper>
-      <SectionField labelWidth="2" contentWidth="10" label="Person">
+      <SectionField labelWidth="3" label="Person">
         {getIn(values, withNameSpace(nameSpace, 'summary')) && (
           <>
             <StyledLink to={`/contact/${tenant?.id}`} target="_blank" rel="noopener noreferrer">
@@ -40,7 +39,7 @@ export const TenantPersonContactInfo: React.FunctionComponent<
 
 const StyledSectionWrapper = styled.div`
   border-bottom: 0.1rem gray solid;
-  padding: 0.5rem;
+  padding-top: 2rem;
 `;
 
 export default TenantPersonContactInfo;

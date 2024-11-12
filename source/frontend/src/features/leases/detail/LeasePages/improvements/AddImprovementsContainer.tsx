@@ -22,7 +22,7 @@ interface IAddImprovementsContainerProps {
 
 export const AddImprovementsContainer: React.FunctionComponent<
   React.PropsWithChildren<IAddImprovementsContainerProps>
-> = ({ formikRef, onEdit, children, loading, improvements, onSuccess }) => {
+> = ({ formikRef, onEdit, loading, improvements, onSuccess }) => {
   const { lease } = useContext(LeaseStateContext);
   const { updatePropertyImprovements } = usePropertyImprovementRepository();
   const { getByType } = useLookupCodeHelpers();
@@ -61,9 +61,7 @@ export const AddImprovementsContainer: React.FunctionComponent<
       formikRef={formikRef}
       onSubmit={onSubmit}
       initialValues={addEmptyImprovements(form, improvementTypeCodes, lease?.id ?? undefined)}
-    >
-      {children}
-    </AddImprovementsForm>
+    />
   );
 };
 

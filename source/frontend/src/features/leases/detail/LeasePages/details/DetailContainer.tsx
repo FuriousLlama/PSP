@@ -3,6 +3,7 @@ import React, { useCallback, useContext } from 'react';
 
 import { ProtectedComponent } from '@/components/common/ProtectedComponent';
 import { Claims } from '@/constants/claims';
+import { LeaseDetailsView } from '@/features/leases';
 import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
 import { UpdateLeaseContainer } from '@/features/leases/detail/LeasePages/details/UpdateLeaseContainer';
 import { LeaseFormModel } from '@/features/leases/models';
@@ -11,7 +12,6 @@ import { LeasePageProps } from '@/features/mapSideBar/lease/LeaseContainer';
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { exists } from '@/utils';
 
-import LeaseDetailsForm from './LeaseDetailsForm';
 import UpdateLeaseForm from './UpdateLeaseForm';
 
 const DetailContainer: React.FunctionComponent<React.PropsWithChildren<LeasePageProps<void>>> = ({
@@ -40,7 +40,7 @@ const DetailContainer: React.FunctionComponent<React.PropsWithChildren<LeasePage
       />
     </ProtectedComponent>
   ) : (
-    <LeaseDetailsForm lease={lease} onGenerate={onGenerate} />
+    <LeaseDetailsView lease={lease} onGenerate={onGenerate} />
   );
 };
 

@@ -22,6 +22,7 @@ const ResearchMenu: React.FunctionComponent<
   const handleClick = (index: number) => {
     props.onChange(index);
   };
+
   return (
     <StyledMenuWrapper>
       {props.items.map((label: string, index: number) => (

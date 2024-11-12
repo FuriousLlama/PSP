@@ -18,7 +18,7 @@ export interface ILeaseDetailsFormProps {
   onGenerate: (lease?: ApiGen_Concepts_Lease) => void;
 }
 
-export const LeaseDetailsForm: React.FunctionComponent<ILeaseDetailsFormProps> = ({
+export const LeaseDetailsView: React.FunctionComponent<ILeaseDetailsFormProps> = ({
   lease,
   onGenerate,
 }) => {
@@ -74,4 +74,4 @@ export const StyledDetails = styled.form`
   }
 `;
 
-export default LeaseDetailsForm;
+export default LeaseDetailsView;

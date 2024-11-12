@@ -1,7 +1,7 @@
 import { useContext, useEffect } from 'react';
 
-import { FormSection } from '@/components/common/form/styles';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
+import { Section } from '@/components/common/Section/Section';
 import { ColumnWithProps, Table } from '@/components/Table';
 import { PidCell } from '@/components/Table/PidCell';
 import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
@@ -20,13 +20,13 @@ const columns: ColumnWithProps<IDeclaration>[] = [
   {
     Header: 'PID / Identifier',
     accessor: 'identifier',
-    maxWidth: 40,
+    maxWidth: 45,
     Cell: PidCell,
   },
   {
     Header: 'Surplus Declaration',
     accessor: 'declarationType',
-    maxWidth: 40,
+    maxWidth: 45,
     Cell: ({ row: { original } }) => {
       const declarationType = original.declarationType;
       const isYesDeclarationType = declarationType.toUpperCase() === 'YES';
@@ -45,12 +45,12 @@ const columns: ColumnWithProps<IDeclaration>[] = [
     Header: 'Declaration Date',
     accessor: 'date',
     Cell: ({ cell: { value } }) => stringToFragment(prettyFormatDate(value)),
-    maxWidth: 50,
+    maxWidth: 40,
   },
   {
     Header: 'Declaration Comments',
     accessor: 'comments',
-    minWidth: 150,
+    minWidth: 30,
   },
 ];
 
@@ -76,7 +76,7 @@ const Surplus: React.FunctionComponent<React.PropsWithChildren<unknown>> = () =>
   });
 
   return (
-    <FormSection>
+    <Section>
       <LoadingBackdrop show={loading} parentScreen />
       <p>
         Data shown is from the Surplus Declaration workflow on the property screen and is not
@@ -91,7 +91,7 @@ const Surplus: React.FunctionComponent<React.PropsWithChildren<unknown>> = () =>
         hideToolbar
         noRowsMessage="Lease / Surplus Declaration details do not exist in PIMS inventory"
       ></Table>
-    </FormSection>
+    </Section>
   );
 };
 

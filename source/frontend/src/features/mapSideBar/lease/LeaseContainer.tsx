@@ -3,7 +3,6 @@ import React, { useCallback, useContext, useEffect, useReducer, useRef, useState
 import * as Yup from 'yup';
 
 import LeaseIcon from '@/assets/images/lease-icon.svg?react';
-import GenericModal from '@/components/common/GenericModal';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import { Claims } from '@/constants';
@@ -26,6 +25,7 @@ import { LeaseFormModel } from '@/features/leases/models';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 
 import { SideBarContext } from '../context/sidebarContext';
+import FileLayout from '../layout/FileLayout';
 import MapSideBarLayout from '../layout/MapSideBarLayout';
 import SidebarFooter from '../shared/SidebarFooter';
 import { StyledFormWrapper } from '../shared/styles';
@@ -323,36 +323,25 @@ export const LeaseContainer: React.FC<ILeaseContainerProps> = ({ leaseId, onClos
         )
       }
     >
-      <GenericModal
-        variant="info"
-        display={containerState.showConfirmModal}
-        title={'Confirm Changes'}
-        message={
-          <>
-            <p>If you choose to cancel now, your changes will not be saved.</p>
-            <p>Do you want to proceed?</p>
-          </>
+      <FileLayout
+        leftComponent={'hello'}
+        bodyComponent={
+          <StyledFormWrapper>
+            <LoadingBackdrop show={loading || getLastUpdatedByLoading} />
+            <ViewSelector
+              formikRef={formikRef}
+              lease={lease}
+              refreshLease={refresh}
+              setLease={setLease}
+              isEditing={containerState.isEditing}
+              activeEditForm={containerState.activeEditForm}
+              activeTab={containerState.activeTab}
+              setContainerState={setContainerState}
+              onSuccess={onChildSuccess}
+            />
+          </StyledFormWrapper>
         }
-        handleOk={handleCancelConfirm}
-        handleCancel={() => setContainerState({ showConfirmModal: false })}
-        okButtonText="Yes"
-        cancelButtonText="No"
-        show
       />
-      <StyledFormWrapper>
-        <LoadingBackdrop show={loading || getLastUpdatedByLoading} />
-        <ViewSelector
-          formikRef={formikRef}
-          lease={lease}
-          refreshLease={refresh}
-          setLease={setLease}
-          isEditing={containerState.isEditing}
-          activeEditForm={containerState.activeEditForm}
-          activeTab={containerState.activeTab}
-          setContainerState={setContainerState}
-          onSuccess={onChildSuccess}
-        />
-      </StyledFormWrapper>
     </MapSideBarLayout>
   );
 };

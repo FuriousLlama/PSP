@@ -28,6 +28,7 @@ const AcquisitionMenu: React.FunctionComponent<
   React.PropsWithChildren<IAcquisitionMenuProps>
 > = props => {
   const { hasClaim, hasRole } = useKeycloakWrapper();
+
   const handleClick = (index: number) => {
     props.onChange(index);
   };
@@ -40,6 +41,7 @@ const AcquisitionMenu: React.FunctionComponent<
     }
     return false;
   };
+
   return (
     <>
       <StyledMenuWrapper>
