@@ -13,17 +13,17 @@ import { ApiGen_CodeTypes_LeaseStatusTypes } from '@/models/api/generated/ApiGen
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { exists, prettyFormatDate } from '@/utils';
 
-export interface ILeaseDetailViewProps {
+export interface ILeaseDetailSummaryViewProps {
   lease: ApiGen_Concepts_Lease;
-  onGenerate: (lease?: ApiGen_Concepts_Lease) => void;
+  onGenerate: () => void;
 }
 
 /**
  * Sub-form displaying the original and renewal period information presented in styled boxes.
- * @param {ILeaseDetailViewProps} param0
+ * @param {ILeaseDetailSummaryViewProps} param0
  */
-export const LeaseDetailView: React.FunctionComponent<
-  React.PropsWithChildren<ILeaseDetailViewProps>
+export const LeaseDetailSummaryView: React.FunctionComponent<
+  React.PropsWithChildren<ILeaseDetailSummaryViewProps>
 > = ({ lease, onGenerate }) => {
   const { hasClaim } = useKeycloakWrapper();
 
@@ -44,7 +44,7 @@ export const LeaseDetailView: React.FunctionComponent<
           {hasClaim(Claims.LEASE_VIEW) &&
             exists(leaseTypeCode) &&
             leaseTypeCode === ApiGen_CodeTypes_LeaseLicenceTypes.LOOBCTFA && (
-              <StyledAddButton onClick={() => onGenerate(lease)}>
+              <StyledAddButton onClick={() => onGenerate()}>
                 <FaFileContract
                   size={28}
                   id={`generate-h1005-a`}
@@ -58,7 +58,7 @@ export const LeaseDetailView: React.FunctionComponent<
           {hasClaim(Claims.LEASE_VIEW) &&
             exists(leaseTypeCode) &&
             leaseTypeCode === ApiGen_CodeTypes_LeaseLicenceTypes.LIPPUBHWY && (
-              <StyledAddButton onClick={() => onGenerate(lease)}>
+              <StyledAddButton onClick={() => onGenerate()}>
                 <FaFileContract
                   size={24}
                   id={`generate-h1005`}
@@ -150,4 +150,4 @@ export const LeaseDetailView: React.FunctionComponent<
   );
 };
 
-export default LeaseDetailView;
+export default LeaseDetailSummaryView;

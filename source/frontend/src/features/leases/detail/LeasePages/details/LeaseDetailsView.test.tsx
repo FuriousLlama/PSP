@@ -8,8 +8,8 @@ import { ApiGen_CodeTypes_LeaseStatusTypes } from '@/models/api/generated/ApiGen
 import { ApiGen_Concepts_Product } from '@/models/api/generated/ApiGen_Concepts_Product';
 import { ApiGen_Concepts_Project } from '@/models/api/generated/ApiGen_Concepts_Project';
 import { toTypeCode } from '@/utils/formUtils';
+import LeaseDetailsView from './LeaseDetailsForm';
 
-import LeaseDetailView, { ILeaseDetailViewProps } from './LeaseDetailView';
 
 const onGenerate = vi.fn();
 
@@ -19,7 +19,7 @@ describe('LeaseDetailView component', () => {
     renderOptions: RenderOptions & { props?: Partial<ILeaseDetailViewProps> } = {},
   ) => {
     const utils = render(
-      <LeaseDetailView
+      <LeaseDetailsView
         lease={renderOptions?.props?.lease ?? getEmptyLease()}
         onGenerate={renderOptions?.props?.onGenerate ?? onGenerate}
       />,

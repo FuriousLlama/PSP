@@ -5,7 +5,7 @@ import { SideBarType } from '@/components/common/mapFSM/machineDefinition/types'
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import { Backdrop } from '@/components/common/styles';
 
-import MapRouter from './router/MapRouter';
+import { SidebarRouter } from './router/SidebarRouter';
 
 export interface IMapSideBarViewState {
   isFullWidth?: boolean;
@@ -14,8 +14,15 @@ export interface IMapSideBarViewState {
   type: SideBarType;
 }
 
+let count = 0;
+
 const MapSideBar: React.FunctionComponent<React.PropsWithChildren<unknown>> = () => {
   const mapMachine = useMapStateMachine();
+
+  console.log('MapSideBar', count);
+  console.log('viewState', mapMachine.mapSideBarViewState);
+
+  count++;
 
   return (
     <StyledMapSideBar sideBarState={mapMachine.mapSideBarViewState}>
@@ -49,7 +56,7 @@ const MapSideBar: React.FunctionComponent<React.PropsWithChildren<unknown>> = ()
           </StyledSelectingText>
         </StyledBackdrop>
       )}
-      <MapRouter />
+      <SidebarRouter />
     </StyledMapSideBar>
   );
 };

@@ -10,7 +10,6 @@ export interface TabInventoryView {
 }
 
 export interface IInventoryTabsProps {
-  loading: boolean;
   defaultTabKey: InventoryTabNames;
   tabViews: TabInventoryView[];
   activeTab: InventoryTabNames;
@@ -35,10 +34,8 @@ export const InventoryTabs: React.FunctionComponent<
 > = ({ defaultTabKey, tabViews, activeTab }) => {
   const history = useHistory();
   const match = useRouteMatch<{
+    fileId: string;
     propertyId: string;
-    menuIndex: string;
-    id: string;
-    researchId: string;
   }>();
   return (
     <TabView
@@ -48,20 +45,21 @@ export const InventoryTabs: React.FunctionComponent<
         const tab = Object.values(InventoryTabNames).find(value => value === eventKey);
         if (match.path.includes('acquisition') || match.path.includes('disposition')) {
           const path = generatePath(match.path, {
-            menuIndex: match.params.menuIndex,
-            id: match.params.id,
+            fileId: match.params.fileId,
+            propertyId: match.params.propertyId,
             tab,
           });
           history.push(path);
         } else if (match.path.includes('research')) {
           const path = generatePath(match.path, {
-            menuIndex: match.params.menuIndex,
-            researchId: match.params.researchId,
+            fileId: match.params.fileId,
+            propertyId: match.params.propertyId,
             tab,
           });
           history.push(path);
         } else {
           const path = generatePath(match.path, {
+            fileId: match.params.fileId,
             propertyId: match.params.propertyId,
             tab,
           });

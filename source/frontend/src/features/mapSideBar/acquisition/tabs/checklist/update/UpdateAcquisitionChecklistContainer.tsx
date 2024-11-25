@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
 import { FormikProps } from 'formik/dist/types';
-import React from 'react';
+import React, { useRef } from 'react';
 import { toast } from 'react-toastify';
 
 import * as API from '@/constants/API';
@@ -13,18 +13,18 @@ import { ApiGen_Concepts_AcquisitionFile } from '@/models/api/generated/ApiGen_C
 import { ApiGen_Concepts_FileWithChecklist } from '@/models/api/generated/ApiGen_Concepts_FileWithChecklist';
 
 export interface IAcquisitionChecklistContainerProps {
-  formikRef: React.Ref<FormikProps<ChecklistFormModel>>;
   acquisitionFile?: ApiGen_Concepts_AcquisitionFile;
   onSuccess: () => void;
   View: React.FC<IUpdateChecklistFormProps>;
 }
 
 export const UpdateAcquisitionChecklistContainer: React.FC<IAcquisitionChecklistContainerProps> = ({
-  formikRef,
   acquisitionFile,
   onSuccess,
   View,
 }) => {
+  const formikRef = useRef<FormikProps<ChecklistFormModel>>(null);
+
   const { getByType } = useLookupCodeHelpers();
   const {
     updateAcquisitionChecklist: { execute: updateAcquisitionChecklist },

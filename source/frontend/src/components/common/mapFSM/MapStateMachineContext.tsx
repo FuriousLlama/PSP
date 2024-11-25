@@ -12,6 +12,7 @@ import {
   defaultPropertyFilter,
   IPropertyFilter,
 } from '@/features/properties/filter/IPropertyFilter';
+import useTraceUpdate from '@/hooks/util/useTraceUpdate';
 import { exists } from '@/utils';
 import { pidParser } from '@/utils/propertyUtils';
 
@@ -103,9 +104,12 @@ export function useMapStateMachine() {
   return context;
 }
 
-export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>> = ({
-  children,
-}) => {
+let count = 0;
+export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>> = props => {
+  console.log('MapStateMachineProvider', count);
+  count++;
+  useTraceUpdate(props);
+
   const locationLoader = useLocationFeatureLoader();
   const mapSearch = useMapSearch();
   const history = useHistory();
@@ -389,16 +393,44 @@ export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>>
     return state.matches({ mapVisible: { advancedFilterSideBar: 'layerControl' } });
   }, [state]);
 
+  const mapSideBarViewState = useMemo(() => {
+    return {
+      isFullWidth: state.context.mapSideBarState.isFullWidth,
+      isCollapsed: state.context.mapSideBarState.isCollapsed,
+      isOpen: state.context.mapSideBarState.isOpen,
+      type: state.context.mapSideBarState.type,
+    };
+  }, [
+    state.context.mapSideBarState.isCollapsed,
+    state.context.mapSideBarState.isFullWidth,
+    state.context.mapSideBarState.isOpen,
+    state.context.mapSideBarState.type,
+  ]);
+
+  const isShowingSearchBar = useMemo(() => {
+    return (
+      !state.context.mapSideBarState.isOpen &&
+      !(
+        isShowingMapFilter ||
+        !dequal(state.context.advancedSearchCriteria, new PropertyFilterFormModel())
+      )
+    );
+  }, [
+    isShowingMapFilter,
+    state.context.advancedSearchCriteria,
+    state.context.mapSideBarState.isOpen,
+  ]);
+
+  const isFiltering = useMemo(
+    () => !dequal(state.context.advancedSearchCriteria, new PropertyFilterFormModel()),
+    [state.context.advancedSearchCriteria],
+  );
+
   return (
     <MapStateMachineContext.Provider
       value={{
-        mapSideBarViewState: state.context.mapSideBarState,
-        isShowingSearchBar:
-          !state.context.mapSideBarState.isOpen &&
-          !(
-            isShowingMapFilter ||
-            !dequal(state.context.advancedSearchCriteria, new PropertyFilterFormModel())
-          ),
+        mapSideBarViewState: mapSideBarViewState,
+        isShowingSearchBar: isShowingSearchBar,
         pendingFlyTo: state.matches({ mapVisible: { mapRequest: 'pendingFlyTo' } }),
         requestedFlyTo: state.context.requestedFlyTo,
         mapFeatureSelected: state.context.mapFeatureSelected,
@@ -418,7 +450,7 @@ export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>>
         isSelecting: state.matches({ mapVisible: { featureView: 'selecting' } }),
         isRepositioning: isRepositioning,
         selectingComponentId: state.context.selectingComponentId,
-        isFiltering: !dequal(state.context.advancedSearchCriteria, new PropertyFilterFormModel()),
+        isFiltering: isFiltering,
         isShowingMapFilter: isShowingMapFilter,
         isShowingMapLayers: isShowingMapLayers,
         activeLayers: state.context.activeLayers,
@@ -459,7 +491,7 @@ export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>>
         setAdvancedSearchCriteria,
       }}
     >
-      {children}
+      {props.children}
     </MapStateMachineContext.Provider>
   );
 };

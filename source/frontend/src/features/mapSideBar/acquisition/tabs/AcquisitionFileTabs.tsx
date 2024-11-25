@@ -1,13 +1,13 @@
-import React, { useContext, useEffect } from 'react';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
+import { useRouteMatch } from 'react-router-dom';
 
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import { EnumAcquisitionFileType } from '@/constants/acquisitionFileType';
 import * as API from '@/constants/API';
 import { Claims } from '@/constants/claims';
 import { NoteTypes } from '@/constants/noteTypes';
-import { FileTabs, FileTabType, TabFileView } from '@/features/mapSideBar/shared/detail/FileTabs';
 import NoteListView from '@/features/notes/list/NoteListView';
+import { useAcquisitionProvider } from '@/hooks/repositories/useAcquisitionProvider';
 import useKeycloakWrapper from '@/hooks/useKeycloakWrapper';
 import { ApiGen_CodeTypes_DocumentRelationType } from '@/models/api/generated/ApiGen_CodeTypes_DocumentRelationType';
 import { ApiGen_CodeTypes_FileTypes } from '@/models/api/generated/ApiGen_CodeTypes_FileTypes';
@@ -17,8 +17,10 @@ import { exists } from '@/utils';
 import CompensationListContainer from '../../compensation/list/CompensationListContainer';
 import CompensationListView from '../../compensation/list/CompensationListView';
 import { SideBarContext } from '../../context/sidebarContext';
+import usePathResolver from '../../shared/sidebarPathSolver';
 import { ChecklistView } from '../../shared/tabs/checklist/detail/ChecklistView';
 import DocumentsTab from '../../shared/tabs/DocumentsTab';
+import { IRouterTabsProps, TabContent, TabRouteType } from '../../shared/tabs/RouterTabs';
 import AgreementContainer from './agreement/detail/AgreementContainer';
 import AgreementView from './agreement/detail/AgreementView';
 import ExpropriationTabContainer from './expropriation/ExpropriationTabContainer';
@@ -30,65 +32,103 @@ import SubFileListContainer from './subFiles/SubFileListContainer';
 import SubFileListView from './subFiles/SubFileListView';
 
 export interface IAcquisitionFileTabsProps {
-  acquisitionFile?: ApiGen_Concepts_AcquisitionFile;
-  defaultTab: FileTabType;
-  setIsEditing: (value: boolean) => void;
+  acquisitionFileId: number;
+  View: React.FunctionComponent<React.PropsWithChildren<IRouterTabsProps>>;
 }
 
 export const AcquisitionFileTabs: React.FC<IAcquisitionFileTabsProps> = ({
-  acquisitionFile,
-  defaultTab,
-  setIsEditing,
+  acquisitionFileId,
+  View,
 }) => {
-  const tabViews: TabFileView[] = [];
+  const [acquisitionFile, setAcquisitionFile] = useState<ApiGen_Concepts_AcquisitionFile>(null);
+
   const { hasClaim } = useKeycloakWrapper();
   const { setFullWidthSideBar } = useMapStateMachine();
 
   const { setStaleLastUpdatedBy } = useContext(SideBarContext);
 
-  const location = useLocation();
-  const history = useHistory();
-  const { tab } = useParams<{ tab?: string }>();
-  const activeTab = Object.values(FileTabType).find(value => value === tab) ?? defaultTab;
+  const {
+    getAcquisitionFile: { execute: getAcquisitionFile },
+  } = useAcquisitionProvider();
 
-  const setActiveTab = (tab: FileTabType) => {
-    if (activeTab !== tab) {
-      history.push(`${tab}`);
+  const pathResolver = usePathResolver();
+
+  const fetchAcquisitionFile = useCallback(async () => {
+    const file = await getAcquisitionFile(acquisitionFileId);
+    if (exists(file)) {
+      setAcquisitionFile(file);
+    } else {
+      setAcquisitionFile(null);
     }
-  };
+  }, [acquisitionFileId, getAcquisitionFile]);
+
+  useEffect(() => {
+    fetchAcquisitionFile();
+  }, [fetchAcquisitionFile]);
 
   const onChildSuccess = () => {
     setStaleLastUpdatedBy(true);
   };
 
-  tabViews.push({
-    content: (
-      <AcquisitionSummaryView acquisitionFile={acquisitionFile} onEdit={() => setIsEditing(true)} />
-    ),
-    key: FileTabType.FILE_DETAILS,
-    name: 'File details',
-  });
+  const setIsEditing = (sadfsd: boolean) => {
+    console.log('iseditign');
+  };
 
-  tabViews.push({
-    content: (
-      <ChecklistView
-        apiFile={acquisitionFile}
-        showEditButton={true}
-        onEdit={() => setIsEditing(true)}
-        sectionTypeName={API.ACQUISITION_CHECKLIST_SECTION_TYPES}
-        editClaim={Claims.ACQUISITION_EDIT}
-        prefix="acq"
-      />
-    ),
-    key: FileTabType.CHECKLIST,
-    name: 'Checklist',
-  });
+  const match = useRouteMatch();
+  const detailType = match.params['detailType'];
+
+  useEffect(() => {
+    if (detailType === TabRouteType.NOTES || detailType === TabRouteType.DOCUMENTS) {
+      setFullWidthSideBar(true);
+    } else {
+      setFullWidthSideBar(false);
+    }
+    return () => setFullWidthSideBar(false);
+  }, [detailType, setFullWidthSideBar]);
+
+  const defaultTab = TabRouteType.FILE_DETAILS;
+  const tabViews: TabContent[] = [];
+
+  if (acquisitionFile?.id) {
+    tabViews.push({
+      content: (
+        <AcquisitionSummaryView
+          acquisitionFile={acquisitionFile}
+          onEdit={() => {
+            pathResolver.editDetail('acquisition', acquisitionFileId, TabRouteType.FILE_DETAILS);
+          }}
+        />
+      ),
+      key: TabRouteType.FILE_DETAILS,
+      name: 'File details',
+      detailId: acquisitionFileId,
+    });
+  }
+
+  if (acquisitionFile?.id) {
+    tabViews.push({
+      content: (
+        <ChecklistView
+          apiFile={acquisitionFile}
+          showEditButton={true}
+          onEdit={() => setIsEditing(true)}
+          sectionTypeName={API.ACQUISITION_CHECKLIST_SECTION_TYPES}
+          editClaim={Claims.ACQUISITION_EDIT}
+          prefix="acq"
+        />
+      ),
+      key: TabRouteType.CHECKLIST,
+      name: 'Checklist',
+      detailId: acquisitionFileId,
+    });
+  }
 
   if (acquisitionFile?.id && hasClaim(Claims.AGREEMENT_VIEW)) {
     tabViews.push({
-      content: <AgreementContainer acquisitionFileId={acquisitionFile.id} View={AgreementView} />,
-      key: FileTabType.AGREEMENTS,
+      content: <AgreementContainer acquisitionFileId={acquisitionFileId} View={AgreementView} />,
+      key: TabRouteType.AGREEMENTS,
       name: 'Agreements',
+      detailId: acquisitionFileId,
     });
   }
 
@@ -101,8 +141,9 @@ export const AcquisitionFileTabs: React.FC<IAcquisitionFileTabsProps> = ({
           acquisitionFile={acquisitionFile}
         />
       ),
-      key: FileTabType.STAKEHOLDERS,
+      key: TabRouteType.STAKEHOLDERS,
       name: 'Stakeholders',
+      detailId: acquisitionFileId,
     });
   }
 
@@ -118,8 +159,9 @@ export const AcquisitionFileTabs: React.FC<IAcquisitionFileTabsProps> = ({
           View={ExpropriationTabContainerView}
         />
       ),
-      key: FileTabType.EXPROPRIATION,
+      key: TabRouteType.EXPROPRIATION,
       name: 'Expropriation',
+      detailId: acquisitionFileId,
     });
   }
 
@@ -132,16 +174,18 @@ export const AcquisitionFileTabs: React.FC<IAcquisitionFileTabsProps> = ({
           View={CompensationListView}
         />
       ),
-      key: FileTabType.COMPENSATIONS,
+      key: TabRouteType.COMPENSATIONS,
       name: 'Compensation',
+      detailId: acquisitionFileId,
     });
   }
 
   if (exists(acquisitionFile?.id)) {
     tabViews.push({
       content: <SubFileListContainer acquisitionFile={acquisitionFile} View={SubFileListView} />,
-      key: FileTabType.SUB_FILES,
+      key: TabRouteType.SUB_FILES,
       name: 'Sub-Files',
+      detailId: acquisitionFileId,
     });
   }
 
@@ -154,8 +198,9 @@ export const AcquisitionFileTabs: React.FC<IAcquisitionFileTabsProps> = ({
           onSuccess={onChildSuccess}
         />
       ),
-      key: FileTabType.DOCUMENTS,
+      key: TabRouteType.DOCUMENTS,
       name: 'Documents',
+      detailId: acquisitionFileId,
     });
   }
 
@@ -164,43 +209,17 @@ export const AcquisitionFileTabs: React.FC<IAcquisitionFileTabsProps> = ({
       content: (
         <NoteListView
           type={NoteTypes.Acquisition_File}
-          entityId={acquisitionFile?.id}
+          entityId={acquisitionFileId}
           onSuccess={onChildSuccess}
         />
       ),
-      key: FileTabType.NOTES,
+      key: TabRouteType.NOTES,
       name: 'Notes',
+      detailId: acquisitionFileId,
     });
   }
 
-  const onSetActiveTab = (tab: FileTabType) => {
-    const previousTab = activeTab;
-    if (previousTab === FileTabType.COMPENSATIONS) {
-      const backUrl = location.pathname.split('/compensation-requisition')[0];
-      history.push(backUrl);
-    }
-    setActiveTab(tab);
-  };
-
-  useEffect(() => {
-    if (activeTab === FileTabType.NOTES || activeTab === FileTabType.DOCUMENTS) {
-      setFullWidthSideBar(true);
-    } else {
-      setFullWidthSideBar(false);
-    }
-    return () => setFullWidthSideBar(false);
-  }, [activeTab, setFullWidthSideBar]);
-
-  return (
-    <FileTabs
-      tabViews={tabViews}
-      defaultTabKey={defaultTab}
-      activeTab={activeTab}
-      setActiveTab={(tab: FileTabType) => {
-        onSetActiveTab(tab);
-      }}
-    />
-  );
+  return <View tabs={tabViews} defaultTabKey={defaultTab} />;
 };
 
 export default AcquisitionFileTabs;

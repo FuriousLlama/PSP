@@ -6,6 +6,7 @@ import GenericModal from '@/components/common/GenericModal';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
 import { LeaseFormModel } from '@/features/leases/models';
+import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
 import { useSecurityDepositRepository } from '@/hooks/repositories/useSecurityDepositRepository';
 import { useSecurityDepositReturnRepository } from '@/hooks/repositories/useSecurityDepositReturnRepository';
 import { ApiGen_Concepts_SecurityDeposit } from '@/models/api/generated/ApiGen_Concepts_SecurityDeposit';
@@ -22,12 +23,8 @@ import { FormLeaseDepositReturn } from './models/FormLeaseDepositReturn';
 import { LeaseDepositForm } from './models/LeaseDepositForm';
 import * as Styled from './styles';
 
-export interface IDepositsContainerProps {
-  onSuccess: () => void;
-}
-
 export const DepositsContainer: React.FunctionComponent<
-  React.PropsWithChildren<IDepositsContainerProps>
+  React.PropsWithChildren<TabInteractiveContainerProps<void>>
 > = props => {
   const { lease } = useContext(LeaseStateContext);
   const {

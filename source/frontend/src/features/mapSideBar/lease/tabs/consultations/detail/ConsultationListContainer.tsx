@@ -1,57 +1,50 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useHistory, useRouteMatch } from 'react-router-dom';
 
+import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
 import { useConsultationProvider } from '@/hooks/repositories/useConsultationProvider';
 import { ApiGen_Concepts_ConsultationLease } from '@/models/api/generated/ApiGen_Concepts_ConsultationLease';
 import { isValidId } from '@/utils';
 
-import { LeasePageNames } from '../../../LeaseContainer';
 import { IConsultationListViewProps } from './ConsultationListView';
 
-export interface IConsultationListProps {
-  leaseId: number;
-  View: React.FunctionComponent<React.PropsWithChildren<IConsultationListViewProps>>;
-}
-
 export const ConsultationListContainer: React.FunctionComponent<
-  React.PropsWithChildren<IConsultationListProps>
-> = ({ leaseId, View }) => {
+  React.PropsWithChildren<TabInteractiveContainerProps<IConsultationListViewProps>>
+> = ({ fileId, pathResolverHook, View }) => {
   const [leaseConsultations, setLeaseConsultations] = useState<ApiGen_Concepts_ConsultationLease[]>(
     [],
   );
+
+  const pathResolver = pathResolverHook();
 
   const {
     getLeaseConsultations: { execute: getConsultations, loading: loadingConsultations },
     deleteLeaseConsultation: { execute: deleteConsultation, loading: deletingConsultation },
   } = useConsultationProvider();
 
-  if (!isValidId(leaseId)) {
+  if (!isValidId(fileId)) {
     throw new Error('Unable to determine id of current file.');
   }
 
   const fetchData = useCallback(async () => {
-    const consultations = await getConsultations(leaseId);
+    const consultations = await getConsultations(fileId);
 
     if (consultations) {
       setLeaseConsultations(consultations);
     }
-  }, [leaseId, getConsultations]);
-
-  const history = useHistory();
-  const match = useRouteMatch();
+  }, [fileId, getConsultations]);
 
   const handleConsultationAdd = async () => {
-    history.push(`${match.url}/${LeasePageNames.CONSULTATIONS}/add`);
+    pathResolver.addDetail('lease', fileId, 'consultations');
   };
 
   const handleConsultationEdit = async (consultationId: number) => {
-    history.push(`${match.url}/${LeasePageNames.CONSULTATIONS}/${consultationId}/edit`);
+    pathResolver.editDetail('lease', fileId, 'consultations', consultationId);
   };
 
   const handleConsultationDeleted = async (consultationId: number) => {
     if (isValidId(consultationId)) {
-      await deleteConsultation(leaseId, consultationId);
-      const updatedConsultations = await getConsultations(leaseId);
+      await deleteConsultation(fileId, consultationId);
+      const updatedConsultations = await getConsultations(fileId);
       if (updatedConsultations) {
         setLeaseConsultations(updatedConsultations);
       }
@@ -66,7 +59,7 @@ export const ConsultationListContainer: React.FunctionComponent<
     return loadingConsultations || deletingConsultation;
   }, [deletingConsultation, loadingConsultations]);
 
-  return leaseId ? (
+  return fileId ? (
     <View
       loading={isLoading}
       consultations={leaseConsultations}

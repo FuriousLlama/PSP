@@ -8,7 +8,7 @@ export interface TabFileView {
   name: string;
 }
 
-interface IFileTabsProps {
+export interface IFileTabsProps {
   defaultTabKey: FileTabType;
   tabViews: TabFileView[];
   activeTab: FileTabType;

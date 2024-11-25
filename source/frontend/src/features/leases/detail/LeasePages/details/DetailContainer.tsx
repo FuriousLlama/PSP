@@ -1,25 +1,19 @@
-import { FormikProps } from 'formik/dist/types';
 import React, { useCallback, useContext } from 'react';
 
-import { ProtectedComponent } from '@/components/common/ProtectedComponent';
-import { Claims } from '@/constants/claims';
-import { LeaseDetailsView } from '@/features/leases';
 import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
-import { UpdateLeaseContainer } from '@/features/leases/detail/LeasePages/details/UpdateLeaseContainer';
-import { LeaseFormModel } from '@/features/leases/models';
 import { useGenerateLicenceOfOccupation } from '@/features/mapSideBar/acquisition/common/GenerateForm/hooks/useGenerateLicenceOfOccupation';
-import { LeasePageProps } from '@/features/mapSideBar/lease/LeaseContainer';
+import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { exists } from '@/utils';
 
-import UpdateLeaseForm from './UpdateLeaseForm';
+import { ILeaseDetailsViewProps } from './LeaseDetailsForm';
 
-const DetailContainer: React.FunctionComponent<React.PropsWithChildren<LeasePageProps<void>>> = ({
-  isEditing,
-  onEdit,
-  formikRef,
-}) => {
+const LeaseDetailContainer: React.FunctionComponent<
+  React.PropsWithChildren<TabInteractiveContainerProps<ILeaseDetailsViewProps>>
+> = ({ fileId, pathResolverHook, View }) => {
   const { lease } = useContext(LeaseStateContext);
+
+  const resolver = pathResolverHook();
   const generateLicenceOfOccupation = useGenerateLicenceOfOccupation();
 
   const onGenerate = useCallback(
@@ -31,17 +25,11 @@ const DetailContainer: React.FunctionComponent<React.PropsWithChildren<LeasePage
     [generateLicenceOfOccupation],
   );
 
-  return !!isEditing && !!onEdit ? (
-    <ProtectedComponent claims={[Claims.LEASE_EDIT]}>
-      <UpdateLeaseContainer
-        View={UpdateLeaseForm}
-        onEdit={onEdit}
-        formikRef={formikRef as React.RefObject<FormikProps<LeaseFormModel>>}
-      />
-    </ProtectedComponent>
-  ) : (
-    <LeaseDetailsView lease={lease} onGenerate={onGenerate} />
-  );
+  const onEdit = () => {
+    resolver.editDetails('lease', fileId, 'checklist');
+  };
+
+  return <View lease={lease} onEdit={onEdit} onGenerate={onGenerate} />;
 };
 
-export default DetailContainer;
+export default LeaseDetailContainer;

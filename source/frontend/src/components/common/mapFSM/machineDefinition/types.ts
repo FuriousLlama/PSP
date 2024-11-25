@@ -19,6 +19,9 @@ export enum SideBarType {
   DISPOSITION = 'DISPOSITION',
   SUBDIVISION = 'SUBDIVISION',
   CONSOLIDATION = 'CONSOLIDATION',
+  FILE_INFORMATION = 'FILE_INFORMATION',
+  FILE_CREATE = 'FILE_CREATE',
+  FILE_EDIT_PROPERTIES = 'FILE_EDIT_PROPERTIES',
 }
 
 // Local context for the machine - Not related to React Context!

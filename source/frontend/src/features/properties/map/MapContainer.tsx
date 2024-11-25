@@ -1,10 +1,12 @@
 import clsx from 'classnames';
 import React, { useCallback, useEffect, useState } from 'react';
 import { MapContainerProps } from 'react-leaflet';
+import { useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 
 import DraftSvg from '@/assets/images/pins/icon-draft.svg';
 import RelocationSvg from '@/assets/images/pins/icon-relocate.svg';
+import { SideBarType } from '@/components/common/mapFSM/machineDefinition/types';
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import { FilterContentContainer } from '@/components/maps/leaflet/Control/AdvancedFilter/FilterContentContainer';
 import { FilterContentForm } from '@/components/maps/leaflet/Control/AdvancedFilter/FilterContentForm';
@@ -17,6 +19,7 @@ import CompensationRequisitionRouter from '@/features/mapSideBar/router/Compensa
 import PropertyActivityRouter from '@/features/mapSideBar/router/PropertyActivityRouter';
 import RightSideLayout from '@/features/rightSideLayout/RightSideLayout';
 import { usePimsPropertyRepository } from '@/hooks/repositories/usePimsPropertyRepository';
+import useTraceUpdate from '@/hooks/util/useTraceUpdate';
 import { Api_PropertyFilterCriteria } from '@/models/api/ProjectFilterCriteria';
 
 enum MapCursors {
@@ -25,7 +28,9 @@ enum MapCursors {
   DEFAULT = 'default',
 }
 
-const MapContainer: React.FC<React.PropsWithChildren<MapContainerProps>> = () => {
+let count = 0;
+
+const MapContainer: React.FC<React.PropsWithChildren<MapContainerProps>> = props => {
   const [showActionBar, setShowActionBar] = useState(false);
   const {
     isSelecting,
@@ -38,7 +43,14 @@ const MapContainer: React.FC<React.PropsWithChildren<MapContainerProps>> = () =>
     advancedSearchCriteria,
     isMapVisible,
     isLoading,
+    openSidebar,
+    closeSidebar,
   } = useMapStateMachine();
+
+  console.log('MapContainer', count);
+  count++;
+
+  useTraceUpdate(props);
 
   const { getMatchingProperties } = usePimsPropertyRepository();
 
@@ -66,6 +78,16 @@ const MapContainer: React.FC<React.PropsWithChildren<MapContainerProps>> = () =>
     : isRepositioning
     ? MapCursors.REPOSITION
     : MapCursors.DEFAULT;
+
+  const match = useRouteMatch();
+
+  useEffect(() => {
+    if (match.params['id'] === 'sidebar') {
+      openSidebar(SideBarType.NOT_DEFINED);
+    } else {
+      closeSidebar();
+    }
+  }, [closeSidebar, match.params, openSidebar]);
 
   return (
     <StyleMapView className={clsx(cursorClass)}>

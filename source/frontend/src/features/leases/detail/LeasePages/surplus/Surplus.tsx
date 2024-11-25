@@ -1,10 +1,10 @@
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { Section } from '@/components/common/Section/Section';
 import { ColumnWithProps, Table } from '@/components/Table';
 import { PidCell } from '@/components/Table/PidCell';
-import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
+import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
 import { usePropertyLeaseRepository } from '@/hooks/repositories/usePropertyLeaseRepository';
 import { isValidIsoDateTime, prettyFormatDate, stringToFragment } from '@/utils';
 
@@ -54,14 +54,15 @@ const columns: ColumnWithProps<IDeclaration>[] = [
   },
 ];
 
-const Surplus: React.FunctionComponent<React.PropsWithChildren<unknown>> = () => {
-  const { lease } = useContext(LeaseStateContext);
+const Surplus: React.FunctionComponent<
+  React.PropsWithChildren<TabInteractiveContainerProps<void>>
+> = ({ fileId }) => {
   const {
     getPropertyLeases: { execute: getPropertyLeases, response: properties, loading },
   } = usePropertyLeaseRepository();
   useEffect(() => {
-    lease?.id && getPropertyLeases(lease.id);
-  }, [lease, getPropertyLeases]);
+    fileId && getPropertyLeases(fileId);
+  }, [fileId, getPropertyLeases]);
 
   const declarations: IDeclaration[] = (properties ?? []).map<IDeclaration>(x => {
     return {

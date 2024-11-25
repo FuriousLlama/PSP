@@ -3,25 +3,45 @@ import noop from 'lodash/noop';
 import React from 'react';
 import styled from 'styled-components';
 
+import { ApiGen_CodeTypes_LeaseStatusTypes } from '@/models/api/generated/ApiGen_CodeTypes_LeaseStatusTypes';
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { defaultApiLease } from '@/models/defaultInitializers';
 import { exists } from '@/utils';
 
+import LeaseEditButton from '../../LeaseEditButton';
 import DetailAdministration from './DetailAdministration';
 import { DetailFeeDetermination } from './DetailFeeDetermination';
-import LeaseDetailView from './LeaseDetailView';
+import { LeaseDetailSummaryView } from './LeaseDetailView';
 import { LeaseRenewalsView } from './LeaseRenewalsView';
 import PropertiesInformation from './PropertiesInformation';
 
-export interface ILeaseDetailsFormProps {
+export interface ILeaseDetailsViewProps {
   lease?: ApiGen_Concepts_Lease;
   onGenerate: (lease?: ApiGen_Concepts_Lease) => void;
+  onEdit: () => void;
 }
 
-export const LeaseDetailsView: React.FunctionComponent<ILeaseDetailsFormProps> = ({
+export const LeaseDetailsView: React.FunctionComponent<ILeaseDetailsViewProps> = ({
   lease,
   onGenerate,
+  onEdit,
 }) => {
+  const displayLeaseTerminationMessage = () => {
+    return (
+      lease &&
+      (lease.fileStatusTypeCode.id === ApiGen_CodeTypes_LeaseStatusTypes.DISCARD ||
+        lease.fileStatusTypeCode.id === ApiGen_CodeTypes_LeaseStatusTypes.TERMINATED)
+    );
+  };
+
+  const getTerminationMessage = (): string => {
+    if (lease.fileStatusTypeCode.id === ApiGen_CodeTypes_LeaseStatusTypes.DISCARD) {
+      return lease.cancellationReason;
+    } else {
+      return lease.terminationReason;
+    }
+  };
+
   if (!exists(lease)) {
     return <></>;
   }
@@ -33,7 +53,13 @@ export const LeaseDetailsView: React.FunctionComponent<ILeaseDetailsFormProps> =
       onSubmit={noop}
     >
       <StyledDetails>
-        <LeaseDetailView lease={lease} onGenerate={onGenerate} />
+        <StyledTerminationWrapper>
+          {displayLeaseTerminationMessage() && (
+            <StyledTerminationMessage>{getTerminationMessage()}</StyledTerminationMessage>
+          )}
+          <LeaseEditButton onEdit={onEdit} />
+        </StyledTerminationWrapper>
+        <LeaseDetailSummaryView lease={lease} onGenerate={onGenerate} />
         <LeaseRenewalsView renewals={lease.renewals} />
         <PropertiesInformation disabled={true} />
         <DetailAdministration disabled={true} />
@@ -72,6 +98,26 @@ export const StyledDetails = styled.form`
       }
     }
   }
+`;
+
+const StyledTerminationWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+`;
+
+const StyledTerminationMessage = styled.div`
+  flex-grow: 1;
+  margin-top: 1.5rem;
+  margin-left: 1.5rem;
+  margin-right: 1.5rem;
+  padding: 0.5rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  align-content: center;
+  text-align: center;
+  font-style: italic;
 `;
 
 export default LeaseDetailsView;

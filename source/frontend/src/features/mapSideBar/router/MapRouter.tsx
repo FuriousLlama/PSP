@@ -1,6 +1,6 @@
 import queryString from 'query-string';
 import { memo, useCallback, useContext, useEffect, useMemo } from 'react';
-import { matchPath, Switch, useHistory, useLocation } from 'react-router-dom';
+import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom';
 
 import { SideBarType } from '@/components/common/mapFSM/machineDefinition/types';
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
@@ -11,14 +11,10 @@ import MotiInventoryContainer from '@/features/mapSideBar/property/MotiInventory
 import { isValidId } from '@/utils';
 import AppRoute from '@/utils/AppRoute';
 
-import AcquisitionContainer from '../acquisition/AcquisitionContainer';
-import AcquisitionView from '../acquisition/AcquisitionView';
-import AddAcquisitionContainer from '../acquisition/add/AddAcquisitionContainer';
+import AcquistionRouter from '../acquisition/router/AcquisitionRouter';
 import AddConsolidationContainer from '../consolidation/AddConsolidationContainer';
 import AddConsolidationView from '../consolidation/AddConsolidationView';
 import { SideBarContext } from '../context/sidebarContext';
-import AddDispositionContainer from '../disposition/add/AddDispositionContainer';
-import AddDispositionContainerView from '../disposition/add/AddDispositionContainerView';
 import DispositionContainer from '../disposition/DispositionContainer';
 import DispositionView from '../disposition/DispositionView';
 import LeaseContainer from '../lease/LeaseContainer';
@@ -194,7 +190,7 @@ export const MapRouter: React.FunctionComponent = memo(() => {
         title={'Create Research File'}
       />
       <AppRoute
-        path={`/mapview/sidebar/research/:researchId`}
+        path={`/mapview/sidebar/research/:fileId`}
         customRender={({ match }) => (
           <ResearchContainer
             researchFileId={Number(match.params.researchId)}
@@ -206,50 +202,12 @@ export const MapRouter: React.FunctionComponent = memo(() => {
         key={'Research'}
         title={'Research File'}
       />
-      <AppRoute
-        path={`/mapview/sidebar/acquisition/new`}
-        customRender={() => (
-          <AddAcquisitionContainer
-            onClose={onClose}
-            onSuccess={(newAcquisitionId: number) => {
-              history.push(`/mapview/sidebar/acquisition/${newAcquisitionId}`);
-            }}
-          />
-        )}
-        claim={Claims.ACQUISITION_ADD}
-        key={'NewAcquisition'}
-        title={'Create Acquisition File'}
+      <Route
+        path={`/mapview/sidebar/acquisition`}
+        render={() => <AcquistionRouter onClose={onClose} />}
       />
       <AppRoute
-        path={`/mapview/sidebar/acquisition/:id`}
-        customRender={({ match }) => (
-          <AcquisitionContainer
-            acquisitionFileId={Number(match.params.id)}
-            onClose={onClose}
-            View={AcquisitionView}
-          />
-        )}
-        claim={Claims.ACQUISITION_VIEW}
-        key={'Acquisition'}
-        title={'Acquisition File'}
-      />
-      <AppRoute
-        path={`/mapview/sidebar/disposition/new`}
-        customRender={() => (
-          <AddDispositionContainer
-            onClose={onClose}
-            View={AddDispositionContainerView}
-            onSuccess={(newDispositionId: number) => {
-              history.replace(`/mapview/sidebar/disposition/${newDispositionId}`);
-            }}
-          />
-        )}
-        claim={Claims.DISPOSITION_ADD}
-        key={'NewDisposition'}
-        title={'Create Disposition File'}
-      />
-      <AppRoute
-        path={`/mapview/sidebar/disposition/:id`}
+        path={`/mapview/sidebar/disposition/:fileId`}
         customRender={({ match }) => (
           <DispositionContainer
             dispositionFileId={Number(match.params.id)}

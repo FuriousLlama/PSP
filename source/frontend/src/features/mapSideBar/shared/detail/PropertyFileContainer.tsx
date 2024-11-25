@@ -17,7 +17,6 @@ import { PROPERTY_TYPES, useComposedProperties } from '@/hooks/repositories/useC
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 import { useLeaseStakeholderRepository } from '@/hooks/repositories/useLeaseStakeholderRepository';
 import { ApiGen_CodeTypes_FileTypes } from '@/models/api/generated/ApiGen_CodeTypes_FileTypes';
-import { ApiGen_Concepts_FileProperty } from '@/models/api/generated/ApiGen_Concepts_FileProperty';
 import { ApiGen_Concepts_ResearchFileProperty } from '@/models/api/generated/ApiGen_Concepts_ResearchFileProperty';
 import { exists, getLatLng, isValidId } from '@/utils';
 
@@ -25,21 +24,24 @@ import { getLeaseInfo, LeaseAssociationInfo } from '../../property/PropertyConta
 import CrownDetailsTabView from '../../property/tabs/crown/CrownDetailsTabView';
 import PropertyResearchTabView from '../../property/tabs/propertyResearch/detail/PropertyResearchTabView';
 
-export interface IPropertyFileContainerProps {
-  fileProperty: ApiGen_Concepts_FileProperty;
-  setEditing: () => void;
-  View: React.FunctionComponent<React.PropsWithChildren<IInventoryTabsProps>>;
+export interface IPropertyFileTabContainerProps {
+  filePropertyId: number;
+  fileType: ApiGen_CodeTypes_FileTypes;
   customTabs: TabInventoryView[];
   defaultTab: InventoryTabNames;
-  fileContext?: ApiGen_CodeTypes_FileTypes;
+  View: React.FunctionComponent<React.PropsWithChildren<IInventoryTabsProps>>;
 }
 
-export const PropertyFileContainer: React.FunctionComponent<
-  IPropertyFileContainerProps
-> = props => {
-  const pid = props.fileProperty?.property?.pid ?? undefined;
-  const id = props.fileProperty?.property?.id ?? undefined;
-  const location = props.fileProperty?.property?.location ?? undefined;
+export const PropertyFileTabContainer: React.FunctionComponent<IPropertyFileTabContainerProps> = ({
+  filePropertyId,
+  fileType,
+  customTabs,
+  defaultTab,
+  View,
+}) => {
+  const pid = fileProperty?.property?.pid ?? undefined;
+  const id = fileProperty?.property?.id ?? undefined;
+  const location = fileProperty?.property?.location ?? undefined;
   const latLng = useMemo(() => getLatLng(location) ?? undefined, [location]);
 
   const composedProperties = useComposedProperties({
@@ -124,12 +126,12 @@ export const PropertyFileContainer: React.FunctionComponent<
     name: 'Value',
   });
 
-  if (props.fileContext === ApiGen_CodeTypes_FileTypes.Research) {
+  if (fileType === ApiGen_CodeTypes_FileTypes.Research) {
     tabViews.push({
       content: (
         <PropertyResearchTabView
-          researchFileProperty={props.fileProperty as ApiGen_Concepts_ResearchFileProperty}
-          setEditMode={props.setEditing}
+          researchFileProperty={fileProperty as ApiGen_Concepts_ResearchFileProperty}
+          setEditMode={() => console.log('editing!')}
         />
       ),
       key: InventoryTabNames.research,
@@ -137,7 +139,7 @@ export const PropertyFileContainer: React.FunctionComponent<
     });
   }
 
-  tabViews.push(...props.customTabs);
+  tabViews.push(...customTabs);
 
   if (isValidId(id)) {
     tabViews.push({
@@ -171,33 +173,25 @@ export const PropertyFileContainer: React.FunctionComponent<
     });
   }
 
-  if (props.fileContext === ApiGen_CodeTypes_FileTypes.Acquisition) {
+  if (fileType === ApiGen_CodeTypes_FileTypes.Acquisition) {
     tabViews.push({
-      content: (
-        <TakesDetailContainer
-          fileProperty={props.fileProperty}
-          View={TakesDetailView}
-        ></TakesDetailContainer>
-      ),
+      content: <TakesDetailContainer fileProperty={fileProperty} View={TakesDetailView} />,
       key: InventoryTabNames.takes,
       name: 'Takes',
     });
   }
 
-  const InventoryTabsView = props.View;
-
   const params = useParams<{ tab?: string }>();
-  const activeTab =
-    Object.values(InventoryTabNames).find(t => t === params.tab) ?? props.defaultTab;
+  const activeTab = Object.values(InventoryTabNames).find(t => t === params.tab) ?? defaultTab;
 
   return (
-    <InventoryTabsView
+    <View
       loading={composedProperties.composedLoading}
       tabViews={tabViews}
-      defaultTabKey={props.defaultTab}
       activeTab={activeTab}
+      defaultTabKey={InventoryTabNames.property}
     />
   );
 };
 
-export default PropertyFileContainer;
+export default PropertyFileTabContainer;

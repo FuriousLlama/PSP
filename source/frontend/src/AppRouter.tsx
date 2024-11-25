@@ -64,7 +64,11 @@ const DispositionListView = lazy(() =>
   componentLoader(import('@/features/disposition/list/DispositionListView'), 2),
 );
 
+let counter = 0;
 const AppRouter: FC<PropsWithChildren<unknown>> = () => {
+  console.log('AppRouter', counter);
+  counter++;
+
   const location = useLocation();
   useLayoutEffect(() => {
     window.scrollTo(0, 0);

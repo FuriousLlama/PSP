@@ -1,15 +1,16 @@
 import { FormikProps } from 'formik/dist/types';
 import { find, noop } from 'lodash';
 import moment from 'moment';
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { FaExclamationCircle, FaPlusCircle } from 'react-icons/fa';
 
 import GenericModal, { ModalSize } from '@/components/common/GenericModal';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
+import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import { ModalContext } from '@/contexts/modalContext';
 import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
 import { LeaseFormModel } from '@/features/leases/models';
-import { LeasePageProps } from '@/features/mapSideBar/lease/LeaseContainer';
+import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
 import { useLeasePaymentRepository } from '@/hooks/repositories/useLeasePaymentRepository';
 import { useLeasePeriodRepository } from '@/hooks/repositories/useLeasePeriodRepository';
 import useDeepCompareEffect from '@/hooks/util/useDeepCompareEffect';
@@ -29,13 +30,20 @@ import { IPeriodPaymentsViewProps } from './table/periods/PaymentPeriodsView';
  * Orchestrates the display and modification of lease periods and payments.
  */
 export const PeriodPaymentsContainer: React.FunctionComponent<
-  LeasePageProps<IPeriodPaymentsViewProps>
-> = ({ formikRef, onSuccess, componentView }) => {
+  TabInteractiveContainerProps<IPeriodPaymentsViewProps>
+> = ({ onSuccess, View }) => {
   const { lease } = useContext(LeaseStateContext);
   const [editModalValues, setEditModalValues] = useState<FormLeasePeriod | undefined>(undefined);
   const [editPaymentModalValues, setEditPaymentModalValues] = useState<
     FormLeasePayment | undefined
   >(undefined);
+
+  const mapMachine = useMapStateMachine();
+  //mapMachine.setFullWidthSideBar(true);
+  //
+  useEffect(() => {
+    mapMachine.setFullWidthSideBar(true);
+  }, []);
 
   const { updateLeasePeriod, addLeasePeriod, getLeasePeriods, deleteLeasePeriod } =
     useLeasePeriodRepository();
@@ -44,6 +52,8 @@ export const PeriodPaymentsContainer: React.FunctionComponent<
   const { updateLeasePayment, addLeasePayment } = useLeasePaymentRepository();
   const { getSystemConstant } = useSystemConstants();
   const gstConstant = getSystemConstant(SystemConstants.GST);
+
+  const formikRef = useRef<FormikProps<any>>(null);
 
   const leaseId = lease?.id;
   const getLeasePeriodsFunc = getLeasePeriods.execute;
@@ -203,7 +213,6 @@ export const PeriodPaymentsContainer: React.FunctionComponent<
     lease,
   ]);
 
-  const View = componentView;
   return (
     <>
       <LoadingBackdrop show={getLeasePeriods.loading} parentScreen />
@@ -222,7 +231,7 @@ export const PeriodPaymentsContainer: React.FunctionComponent<
           type: lease?.type ?? null,
         })}
         formikRef={formikRef as React.RefObject<FormikProps<LeaseFormModel>>}
-      ></View>
+      />
       <PaymentModal
         displayModal={!!editPaymentModalValues}
         initialValues={editPaymentModalValues}

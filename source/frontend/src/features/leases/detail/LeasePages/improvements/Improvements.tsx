@@ -1,4 +1,5 @@
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
+import { Section } from '@/components/common/Section/Section';
 import * as API from '@/constants/API';
 import useLookupCodeHelpers from '@/hooks/useLookupCodeHelpers';
 import { ApiGen_Concepts_PropertyImprovement } from '@/models/api/generated/ApiGen_Concepts_PropertyImprovement';
@@ -6,12 +7,13 @@ import { ApiGen_Concepts_PropertyImprovement } from '@/models/api/generated/ApiG
 import Improvement from './components/Improvement/Improvement';
 import { ILeaseImprovementForm } from './models';
 
-export interface IImprovementsProps {
+export interface IImprovementsViewProps {
   improvements: ApiGen_Concepts_PropertyImprovement[];
+  onEdit: () => void;
   loading: boolean;
 }
 
-export const Improvements: React.FunctionComponent<IImprovementsProps> = ({
+export const ImprovementsView: React.FunctionComponent<IImprovementsViewProps> = ({
   improvements,
   loading,
 }) => {
@@ -35,6 +37,17 @@ export const Improvements: React.FunctionComponent<IImprovementsProps> = ({
     },
   );
 
+  if (!improvements?.length) {
+    return (
+      <Section>
+        <p>
+          There are no commercial, residential, or other improvements indicated with this
+          lease/licence.
+        </p>
+      </Section>
+    );
+  }
+
   return (
     <>
       <LoadingBackdrop show={loading} parentScreen />
@@ -45,4 +58,4 @@ export const Improvements: React.FunctionComponent<IImprovementsProps> = ({
   );
 };
 
-export default Improvements;
+export default ImprovementsView;

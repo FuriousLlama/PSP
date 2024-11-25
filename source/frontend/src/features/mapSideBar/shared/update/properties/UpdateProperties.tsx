@@ -25,7 +25,8 @@ import { AddressForm, FileForm, PropertyForm } from '../../models';
 import SidebarFooter from '../../SidebarFooter';
 import { UpdatePropertiesYupSchema } from './UpdatePropertiesYupSchema';
 
-export interface IUpdatePropertiesProps {
+export interface IUpdatePropertiesViewProps {
+  isFileLoading: boolean;
   file: ApiGen_Concepts_File;
   setIsShowingPropertySelector: (isShowing: boolean) => void;
   onSuccess: (updateProperties?: boolean, updateFile?: boolean) => void;
@@ -34,14 +35,12 @@ export interface IUpdatePropertiesProps {
     userOverrideCodes: UserOverrideCode[],
   ) => Promise<ApiGen_Concepts_File | undefined>;
   canRemove: (propertyId: number) => Promise<boolean>;
-  confirmBeforeAdd: (propertyForm: PropertyForm) => Promise<boolean>;
+  confirmBeforeAdd: (fileId: number) => Promise<boolean>;
   confirmBeforeAddMessage?: React.ReactNode;
-  formikRef?: React.RefObject<FormikProps<any>>;
 }
 
-export const UpdateProperties: React.FunctionComponent<IUpdatePropertiesProps> = props => {
-  const localRef = useRef<FormikProps<FileForm>>(null);
-  const formikRef = props.formikRef ? props.formikRef : localRef;
+export const UpdatePropertiesView: React.FunctionComponent<IUpdatePropertiesViewProps> = props => {
+  const formikRef = useRef<FormikProps<FileForm>>(null);
   const formFile = FileForm.fromApi(props.file);
 
   const [showSaveConfirmModal, setShowSaveConfirmModal] = useState<boolean>(false);
@@ -128,7 +127,7 @@ export const UpdateProperties: React.FunctionComponent<IUpdatePropertiesProps> =
 
   return (
     <>
-      <LoadingBackdrop show={bcaLoading} />
+      <LoadingBackdrop show={props.isFileLoading || bcaLoading} />
       <MapSideBarLayout
         title={'Property selection'}
         icon={undefined}
@@ -171,7 +170,7 @@ export const UpdateProperties: React.FunctionComponent<IUpdatePropertiesProps> =
                                   : undefined;
                               }
 
-                              if (await props.confirmBeforeAdd(formProperty)) {
+                              if (await props.confirmBeforeAdd(formProperty.apiId)) {
                                 // Require user confirmation before adding property to file
                                 setModalContent({
                                   variant: 'warning',
@@ -284,4 +283,4 @@ export const UpdateProperties: React.FunctionComponent<IUpdatePropertiesProps> =
   );
 };
 
-export default UpdateProperties;
+export default UpdatePropertiesView;

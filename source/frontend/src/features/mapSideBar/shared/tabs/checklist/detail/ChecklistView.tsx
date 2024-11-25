@@ -8,47 +8,39 @@ import { Section } from '@/components/common/Section/Section';
 import { SectionField } from '@/components/common/Section/SectionField';
 import { StyledEditWrapper, StyledSummarySection } from '@/components/common/Section/SectionStyles';
 import { UserNameTooltip } from '@/components/common/UserNameTooltip';
-import { Claims } from '@/constants/index';
-import { useKeycloakWrapper } from '@/hooks/useKeycloakWrapper';
 import { useLookupCodeHelpers } from '@/hooks/useLookupCodeHelpers';
 import { ApiGen_CodeTypes_ChecklistItemStatusTypes } from '@/models/api/generated/ApiGen_CodeTypes_ChecklistItemStatusTypes';
-import { ApiGen_Concepts_FileWithChecklist } from '@/models/api/generated/ApiGen_Concepts_FileWithChecklist';
+import { ApiGen_Concepts_FileChecklistItem } from '@/models/api/generated/ApiGen_Concepts_FileChecklistItem';
 import { prettyFormatUTCDate } from '@/utils';
 import { isDefaultState, lastModifiedBy, sortByDisplayOrder } from '@/utils/fileUtils';
 
 import { StyledChecklistItemStatus, StyledSectionCentered } from './styles';
 
 export interface IChecklistViewProps {
-  apiFile?: ApiGen_Concepts_FileWithChecklist;
+  checklistItems: ApiGen_Concepts_FileChecklistItem[];
   onEdit: () => void;
+  canEdit: boolean;
   prefix?: string;
   sectionTypeName: string;
-  editClaim: Claims;
-  showEditButton: boolean;
 }
 
 export const ChecklistView: React.FC<IChecklistViewProps> = ({
-  apiFile,
+  checklistItems,
   prefix,
   onEdit,
+  canEdit,
   sectionTypeName,
-  editClaim,
-  showEditButton,
 }) => {
-  const keycloak = useKeycloakWrapper();
   const { getByType } = useLookupCodeHelpers();
   const sectionTypes = getByType(sectionTypeName);
 
-  const checklist = apiFile?.fileChecklistItems || [];
-  const lastUpdated = lastModifiedBy(checklist);
+  const lastUpdated = lastModifiedBy(checklistItems);
 
   return (
     <StyledSummarySection>
-      {showEditButton && (
+      {canEdit && (
         <StyledEditWrapper className="mr-3 my-1">
-          {keycloak.hasClaim(editClaim) ? (
-            <EditButton title="Edit checklist" onClick={onEdit} />
-          ) : null}
+          <EditButton title="Edit checklist" onClick={onEdit} />
         </StyledEditWrapper>
       )}
       {lastUpdated && (
@@ -72,7 +64,7 @@ export const ChecklistView: React.FC<IChecklistViewProps> = ({
           isCollapsable
           initiallyExpanded
         >
-          {checklist
+          {checklistItems
             .filter(checklistItem => checklistItem.itemType?.sectionCode === section.id)
             .sort(sortByDisplayOrder)
             .map((checklistItem, j) => (

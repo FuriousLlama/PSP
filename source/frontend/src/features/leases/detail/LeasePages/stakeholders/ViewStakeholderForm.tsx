@@ -12,7 +12,7 @@ import { FormStakeholder } from './models';
 import TenantOrganizationContactInfo from './StakeholderOrganizationContactInfo';
 import TenantPersonContactInfo from './StakeholderPersonContactInfo';
 
-export interface ITenantProps {
+export interface ILeaseStakeholderViewProps {
   nameSpace?: string;
   stakeholders: FormStakeholder[];
   leaseStakeholderTypes?: ApiGen_Concepts_LeaseStakeholderType[];
@@ -24,8 +24,8 @@ export interface ITenantProps {
  * Tenant lease page displays all tenant information (persons and organizations)
  * @param {ITenantProps} param0
  */
-export const ViewStakeholderForm: React.FunctionComponent<
-  React.PropsWithChildren<ITenantProps>
+export const LeaseStakeholderView: React.FunctionComponent<
+  React.PropsWithChildren<ILeaseStakeholderViewProps>
 > = ({ nameSpace, stakeholders, loading, leaseStakeholderTypes, isPayableLease }) => {
   return (
     <Formik
@@ -82,4 +82,4 @@ const StyledSection = styled(Section)`
   margin-bottom: 0;
 `;
 
-export default ViewStakeholderForm;
+export default LeaseStakeholderView;

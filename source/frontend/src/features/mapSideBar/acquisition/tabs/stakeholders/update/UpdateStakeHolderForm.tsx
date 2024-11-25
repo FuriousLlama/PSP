@@ -1,4 +1,4 @@
-import { FieldArray, Formik, FormikHelpers, FormikProps, getIn } from 'formik';
+import { FieldArray, Formik, FormikHelpers, getIn } from 'formik';
 import { Fragment } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { FaTrash } from 'react-icons/fa';
@@ -24,7 +24,6 @@ import { InterestHolderForm, StakeHolderForm } from './models';
 import { UpdateStakeHolderYupSchema } from './UpdateStakeHolderYupSchema';
 
 export interface IUpdateStakeHolderFormProps {
-  formikRef: React.Ref<FormikProps<StakeHolderForm>>;
   file: ApiGen_Concepts_AcquisitionFile;
   onSubmit: (
     interestHolders: StakeHolderForm,
@@ -35,7 +34,6 @@ export interface IUpdateStakeHolderFormProps {
 }
 
 export const UpdateStakeHolderForm: React.FunctionComponent<IUpdateStakeHolderFormProps> = ({
-  formikRef,
   file,
   onSubmit,
   interestHolders,
@@ -46,7 +44,6 @@ export const UpdateStakeHolderForm: React.FunctionComponent<IUpdateStakeHolderFo
   return (
     <Formik<StakeHolderForm>
       enableReinitialize
-      innerRef={formikRef}
       initialValues={interestHolders}
       validationSchema={UpdateStakeHolderYupSchema}
       onSubmit={async (values, formikHelpers) => {

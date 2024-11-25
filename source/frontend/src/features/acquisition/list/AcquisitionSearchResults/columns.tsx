@@ -36,7 +36,7 @@ export const columns: ColumnWithProps<AcquisitionSearchResultModel>[] = [
       const { hasClaim } = useKeycloakWrapper();
       if (hasClaim(Claims.ACQUISITION_VIEW)) {
         return (
-          <Link to={`/mapview/sidebar/acquisition/${props.row.original.id}`}>
+          <Link to={`/mapview/sidebar/acquisition/${props.row.original.id}/file`}>
             {props.row.original.fileNumber}
           </Link>
         );

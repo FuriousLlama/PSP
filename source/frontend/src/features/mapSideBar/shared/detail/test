@@ -1,0 +1,78 @@
+filetype/fileId/property/filePropertyId/detail
+filetype/fileId/detail/detailId
+
+<filetype>/[fileId]/<detailType>/[detailId]/
+<filetype>/[fileId]/<detailType>/[detailId]/edit
+
+<filetype>/[fileId]/fileProperty/[filePropertyId]/property/****
+
+
+property/[propertyId]/edit
+property/[propertyId]/<detailType>/[detailId]/edit
+
+PropertyRouter
+ property/[propertyId]/edit
+ property/[propertyId]/<detailType>/[detailId]/edit
+
+
+
+
+URL to reflect state of the UI
+
+Sidebar (needs router) [propertyView|fileView|fileCreate]
+  PropertyView
+    Header
+    BodyView (needs router) [view|edit]
+       DetailTabs (needs router) [detailTypes]
+         Detail
+
+       EditView
+
+  FileView
+    FileHeader
+    FileBody (needs router) [view|edit]
+      Navigator
+        NavSelector
+        NavDisplay (needs router) [file|property]
+          DetailTabs (needs router) [detailTypes
+             Detail
+          PropertyTabs
+
+      FileEdit (needs router) [detailTypes]
+        all-the-details
+
+  CreateView (needs router) [fileTypes]
+    Lease
+    Disposition
+    Research
+    Acquisition
+
+
+
+
+sidebar/create/<fileType>
+
+sidebar/<fileType>/view/property/(property routes)
+sidebar/<fileType>/view/file/<detailType>
+
+sidebar/<fileType>/edit/<detailType>
+
+// File with property Nav
+sidebar/<fileType>/view/property/
+                        property/<propertyId>/view/<detailType>/<detailId>
+
+sidebar/<fileType>/edit/property/
+                        property/<propertyId>
+
+sidebar/<fileType>/<fileId>/edit/file/<detailType>
+sidebar/<fileType>/<fileId>/edit/property/<detailType>
+
+sidebar/<fileType>/file/<detailType>
+sidebar/<fileType>/file/edit/<detailType>
+
+// Property Information
+sidebar/property/<propertyId>/view/<detailType>/<detailId>
+sidebar/property/<propertyId>/edit/<detailType>/<detailId>
+
+
+

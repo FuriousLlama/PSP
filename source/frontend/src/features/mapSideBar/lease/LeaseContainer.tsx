@@ -3,36 +3,15 @@ import React, { useCallback, useContext, useEffect, useReducer, useRef, useState
 import * as Yup from 'yup';
 
 import LeaseIcon from '@/assets/images/lease-icon.svg?react';
-import LoadingBackdrop from '@/components/common/LoadingBackdrop';
-import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
-import { Claims } from '@/constants';
 import { useLeaseDetail } from '@/features/leases';
-import { AddLeaseYupSchema } from '@/features/leases/add/AddLeaseYupSchema';
-import LeaseChecklistContainer from '@/features/leases/detail/LeasePages/checklist/LeaseChecklistContainer';
-import DepositsContainer from '@/features/leases/detail/LeasePages/deposits/DepositsContainer';
-import DetailContainer from '@/features/leases/detail/LeasePages/details/DetailContainer';
-import DocumentsPage from '@/features/leases/detail/LeasePages/documents/DocumentsPage';
-import { ImprovementsContainer } from '@/features/leases/detail/LeasePages/improvements/ImprovementsContainer';
-import InsuranceContainer from '@/features/leases/detail/LeasePages/insurance/InsuranceContainer';
-import PeriodPaymentsContainer from '@/features/leases/detail/LeasePages/payment/PeriodPaymentsContainer';
-import { PeriodPaymentsYupSchema } from '@/features/leases/detail/LeasePages/payment/PeriodPaymentsYupSchema';
-import PeriodPaymentsView, {
-  IPeriodPaymentsViewProps,
-} from '@/features/leases/detail/LeasePages/payment/table/periods/PaymentPeriodsView';
-import LeaseStakeholderContainer from '@/features/leases/detail/LeasePages/stakeholders/LeaseStakeholderContainer';
-import Surplus from '@/features/leases/detail/LeasePages/surplus/Surplus';
 import { LeaseFormModel } from '@/features/leases/models';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 
 import { SideBarContext } from '../context/sidebarContext';
-import FileLayout from '../layout/FileLayout';
 import MapSideBarLayout from '../layout/MapSideBarLayout';
-import SidebarFooter from '../shared/SidebarFooter';
-import { StyledFormWrapper } from '../shared/styles';
 import LeaseHeader from './common/LeaseHeader';
 import { LeaseFileTabNames } from './detail/LeaseFileTabs';
-import LeaseRouter from './tabs/LeaseRouter';
-import ViewSelector from './ViewSelector';
+import LeaseBodyRouter from './router/LeaseBodyRouter';
 
 export interface ILeaseContainerProps {
   leaseId: number;
@@ -90,97 +69,6 @@ export enum LeasePageNames {
   CONSULTATIONS = 'consultations',
 }
 
-export const leasePages: Map<LeasePageNames, ILeasePage<any>> = new Map<
-  LeasePageNames,
-  ILeasePage<any>
->([
-  [
-    LeasePageNames.DETAILS,
-    {
-      pageName: LeasePageNames.DETAILS,
-      component: DetailContainer,
-      title: 'Details',
-      validation: AddLeaseYupSchema,
-    },
-  ],
-  [
-    LeasePageNames.TENANT,
-    {
-      pageName: LeasePageNames.TENANT,
-      component: LeaseStakeholderContainer,
-      title: 'Tenant',
-    },
-  ],
-  [
-    LeasePageNames.PAYEE,
-    {
-      pageName: LeasePageNames.PAYEE,
-      component: LeaseStakeholderContainer,
-      title: 'Payee',
-    },
-  ],
-  [
-    LeasePageNames.PAYMENTS,
-    {
-      pageName: LeasePageNames.PAYMENTS,
-      component: PeriodPaymentsContainer,
-      title: 'Payments',
-      validation: PeriodPaymentsYupSchema,
-      componentView: PeriodPaymentsView,
-    } as ILeasePage<IPeriodPaymentsViewProps>,
-  ],
-  [
-    LeasePageNames.IMPROVEMENTS,
-    {
-      pageName: LeasePageNames.IMPROVEMENTS,
-      component: ImprovementsContainer,
-      title: 'Improvements',
-    },
-  ],
-  [
-    LeasePageNames.INSURANCE,
-    {
-      pageName: LeasePageNames.INSURANCE,
-      component: InsuranceContainer,
-      title: 'Insurance',
-    },
-  ],
-  [
-    LeasePageNames.DEPOSIT,
-    { pageName: LeasePageNames.DEPOSIT, component: DepositsContainer, title: 'Deposit' },
-  ],
-  [
-    LeasePageNames.SURPLUS,
-    { pageName: LeasePageNames.SURPLUS, component: Surplus, title: 'Surplus Declaration' },
-  ],
-  [
-    LeasePageNames.CHECKLIST,
-    {
-      pageName: LeasePageNames.CHECKLIST,
-      component: LeaseChecklistContainer,
-      title: 'Checklist',
-    },
-  ],
-  [
-    LeasePageNames.DOCUMENTS,
-    {
-      pageName: LeasePageNames.DOCUMENTS,
-      component: DocumentsPage,
-      title: 'Documents',
-      claims: Claims.DOCUMENT_VIEW,
-    },
-  ],
-  [
-    LeasePageNames.CONSULTATIONS,
-    {
-      pageName: LeasePageNames.CONSULTATIONS,
-      component: LeaseRouter,
-      title: 'Approval/Consultations',
-      claims: Claims.LEASE_VIEW,
-    },
-  ],
-]);
-
 export const LeaseContainer: React.FC<ILeaseContainerProps> = ({ leaseId, onClose }) => {
   // keep track of our internal container state
   const [containerState, setContainerState] = useReducer(
@@ -205,9 +93,6 @@ export const LeaseContainer: React.FC<ILeaseContainerProps> = ({ leaseId, onClos
   } = useContext(SideBarContext);
 
   const [isValid, setIsValid] = useState<boolean>(true);
-
-  const activeTab = containerState.activeTab;
-  const { setFullWidthSideBar } = useMapStateMachine();
 
   const {
     getLastUpdatedBy: { execute: getLastUpdatedBy, loading: getLastUpdatedByLoading },
@@ -267,20 +152,6 @@ export const LeaseContainer: React.FC<ILeaseContainerProps> = ({ leaseId, onClos
   }, [leaseId, getLastUpdatedBy, setLastUpdatedBy]);
 
   useEffect(() => {
-    if (
-      activeTab === LeaseFileTabNames.deposit ||
-      activeTab === LeaseFileTabNames.payments ||
-      activeTab === LeaseFileTabNames.notes ||
-      activeTab === LeaseFileTabNames.documents
-    ) {
-      setFullWidthSideBar(true);
-    } else {
-      setFullWidthSideBar(false);
-    }
-    return () => setFullWidthSideBar(false);
-  }, [activeTab, setFullWidthSideBar]);
-
-  useEffect(() => {
     const refreshLease = async () => {
       await refresh();
     };
@@ -312,36 +183,8 @@ export const LeaseContainer: React.FC<ILeaseContainerProps> = ({ leaseId, onClos
         />
       }
       header={<LeaseHeader lease={lease} lastUpdatedBy={lastUpdatedBy} />}
-      footer={
-        containerState.isEditing && (
-          <SidebarFooter
-            isOkDisabled={formikRef?.current?.isSubmitting}
-            onSave={handleSaveClick}
-            onCancel={handleCancelClick}
-            displayRequiredFieldError={isValid === false}
-          />
-        )
-      }
     >
-      <FileLayout
-        leftComponent={'hello'}
-        bodyComponent={
-          <StyledFormWrapper>
-            <LoadingBackdrop show={loading || getLastUpdatedByLoading} />
-            <ViewSelector
-              formikRef={formikRef}
-              lease={lease}
-              refreshLease={refresh}
-              setLease={setLease}
-              isEditing={containerState.isEditing}
-              activeEditForm={containerState.activeEditForm}
-              activeTab={containerState.activeTab}
-              setContainerState={setContainerState}
-              onSuccess={onChildSuccess}
-            />
-          </StyledFormWrapper>
-        }
-      />
+      <LeaseBodyRouter />
     </MapSideBarLayout>
   );
 };

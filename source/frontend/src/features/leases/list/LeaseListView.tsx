@@ -103,7 +103,7 @@ export const LeaseListView: React.FunctionComponent<React.PropsWithChildren<unkn
           </Row>
         </Styled.PageToolbar>
         {hasClaim(Claims.LEASE_ADD) && (
-          <StyledAddButton onClick={() => history.push('/mapview/sidebar/lease/new')}>
+          <StyledAddButton onClick={() => history.push('/mapview/sidebar/new/lease')}>
             <FaPlus />
             &nbsp;Create a Lease/Licence
           </StyledAddButton>
