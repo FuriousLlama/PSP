@@ -1,10 +1,9 @@
 import axios, { AxiosError } from 'axios';
 import { FormikProps } from 'formik/dist/types';
 import { filter, find, orderBy, some } from 'lodash';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
-import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
 import { LeaseFormModel } from '@/features/leases/models';
 import { useApiContacts } from '@/hooks/pims-api/useApiContacts';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
@@ -48,7 +47,7 @@ export const AddLeaseStakeholderContainer: React.FunctionComponent<
   refreshLease,
   isPayableLease,
 }) => {
-  const { lease } = useContext(LeaseStateContext);
+  const lease: any = null;
   const [stakeholders, setStakeholders] = useState<FormStakeholder[]>(initialStakeholders);
   const [selectedContacts, setSelectedContacts] = useState<IContactSearchResult[]>(
     stakeholders.map(t => FormStakeholder.toContactSearchResult(t)) || [],

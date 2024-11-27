@@ -3,7 +3,7 @@ import React from 'react';
 import FileLayout from '@/features/mapSideBar/layout/FileLayout';
 import { ApiGen_Concepts_AcquisitionFile } from '@/models/api/generated/ApiGen_Concepts_AcquisitionFile';
 
-import FileMenu from '../shared/fileMenu/fileMenuView';
+import FileMenu from '../shared/fileBody/fileMenuView';
 import { StyledFormWrapper } from '../shared/styles';
 import AcquisitionTabRouter from './router/AcquisitionTabRouter';
 

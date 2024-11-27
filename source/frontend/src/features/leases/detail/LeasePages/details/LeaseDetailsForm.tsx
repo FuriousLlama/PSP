@@ -3,12 +3,13 @@ import noop from 'lodash/noop';
 import React from 'react';
 import styled from 'styled-components';
 
+import EditButton from '@/components/common/EditButton';
+import { StyledEditWrapper } from '@/components/common/Section/SectionStyles';
 import { ApiGen_CodeTypes_LeaseStatusTypes } from '@/models/api/generated/ApiGen_CodeTypes_LeaseStatusTypes';
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { defaultApiLease } from '@/models/defaultInitializers';
 import { exists } from '@/utils';
 
-import LeaseEditButton from '../../LeaseEditButton';
 import DetailAdministration from './DetailAdministration';
 import { DetailFeeDetermination } from './DetailFeeDetermination';
 import { LeaseDetailSummaryView } from './LeaseDetailView';
@@ -17,12 +18,14 @@ import PropertiesInformation from './PropertiesInformation';
 
 export interface ILeaseDetailsViewProps {
   lease?: ApiGen_Concepts_Lease;
+  canEdit: boolean;
   onGenerate: (lease?: ApiGen_Concepts_Lease) => void;
   onEdit: () => void;
 }
 
 export const LeaseDetailsView: React.FunctionComponent<ILeaseDetailsViewProps> = ({
   lease,
+  canEdit,
   onGenerate,
   onEdit,
 }) => {
@@ -57,7 +60,11 @@ export const LeaseDetailsView: React.FunctionComponent<ILeaseDetailsViewProps> =
           {displayLeaseTerminationMessage() && (
             <StyledTerminationMessage>{getTerminationMessage()}</StyledTerminationMessage>
           )}
-          <LeaseEditButton onEdit={onEdit} />
+          {canEdit && (
+            <StyledEditWrapper className="mr-3 my-1">
+              <EditButton title="Edit checklist" onClick={onEdit} />
+            </StyledEditWrapper>
+          )}
         </StyledTerminationWrapper>
         <LeaseDetailSummaryView lease={lease} onGenerate={onGenerate} />
         <LeaseRenewalsView renewals={lease.renewals} />

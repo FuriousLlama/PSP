@@ -1,9 +1,8 @@
 import { FormikProps } from 'formik/dist/types';
-import React, { useContext } from 'react';
+import React from 'react';
 import { Switch, useRouteMatch } from 'react-router-dom';
 
 import Claims from '@/constants/claims';
-import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
 import { LeaseFormModel } from '@/features/leases/models';
 import { exists, stripTrailingSlash } from '@/utils';
 import AppRoute from '@/utils/AppRoute';
@@ -26,9 +25,9 @@ export interface ILeaseRouterProps extends LeasePageProps<void> {
 export const LeaseRouter: React.FunctionComponent<React.PropsWithChildren<ILeaseRouterProps>> = ({
   onSuccess,
 }) => {
-  const { lease } = useContext(LeaseStateContext);
   const { path } = useRouteMatch();
 
+  const lease: any = null;
   if (!exists(lease)) {
     return null;
   }

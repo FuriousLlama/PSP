@@ -1,11 +1,10 @@
 import { AxiosError } from 'axios';
 import { FormikProps } from 'formik/dist/types';
-import { useCallback, useContext } from 'react';
+import { useCallback } from 'react';
 
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import * as API from '@/constants/API';
-import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
 import { useLeaseDetail } from '@/features/leases/hooks/useLeaseDetail';
 import { useUpdateLease } from '@/features/leases/hooks/useUpdateLease';
 import { LeaseFormModel } from '@/features/leases/models';
@@ -31,7 +30,7 @@ export const UpdateLeaseContainer: React.FunctionComponent<UpdateLeaseContainerP
   onEdit,
   View,
 }) => {
-  const { lease } = useContext(LeaseStateContext);
+  const lease: any = null;
   const { getCompleteLease, refresh, loading } = useLeaseDetail(lease?.id ?? undefined);
   const { updateApiLease } = useUpdateLease();
   const withUserOverride = useApiUserOverride<

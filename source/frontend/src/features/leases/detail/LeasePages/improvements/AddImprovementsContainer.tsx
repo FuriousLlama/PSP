@@ -1,9 +1,7 @@
 import { FormikProps } from 'formik/dist/types';
 import { sortBy } from 'lodash';
-import { useContext } from 'react';
 
 import * as API from '@/constants/API';
-import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
 import { usePropertyImprovementRepository } from '@/hooks/repositories/usePropertyImprovementRepository';
 import useLookupCodeHelpers from '@/hooks/useLookupCodeHelpers';
 import { ApiGen_Concepts_PropertyImprovement } from '@/models/api/generated/ApiGen_Concepts_PropertyImprovement';
@@ -23,7 +21,8 @@ interface IAddImprovementsContainerProps {
 export const AddImprovementsContainer: React.FunctionComponent<
   React.PropsWithChildren<IAddImprovementsContainerProps>
 > = ({ formikRef, onEdit, loading, improvements, onSuccess }) => {
-  const { lease } = useContext(LeaseStateContext);
+  const lease: any = null;
+
   const { updatePropertyImprovements } = usePropertyImprovementRepository();
   const { getByType } = useLookupCodeHelpers();
   const improvementTypeCodes = getByType(API.PROPERTY_IMPROVEMENT_TYPES);

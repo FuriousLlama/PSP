@@ -1,13 +1,15 @@
 import orderBy from 'lodash/orderBy';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { INSURANCE_TYPES } from '@/constants/API';
-import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
 import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
 import { useInsurancesRepository } from '@/hooks/repositories/useInsuranceRepository';
+import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 import useKeycloakWrapper from '@/hooks/useKeycloakWrapper';
 import useLookupCodeHelpers from '@/hooks/useLookupCodeHelpers';
+import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
+import { exists } from '@/utils';
 
 import { InsuranceDetailsViewProps } from './details/Insurance';
 
@@ -21,7 +23,22 @@ const InsuranceContainer: React.FunctionComponent<
     updateInsurances: { execute: updateInsurances },
   } = useInsurancesRepository();
 
-  const { lease } = useContext(LeaseStateContext);
+  const [lease, setLease] = useState<ApiGen_Concepts_Lease | null>(null);
+
+  const { getLease } = useLeaseRepository();
+  const getLeaseExecute = getLease.execute;
+
+  const fetchLease = useCallback(async () => {
+    const result = await getLeaseExecute(fileId);
+    if (exists(result)) {
+      setLease(result);
+    }
+  }, [fileId, getLeaseExecute]);
+
+  useEffect(() => {
+    fetchLease();
+  }, [fetchLease]);
+
   const insuranceList = orderBy(insurances, i => i.insuranceType?.displayOrder) ?? [];
   const leaseId = lease?.id;
   useEffect(() => {

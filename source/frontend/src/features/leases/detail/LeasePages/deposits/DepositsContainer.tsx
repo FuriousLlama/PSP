@@ -1,14 +1,15 @@
 import { Formik } from 'formik';
 import noop from 'lodash/noop';
-import { useContext, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import GenericModal from '@/components/common/GenericModal';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
-import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
 import { LeaseFormModel } from '@/features/leases/models';
 import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
+import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 import { useSecurityDepositRepository } from '@/hooks/repositories/useSecurityDepositRepository';
 import { useSecurityDepositReturnRepository } from '@/hooks/repositories/useSecurityDepositReturnRepository';
+import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { ApiGen_Concepts_SecurityDeposit } from '@/models/api/generated/ApiGen_Concepts_SecurityDeposit';
 import { ApiGen_Concepts_SecurityDepositReturn } from '@/models/api/generated/ApiGen_Concepts_SecurityDepositReturn';
 import { exists, isValidId } from '@/utils/utils';
@@ -26,7 +27,6 @@ import * as Styled from './styles';
 export const DepositsContainer: React.FunctionComponent<
   React.PropsWithChildren<TabInteractiveContainerProps<void>>
 > = props => {
-  const { lease } = useContext(LeaseStateContext);
   const {
     getSecurityDeposits: {
       execute: getSecurityDeposits,
@@ -44,6 +44,22 @@ export const DepositsContainer: React.FunctionComponent<
     addSecurityDepositReturn: { execute: addSecurityDepositReturn },
     deleteSecurityDepositReturn: { execute: deleteSecurityDepositReturn },
   } = useSecurityDepositReturnRepository();
+
+  const [lease, setLease] = useState<ApiGen_Concepts_Lease | null>(null);
+
+  const { getLease } = useLeaseRepository();
+  const getLeaseExecute = getLease.execute;
+
+  const fetchLease = useCallback(async () => {
+    const result = await getLeaseExecute(props.fileId);
+    if (exists(result)) {
+      setLease(result);
+    }
+  }, [props.fileId, getLeaseExecute]);
+
+  useEffect(() => {
+    fetchLease();
+  }, [fetchLease]);
 
   const securityDeposits: ApiGen_Concepts_SecurityDeposit[] = securityDepositsResponse ?? [];
   useEffect(() => {
@@ -192,8 +208,13 @@ export const DepositsContainer: React.FunctionComponent<
     }
   };
 
-  const initialValues = LeaseFormModel.fromApi(lease);
+  debugger;
 
+  if (!exists(lease)) {
+    return <LoadingBackdrop parentScreen />;
+  }
+
+  const initialValues = LeaseFormModel.fromApi(lease);
   return (
     <>
       <LoadingBackdrop show={loading} parentScreen />

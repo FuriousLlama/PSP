@@ -4,7 +4,6 @@ import React from 'react';
 import { toast } from 'react-toastify';
 
 import * as API from '@/constants/API';
-import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
 import { ChecklistFormModel } from '@/features/mapSideBar/shared/tabs/checklist/update/models';
 import { IUpdateChecklistFormProps } from '@/features/mapSideBar/shared/tabs/checklist/update/UpdateChecklistForm';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
@@ -23,7 +22,7 @@ const UpdateLeaseChecklistContainer: React.FC<IUpdateLeaseChecklistContainerProp
   onSuccess,
   View,
 }) => {
-  const { lease } = React.useContext(LeaseStateContext);
+  const lease: any = null;
 
   const { getByType } = useLookupCodeHelpers();
   const sectionTypes = getByType(API.LEASE_CHECKLIST_SECTION_TYPES);

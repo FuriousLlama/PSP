@@ -1,7 +1,6 @@
 import { AxiosResponse } from 'axios';
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useState } from 'react';
 
-import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
 import { useLeasePaymentRepository } from '@/hooks/repositories/useLeasePaymentRepository';
 import { IResponseWrapper } from '@/hooks/util/useApiRequestWrapper';
 import { ApiGen_Concepts_LeasePeriod } from '@/models/api/generated/ApiGen_Concepts_LeasePeriod';
@@ -9,6 +8,7 @@ import { ApiGen_Concepts_LeasePeriod } from '@/models/api/generated/ApiGen_Conce
 import { FormLeasePayment, FormLeasePeriod } from '../models';
 
 export const useDeletePeriodsPayments = (
+  leaseId: number,
   deleteLeasePeriod: IResponseWrapper<
     (period: ApiGen_Concepts_LeasePeriod) => Promise<AxiosResponse<boolean, any>>
   >,
@@ -25,9 +25,6 @@ export const useDeletePeriodsPayments = (
 
   const { deleteLeasePayment } = useLeasePaymentRepository();
 
-  const { lease } = useContext(LeaseStateContext);
-  const leaseId = lease?.id;
-
   /**
    * If the deletion is confirmed, send the delete request. Use the response to update the parent lease.
    * @param leasePeriod
@@ -36,14 +33,14 @@ export const useDeletePeriodsPayments = (
     async (leasePeriod: FormLeasePeriod) => {
       const deleted = await deleteLeasePeriod.execute({
         ...FormLeasePeriod.toApi(leasePeriod),
-        leaseId: lease?.id ?? 0,
+        leaseId: leaseId ?? 0,
       });
-      if (deleted && lease?.id) {
-        getLeasePeriods(lease.id);
+      if (deleted && leaseId) {
+        getLeasePeriods(leaseId);
         onSuccess();
       }
     },
-    [deleteLeasePeriod, lease, getLeasePeriods, onSuccess],
+    [deleteLeasePeriod, leaseId, getLeasePeriods, onSuccess],
   );
 
   /**

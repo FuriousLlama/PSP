@@ -6,7 +6,6 @@ import { SideBarType } from '@/components/common/mapFSM/machineDefinition/types'
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import Claims from '@/constants/claims';
 import { AddLeaseContainer } from '@/features/leases';
-import { LeaseContextProvider } from '@/features/leases/context/LeaseContext';
 import MotiInventoryContainer from '@/features/mapSideBar/property/MotiInventoryContainer';
 import { isValidId } from '@/utils';
 import AppRoute from '@/utils/AppRoute';
@@ -288,9 +287,7 @@ export const MapRouter: React.FunctionComponent = memo(() => {
       <AppRoute
         path={`/mapview/sidebar/lease/:id`}
         customRender={({ match }) => (
-          <LeaseContextProvider>
-            <LeaseContainer leaseId={Number(match.params.id)} onClose={onClose} />
-          </LeaseContextProvider>
+          <LeaseContainer leaseId={Number(match.params.id)} onClose={onClose} />
         )}
         claim={Claims.LEASE_VIEW}
         key={'LeaseLicense'}

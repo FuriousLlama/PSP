@@ -6,14 +6,12 @@ import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDe
 import { IChecklistViewProps } from '@/features/mapSideBar/shared/tabs/checklist/detail/ChecklistView';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 import useKeycloakWrapper from '@/hooks/useKeycloakWrapper';
-import useTraceUpdate from '@/hooks/util/useTraceUpdate';
 import { ApiGen_Concepts_FileChecklistItem } from '@/models/api/generated/ApiGen_Concepts_FileChecklistItem';
 import { exists } from '@/utils';
 
 const LeaseChecklistContainer: React.FunctionComponent<
   React.PropsWithChildren<TabInteractiveContainerProps<IChecklistViewProps>>
 > = props => {
-  useTraceUpdate(props);
   const [checklist, setChecklist] = useState<ApiGen_Concepts_FileChecklistItem[]>([]);
   const keycloak = useKeycloakWrapper();
   const pathResolver = props.pathResolverHook();
@@ -21,14 +19,14 @@ const LeaseChecklistContainer: React.FunctionComponent<
   const showEditButton = keycloak.hasClaim(Claims.LEASE_EDIT);
 
   const { getLeaseChecklist } = useLeaseRepository();
-  const getLease = getLeaseChecklist.execute;
+  const getChecklist = getLeaseChecklist.execute;
 
   const fetchChecklist = useCallback(async () => {
-    const result = await getLease(props.fileId);
+    const result = await getChecklist(props.fileId);
     if (exists(result)) {
       setChecklist(result);
     }
-  }, [props.fileId, getLease]);
+  }, [props.fileId, getChecklist]);
 
   useEffect(() => {
     fetchChecklist();

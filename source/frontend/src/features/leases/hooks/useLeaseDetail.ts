@@ -1,4 +1,4 @@
-import { useCallback, useContext } from 'react';
+import { useCallback, useContext, useState } from 'react';
 
 import { SideBarContext } from '@/features/mapSideBar/context/sidebarContext';
 import { useApiLeases } from '@/hooks/pims-api/useApiLeases';
@@ -12,10 +12,8 @@ import { ApiGen_CodeTypes_FileTypes } from '@/models/api/generated/ApiGen_CodeTy
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { exists, useAxiosErrorHandler } from '@/utils';
 
-import { LeaseStateContext } from './../context/LeaseContext';
-
 export function useLeaseDetail(leaseId?: number) {
-  const { lease, setLease } = useContext(LeaseStateContext);
+  const [lease, setLease] = useState(null);
   const { setFile } = useContext(SideBarContext);
 
   leaseId = leaseId ?? lease?.id ?? undefined;

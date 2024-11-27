@@ -197,7 +197,7 @@ export const getLeaseTabs = (lease: ApiGen_Concepts_Lease, onSuccess: () => void
   tabViews.push({
     content: (
       <DocumentListContainer
-        parentId={lease?.id.toString()}
+        parentId={lease.id.toString()}
         relationshipType={ApiGen_CodeTypes_DocumentRelationType.Leases}
         title="File Documents"
         onSuccess={onSuccess}

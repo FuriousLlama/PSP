@@ -4,7 +4,6 @@ import { RouteComponentProps, Switch, useHistory, useRouteMatch } from 'react-ro
 import { SideBarType } from '@/components/common/mapFSM/machineDefinition/types';
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import Claims from '@/constants/claims';
-import { LeaseContextProvider } from '@/features/leases/context/LeaseContext';
 import AppRoute from '@/utils/AppRoute';
 
 import AcquisitionFileContainer from '../acquisition/AcquisitionFileContainer';
@@ -64,9 +63,7 @@ const navigations: NavComponent[] = [
     claims: [Claims.LEASE_VIEW],
     title: 'Lease / Licence File',
     component: ({ match }, onClose) => (
-      <LeaseContextProvider>
-        <LeaseContainer leaseId={Number(match.params.fileId)} onClose={onClose} />
-      </LeaseContextProvider>
+      <LeaseContainer leaseId={Number(match.params.fileId)} onClose={onClose} />
     ),
   },
 ];

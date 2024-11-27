@@ -6,19 +6,19 @@ import { FaExclamationCircle, FaPlusCircle } from 'react-icons/fa';
 
 import GenericModal, { ModalSize } from '@/components/common/GenericModal';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
-import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import { ModalContext } from '@/contexts/modalContext';
-import { LeaseStateContext } from '@/features/leases/context/LeaseContext';
 import { LeaseFormModel } from '@/features/leases/models';
 import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
 import { useLeasePaymentRepository } from '@/hooks/repositories/useLeasePaymentRepository';
 import { useLeasePeriodRepository } from '@/hooks/repositories/useLeasePeriodRepository';
+import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 import useDeepCompareEffect from '@/hooks/util/useDeepCompareEffect';
 import { ApiGen_CodeTypes_LeaseAccountTypes } from '@/models/api/generated/ApiGen_CodeTypes_LeaseAccountTypes';
 import { ApiGen_CodeTypes_LeasePaymentCategoryTypes } from '@/models/api/generated/ApiGen_CodeTypes_LeasePaymentCategoryTypes';
+import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { getEmptyLease } from '@/models/defaultInitializers';
 import { SystemConstants, useSystemConstants } from '@/store/slices/systemConstants';
-import { isValidId, isValidIsoDateTime } from '@/utils';
+import { exists, isValidId, isValidIsoDateTime } from '@/utils';
 
 import { useDeletePeriodsPayments } from './hooks/useDeletePeriodsPayments';
 import PaymentModal from './modal/payment/PaymentModal';
@@ -31,19 +31,11 @@ import { IPeriodPaymentsViewProps } from './table/periods/PaymentPeriodsView';
  */
 export const PeriodPaymentsContainer: React.FunctionComponent<
   TabInteractiveContainerProps<IPeriodPaymentsViewProps>
-> = ({ onSuccess, View }) => {
-  const { lease } = useContext(LeaseStateContext);
+> = ({ fileId, onSuccess, View }) => {
   const [editModalValues, setEditModalValues] = useState<FormLeasePeriod | undefined>(undefined);
   const [editPaymentModalValues, setEditPaymentModalValues] = useState<
     FormLeasePayment | undefined
   >(undefined);
-
-  const mapMachine = useMapStateMachine();
-  //mapMachine.setFullWidthSideBar(true);
-  //
-  useEffect(() => {
-    mapMachine.setFullWidthSideBar(true);
-  }, []);
 
   const { updateLeasePeriod, addLeasePeriod, getLeasePeriods, deleteLeasePeriod } =
     useLeasePeriodRepository();
@@ -51,16 +43,37 @@ export const PeriodPaymentsContainer: React.FunctionComponent<
   const { setModalContent, setDisplayModal } = useContext(ModalContext);
   const { updateLeasePayment, addLeasePayment } = useLeasePaymentRepository();
   const { getSystemConstant } = useSystemConstants();
+
   const gstConstant = getSystemConstant(SystemConstants.GST);
+
+  const [partialLease, setLease] = useState<ApiGen_Concepts_Lease | null>(null);
+  const [periods, setPeriods] = useState<ApiGen_Concepts_LeasePeriod[]>([]);
+
+  const { getLease } = useLeaseRepository();
+  const getLeaseExecute = getLease.execute;
+
+  const fetchLease = useCallback(async () => {
+    const result = await getLeaseExecute(fileId);
+    if (exists(result)) {
+      setLease(result);
+    }
+  }, [fileId, getLeaseExecute]);
+
+  useEffect(() => {
+    fetchLease();
+  }, [fetchLease]);
 
   const formikRef = useRef<FormikProps<any>>(null);
 
-  const leaseId = lease?.id;
+  const leaseId = fileId;
   const getLeasePeriodsFunc = getLeasePeriods.execute;
   const refreshLeasePeriods = useCallback(
     async (leaseId: number) => {
       if (leaseId) {
-        await getLeasePeriodsFunc(leaseId);
+        const periods = await getLeasePeriodsFunc(leaseId);
+        if (exists(periods)) {
+          setPeriods(periods);
+        }
       }
     },
     [getLeasePeriodsFunc],
@@ -72,6 +85,8 @@ export const PeriodPaymentsContainer: React.FunctionComponent<
     }
   }, [refreshLeasePeriods, leaseId]);
 
+  const lease = useMemo(() => ({ ...partialLease, periods: periods }), [partialLease, periods]);
+
   const {
     onDeletePeriod,
     onDeletePayment,
@@ -80,6 +95,7 @@ export const PeriodPaymentsContainer: React.FunctionComponent<
     setConfirmDeleteModalValues,
     comfirmDeleteModalValues,
   } = useDeletePeriodsPayments(
+    leaseId,
     deleteLeasePeriod,
     refreshLeasePeriods,
     getLeasePeriods.response,
@@ -159,7 +175,7 @@ export const PeriodPaymentsContainer: React.FunctionComponent<
 
       setEditModalValues(values);
     },
-    [getLeasePeriods?.response, lease?.paymentReceivableType?.id, lease.startDate],
+    [getLeasePeriods?.response, lease?.paymentReceivableType?.id, lease?.startDate],
   );
 
   const onEditPayment = useCallback((values: FormLeasePayment) => {
@@ -213,9 +229,12 @@ export const PeriodPaymentsContainer: React.FunctionComponent<
     lease,
   ]);
 
+  if (!exists(lease)) {
+    return <LoadingBackdrop parentScreen />;
+  }
+
   return (
     <>
-      <LoadingBackdrop show={getLeasePeriods.loading} parentScreen />
       <View
         onEdit={onEdit}
         onEditPayment={onEditPayment}
