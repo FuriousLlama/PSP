@@ -1,9 +1,12 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 
+import { Claims } from '@/constants';
 import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
+import { TabRouteType } from '@/features/mapSideBar/shared/tabs/RouterTabs';
 import { usePropertyImprovementRepository } from '@/hooks/repositories/usePropertyImprovementRepository';
+import useKeycloakWrapper from '@/hooks/useKeycloakWrapper';
 
-import { IImprovementsViewProps } from './Improvements';
+import { IImprovementsViewProps } from './ImprovementsView';
 
 export const ImprovementsContainer: React.FunctionComponent<
   React.PropsWithChildren<TabInteractiveContainerProps<IImprovementsViewProps>>
@@ -19,8 +22,13 @@ export const ImprovementsContainer: React.FunctionComponent<
   const pathResolver = pathResolverHook();
 
   const onEdit = () => {
-    pathResolver.editDetails('lease', fileId, 'improvements');
+    pathResolver.editDetails('lease', fileId, TabRouteType.improvements);
   };
 
-  return <View improvements={improvements ?? []} onEdit={onEdit} loading={loading} />;
+  const { hasClaim } = useKeycloakWrapper();
+  const canEdit = hasClaim([Claims.LEASE_EDIT]);
+
+  return (
+    <View improvements={improvements ?? []} canEdit={canEdit} onEdit={onEdit} loading={loading} />
+  );
 };

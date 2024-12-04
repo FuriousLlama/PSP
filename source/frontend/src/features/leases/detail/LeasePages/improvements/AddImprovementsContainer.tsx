@@ -1,40 +1,46 @@
-import { FormikProps } from 'formik/dist/types';
+import { FormikProps } from 'formik';
 import { sortBy } from 'lodash';
+import { useEffect, useRef } from 'react';
 
 import * as API from '@/constants/API';
+import usePathResolver from '@/features/mapSideBar/shared/sidebarPathSolver';
+import { TabRouteType } from '@/features/mapSideBar/shared/tabs/RouterTabs';
 import { usePropertyImprovementRepository } from '@/hooks/repositories/usePropertyImprovementRepository';
 import useLookupCodeHelpers from '@/hooks/useLookupCodeHelpers';
-import { ApiGen_Concepts_PropertyImprovement } from '@/models/api/generated/ApiGen_Concepts_PropertyImprovement';
 import { ILookupCode } from '@/store/slices/lookupCodes';
 
 import AddImprovementsForm from './AddImprovementsForm';
 import { ILeaseImprovementForm, ILeaseImprovementsForm } from './models';
 
 interface IAddImprovementsContainerProps {
-  formikRef: React.RefObject<FormikProps<any>>;
-  onEdit?: (isEditing: boolean) => void;
-  improvements: ApiGen_Concepts_PropertyImprovement[];
-  loading: boolean;
-  onSuccess: () => void;
+  leaseId: number;
 }
 
 export const AddImprovementsContainer: React.FunctionComponent<
   React.PropsWithChildren<IAddImprovementsContainerProps>
-> = ({ formikRef, onEdit, loading, improvements, onSuccess }) => {
-  const lease: any = null;
+> = ({ leaseId }) => {
+  const {
+    getPropertyImprovements: { execute: getPropertyImprovements, loading, response: improvements },
+  } = usePropertyImprovementRepository();
+
+  useEffect(() => {
+    getPropertyImprovements(leaseId);
+  }, [getPropertyImprovements, leaseId]);
 
   const { updatePropertyImprovements } = usePropertyImprovementRepository();
   const { getByType } = useLookupCodeHelpers();
   const improvementTypeCodes = getByType(API.PROPERTY_IMPROVEMENT_TYPES);
+
+  const formikRef = useRef<FormikProps<ILeaseImprovementsForm>>(null);
 
   const onSubmit = async (form: ILeaseImprovementsForm) => {
     try {
       const apiImprovements = removeEmptyImprovements(form).improvements.map(i =>
         ILeaseImprovementForm.toApi(i),
       );
-      if (lease?.id && lease.rowVersion) {
+      if (leaseId) {
         const updatedPropertyImprovements = await updatePropertyImprovements.execute(
-          lease.id,
+          leaseId,
           apiImprovements,
         );
         if (updatedPropertyImprovements) {
@@ -43,7 +49,6 @@ export const AddImprovementsContainer: React.FunctionComponent<
             ILeaseImprovementForm.fromApi(i),
           );
           formikRef?.current?.resetForm({ values: form });
-          onEdit && onEdit(false);
           onSuccess();
         }
       }
@@ -53,13 +58,22 @@ export const AddImprovementsContainer: React.FunctionComponent<
   };
   const form = new ILeaseImprovementsForm();
   form.improvements = improvements?.map(i => ILeaseImprovementForm.fromApi(i)) ?? [];
+  const pathResolver = usePathResolver();
+  const onSuccess = () => {
+    pathResolver.showDetail('lease', leaseId, TabRouteType.improvements, true);
+  };
+
+  const onClose = () => {
+    pathResolver.showDetail('lease', leaseId, TabRouteType.improvements, true);
+  };
 
   return (
     <AddImprovementsForm
       loading={loading}
       formikRef={formikRef}
       onSubmit={onSubmit}
-      initialValues={addEmptyImprovements(form, improvementTypeCodes, lease?.id ?? undefined)}
+      onClose={onClose}
+      initialValues={addEmptyImprovements(form, improvementTypeCodes, leaseId ?? undefined)}
     />
   );
 };

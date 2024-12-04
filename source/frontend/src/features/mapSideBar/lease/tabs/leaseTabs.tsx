@@ -4,8 +4,8 @@ import LeaseChecklistContainer from '@/features/leases/detail/LeasePages/checkli
 import DepositsContainer from '@/features/leases/detail/LeasePages/deposits/DepositsContainer';
 import LeaseDetailContainer from '@/features/leases/detail/LeasePages/details/DetailContainer';
 import LeaseDetailsView from '@/features/leases/detail/LeasePages/details/LeaseDetailsForm';
-import ImprovementsView from '@/features/leases/detail/LeasePages/improvements/Improvements';
 import { ImprovementsContainer } from '@/features/leases/detail/LeasePages/improvements/ImprovementsContainer';
+import ImprovementsView from '@/features/leases/detail/LeasePages/improvements/ImprovementsView';
 import InsuranceDetailsView from '@/features/leases/detail/LeasePages/insurance/details/Insurance';
 import InsuranceContainer from '@/features/leases/detail/LeasePages/insurance/InsuranceContainer';
 import PeriodPaymentsContainer from '@/features/leases/detail/LeasePages/payment/PeriodPaymentsContainer';

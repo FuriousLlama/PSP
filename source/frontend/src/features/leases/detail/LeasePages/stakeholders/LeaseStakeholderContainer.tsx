@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
+import usePathResolver from '@/features/mapSideBar/shared/sidebarPathSolver';
 import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
+import { TabRouteType } from '@/features/mapSideBar/shared/tabs/RouterTabs';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 import { useLeaseStakeholderRepository } from '@/hooks/repositories/useLeaseStakeholderRepository';
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
@@ -13,6 +15,8 @@ import { ILeaseStakeholderViewProps } from './ViewStakeholderForm';
 const LeaseStakeholderContainer: React.FunctionComponent<
   React.PropsWithChildren<TabInteractiveContainerProps<ILeaseStakeholderViewProps>>
 > = ({ fileId, View }) => {
+  const pathResolver = usePathResolver();
+
   const [lease, setLease] = useState<ApiGen_Concepts_Lease | null>(null);
 
   const { getLease } = useLeaseRepository();
@@ -54,8 +58,14 @@ const LeaseStakeholderContainer: React.FunctionComponent<
     return lease?.paymentReceivableType.id !== 'RCVBL' ? true : false;
   }, [lease?.paymentReceivableType.id]);
 
+  const handleEdit = () => {
+    pathResolver.editDetails('lease', fileId, TabRouteType.tenant);
+  };
+
   return (
     <View
+      canEdit={true}
+      onEdit={handleEdit}
       stakeholders={formStakeholders}
       loading={loading}
       leaseStakeholderTypes={leaseStakeholderTypes ?? []}

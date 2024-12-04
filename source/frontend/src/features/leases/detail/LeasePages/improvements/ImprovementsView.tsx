@@ -1,5 +1,7 @@
+import EditButton from '@/components/common/EditButton';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { Section } from '@/components/common/Section/Section';
+import { StyledEditWrapper } from '@/components/common/Section/SectionStyles';
 import * as API from '@/constants/API';
 import useLookupCodeHelpers from '@/hooks/useLookupCodeHelpers';
 import { ApiGen_Concepts_PropertyImprovement } from '@/models/api/generated/ApiGen_Concepts_PropertyImprovement';
@@ -9,12 +11,15 @@ import { ILeaseImprovementForm } from './models';
 
 export interface IImprovementsViewProps {
   improvements: ApiGen_Concepts_PropertyImprovement[];
+  canEdit: boolean;
   onEdit: () => void;
   loading: boolean;
 }
 
 export const ImprovementsView: React.FunctionComponent<IImprovementsViewProps> = ({
   improvements,
+  canEdit,
+  onEdit,
   loading,
 }) => {
   const { getByType } = useLookupCodeHelpers();
@@ -37,23 +42,29 @@ export const ImprovementsView: React.FunctionComponent<IImprovementsViewProps> =
     },
   );
 
-  if (!improvements?.length) {
-    return (
-      <Section>
-        <p>
-          There are no commercial, residential, or other improvements indicated with this
-          lease/licence.
-        </p>
-      </Section>
-    );
-  }
-
   return (
     <>
-      <LoadingBackdrop show={loading} parentScreen />
-      {formImprovements.map((improvement: ILeaseImprovementForm) => (
-        <Improvement improvement={improvement} key={`improvement-${improvement?.id}`} />
-      ))}
+      {canEdit && (
+        <StyledEditWrapper className="mr-3 my-1">
+          <EditButton title="Edit Improvements" onClick={onEdit} />
+        </StyledEditWrapper>
+      )}
+      {!improvements?.length && (
+        <Section>
+          <p>
+            There are no commercial, residential, or other improvements indicated with this
+            lease/licence.
+          </p>
+        </Section>
+      )}
+      {improvements?.length && (
+        <>
+          <LoadingBackdrop show={loading} parentScreen />
+          {formImprovements.map((improvement: ILeaseImprovementForm) => (
+            <Improvement improvement={improvement} key={`improvement-${improvement?.id}`} />
+          ))}
+        </>
+      )}
     </>
   );
 };

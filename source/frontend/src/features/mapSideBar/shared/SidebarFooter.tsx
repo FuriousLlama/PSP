@@ -27,7 +27,7 @@ const SidebarFooter: React.FunctionComponent<ISidebarFooterProps> = ({
   cancelButtonLabel,
 }) => {
   return (
-    <SidebarFooterBar className="justify-content-end mb-6 mt-6 p-0 no-gutters">
+    <SidebarFooterBar className="justify-content-end no-gutters">
       {(!showEdit || editMode) && (
         <>
           <Col xs="auto" className="pr-3">
@@ -63,9 +63,11 @@ const SidebarFooter: React.FunctionComponent<ISidebarFooterProps> = ({
 };
 
 const SidebarFooterBar = styled(Row)`
+  border-top: 1px solid grey;
   position: sticky;
-  padding-top: 2rem;
-  bottom: 0;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  bottom: 0px;
   background: white;
   z-index: 10;
 `;

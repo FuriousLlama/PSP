@@ -1,28 +1,24 @@
 import axios, { AxiosError } from 'axios';
 import { FormikHelpers } from 'formik';
-import { useHistory, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
+import usePathResolver from '@/features/mapSideBar/shared/sidebarPathSolver';
+import { TabRouteType } from '@/features/mapSideBar/shared/tabs/RouterTabs';
 import { useConsultationProvider } from '@/hooks/repositories/useConsultationProvider';
 import { IApiError } from '@/interfaces/IApiError';
 
-import { LeasePageNames } from '../../../LeaseContainer';
 import { IConsultationEditFormProps } from './ConsultationEditForm';
 import { ConsultationFormModel } from './models';
 
 export interface IConsultationAddProps {
   leaseId: number;
-  onSuccess: () => void;
   View: React.FunctionComponent<React.PropsWithChildren<IConsultationEditFormProps>>;
 }
 
 const ConsultationAddContainer: React.FunctionComponent<
   React.PropsWithChildren<IConsultationAddProps>
-> = ({ onSuccess, View, leaseId }) => {
-  const history = useHistory();
-  const location = useLocation();
-
-  const backUrl = location.pathname.split(`/${LeasePageNames.CONSULTATIONS}/add`)[0];
+> = ({ View, leaseId }) => {
+  const pathResolver = usePathResolver();
 
   const {
     addLeaseConsultation: { execute: addConsultation, loading: addConsultationLoading },
@@ -43,8 +39,7 @@ const ConsultationAddContainer: React.FunctionComponent<
     try {
       const consultationSaved = await addConsultation(leaseId, values.toApi());
       if (consultationSaved) {
-        onSuccess();
-        history.push(backUrl);
+        pathResolver.showDetail('lease', leaseId, TabRouteType.consultations, true);
       }
     } catch (e) {
       if (axios.isAxiosError(e)) {
@@ -56,12 +51,16 @@ const ConsultationAddContainer: React.FunctionComponent<
     }
   };
 
+  const handleCancel = () => {
+    pathResolver.showDetail('lease', leaseId, TabRouteType.consultations, true);
+  };
+
   return (
     <View
       initialValues={new ConsultationFormModel(leaseId)}
       isLoading={addConsultationLoading}
       onSubmit={handleSubmit}
-      onCancel={() => history.push(backUrl)}
+      onCancel={handleCancel}
     />
   );
 };

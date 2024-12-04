@@ -2,7 +2,6 @@ import { Formik, FormikProps } from 'formik';
 import { FaPlus } from 'react-icons/fa';
 import { Prompt } from 'react-router';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
 
 import { SelectOption, TableSelect } from '@/components/common/form';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
@@ -12,6 +11,7 @@ import { SectionListHeader } from '@/components/common/SectionListHeader';
 import { ContactManagerModal } from '@/components/contact/ContactManagerModal';
 import { Claims } from '@/constants';
 import { LeaseFormModel } from '@/features/leases/models';
+import SidebarFooter from '@/features/mapSideBar/shared/SidebarFooter';
 import { IContactSearchResult } from '@/interfaces';
 import { ApiGen_Concepts_LeaseStakeholderType } from '@/models/api/generated/ApiGen_Concepts_LeaseStakeholderType';
 
@@ -117,7 +117,7 @@ export const AddLeaseStakeholderForm: React.FunctionComponent<
                 when={formikProps.dirty && !formikProps.isSubmitting}
                 message="You have made changes on this form. Do you wish to leave without saving?"
               />
-              <StyledFormBody>
+              <div>
                 <TableSelect<FormStakeholder>
                   selectedItems={selectedStakeholders}
                   columns={getColumns(
@@ -130,7 +130,7 @@ export const AddLeaseStakeholderForm: React.FunctionComponent<
                   selectedTableHeader={SelectedTableHeader}
                   onRemove={onRemove}
                   isPayableLease={isPayableLease}
-                ></TableSelect>
+                />
                 <ContactManagerModal
                   selectedRows={selectedContacts}
                   setSelectedRows={(s: IContactSearchResult[]) => {
@@ -150,8 +150,14 @@ export const AddLeaseStakeholderForm: React.FunctionComponent<
                   }}
                   showActiveSelector={true}
                   isSummary={true}
-                ></ContactManagerModal>
-              </StyledFormBody>
+                />
+                <SidebarFooter
+                  isOkDisabled={formikProps?.isSubmitting}
+                  onSave={formikProps.submitForm}
+                  onCancel={onCancel}
+                  displayRequiredFieldError={!formikProps.isValid && !!formikProps.submitCount}
+                />
+              </div>
               {children}
             </>
           )}
@@ -165,10 +171,5 @@ export const AddLeaseStakeholderForm: React.FunctionComponent<
     </StyledSummarySection>
   );
 };
-
-const StyledFormBody = styled.div`
-  margin-top: 3rem;
-  text-align: left;
-`;
 
 export default AddLeaseStakeholderForm;

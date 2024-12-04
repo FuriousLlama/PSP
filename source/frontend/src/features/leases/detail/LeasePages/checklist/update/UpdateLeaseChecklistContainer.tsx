@@ -1,46 +1,59 @@
 import { AxiosError } from 'axios';
-import { FormikProps } from 'formik';
-import React from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import * as API from '@/constants/API';
-import { ChecklistFormModel } from '@/features/mapSideBar/shared/tabs/checklist/update/models';
+import { SideBarContext } from '@/features/mapSideBar/context/sidebarContext';
+import usePathResolver from '@/features/mapSideBar/shared/sidebarPathSolver';
 import { IUpdateChecklistFormProps } from '@/features/mapSideBar/shared/tabs/checklist/update/UpdateChecklistForm';
+import { TabRouteType } from '@/features/mapSideBar/shared/tabs/RouterTabs';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
-import useLookupCodeHelpers from '@/hooks/useLookupCodeHelpers';
 import { IApiError } from '@/interfaces/IApiError';
-import { ApiGen_Concepts_FileWithChecklist } from '@/models/api/generated/ApiGen_Concepts_FileWithChecklist';
+import { ApiGen_Concepts_FileChecklistItem } from '@/models/api/generated/ApiGen_Concepts_FileChecklistItem';
+import { exists } from '@/utils';
 
 export interface IUpdateLeaseChecklistContainerProps {
-  formikRef: React.Ref<FormikProps<ChecklistFormModel>>;
-  onSuccess: () => void;
+  leaseId: number;
   View: React.FC<IUpdateChecklistFormProps>;
 }
 
 const UpdateLeaseChecklistContainer: React.FC<IUpdateLeaseChecklistContainerProps> = ({
-  formikRef,
-  onSuccess,
+  leaseId,
   View,
 }) => {
-  const lease: any = null;
-
-  const { getByType } = useLookupCodeHelpers();
-  const sectionTypes = getByType(API.LEASE_CHECKLIST_SECTION_TYPES);
+  const [checklist, setChecklist] = useState<ApiGen_Concepts_FileChecklistItem[]>([]);
   const {
-    putLeaseChecklist: { execute: updateChecklist },
+    getLeaseChecklist: { execute: getChecklist, loading: getLoading },
+    putLeaseChecklist: { execute: updateChecklist, loading: putLoading },
   } = useLeaseRepository();
 
-  const initialValues =
-    lease !== undefined
-      ? ChecklistFormModel.fromApi(lease, sectionTypes)
-      : new ChecklistFormModel();
+  const { setStaleLastUpdatedBy } = useContext(SideBarContext);
 
-  const saveChecklist = async (lease: ApiGen_Concepts_FileWithChecklist) => {
-    return updateChecklist(lease);
+  const pathResolver = usePathResolver();
+
+  const fetchChecklist = useCallback(async () => {
+    const checklistResponse = await getChecklist(leaseId);
+
+    if (exists(checklistResponse)) {
+      setChecklist(checklistResponse);
+    }
+  }, [getChecklist, leaseId]);
+
+  useEffect(() => {
+    fetchChecklist();
+  }, [fetchChecklist]);
+
+  const saveChecklist = async (checklist: ApiGen_Concepts_FileChecklistItem[]) => {
+    return updateChecklist(leaseId, checklist);
   };
 
   const onUpdateSuccess = async () => {
-    onSuccess && onSuccess();
+    setStaleLastUpdatedBy(true);
+    pathResolver.showDetail('lease', leaseId, TabRouteType.checklist, true);
+  };
+
+  const onClose = async () => {
+    pathResolver.showDetail('lease', leaseId, TabRouteType.checklist, true);
   };
 
   // generic error handler.
@@ -54,15 +67,16 @@ const UpdateLeaseChecklistContainer: React.FC<IUpdateLeaseChecklistContainerProp
 
   return (
     <View
-      formikRef={formikRef}
-      initialValues={initialValues}
+      isLoading={getLoading || putLoading}
+      checklistItems={checklist}
       onSave={saveChecklist}
+      onClose={onClose}
       onSuccess={onUpdateSuccess}
       onError={onError}
       sectionTypeName={API.LEASE_CHECKLIST_SECTION_TYPES}
       statusTypeName={API.LEASE_CHECKLIST_ITEM_STATUS_TYPES}
       prefix="ls"
-    ></View>
+    />
   );
 };
 

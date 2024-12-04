@@ -3,7 +3,9 @@ import { useCallback, useEffect, useState } from 'react';
 
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { INSURANCE_TYPES } from '@/constants/API';
+import Claims from '@/constants/claims';
 import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
+import { TabRouteType } from '@/features/mapSideBar/shared/tabs/RouterTabs';
 import { useInsurancesRepository } from '@/hooks/repositories/useInsuranceRepository';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 import useKeycloakWrapper from '@/hooks/useKeycloakWrapper';
@@ -23,6 +25,8 @@ const InsuranceContainer: React.FunctionComponent<
     updateInsurances: { execute: updateInsurances },
   } = useInsurancesRepository();
 
+  const pathResolver = pathResolverHook();
+
   const [lease, setLease] = useState<ApiGen_Concepts_Lease | null>(null);
 
   const { getLease } = useLeaseRepository();
@@ -40,20 +44,30 @@ const InsuranceContainer: React.FunctionComponent<
   }, [fetchLease]);
 
   const insuranceList = orderBy(insurances, i => i.insuranceType?.displayOrder) ?? [];
-  const leaseId = lease?.id;
   useEffect(() => {
-    leaseId && getInsurances(leaseId);
-  }, [getInsurances, leaseId]);
+    getInsurances(fileId);
+  }, [getInsurances, fileId]);
 
   const lookupCodes = useLookupCodeHelpers();
   const insuranceTypes = lookupCodes.getByType(INSURANCE_TYPES).sort((a, b) => {
     return (a.displayOrder || 0) - (b.displayOrder || 0);
   });
 
+  const handleEdit = () => {
+    pathResolver.editDetails('lease', fileId, TabRouteType.insurance);
+  };
+
+  const canEdit = hasClaim([Claims.LEASE_EDIT]);
+
   return (
     <>
       <LoadingBackdrop show={loading} parentScreen />
-      <View insuranceList={insuranceList} insuranceTypes={insuranceTypes} />
+      <View
+        insuranceList={insuranceList}
+        insuranceTypes={insuranceTypes}
+        canEdit={canEdit}
+        onEdit={handleEdit}
+      />
     </>
   );
 };

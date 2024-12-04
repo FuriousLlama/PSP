@@ -1,10 +1,12 @@
 import axios, { AxiosError } from 'axios';
-import { FormikProps } from 'formik/dist/types';
+import { FormikProps } from 'formik';
 import { filter, find, orderBy, some } from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 
 import { LeaseFormModel } from '@/features/leases/models';
+import usePathResolver from '@/features/mapSideBar/shared/sidebarPathSolver';
+import { TabRouteType } from '@/features/mapSideBar/shared/tabs/RouterTabs';
 import { useApiContacts } from '@/hooks/pims-api/useApiContacts';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 import { useLeaseStakeholderRepository } from '@/hooks/repositories/useLeaseStakeholderRepository';
@@ -24,37 +26,30 @@ import {
 } from './PrimaryContactWarningModal';
 
 interface IAddLeaseStakeholderContainerProps {
-  formikRef: React.RefObject<FormikProps<LeaseFormModel>>;
-  onEdit?: (isEditing: boolean) => void;
-  stakeholders: FormStakeholder[];
-  onSuccess: () => void;
-  refreshLease: () => void;
+  leaseId: number;
   View: React.FunctionComponent<
     React.PropsWithChildren<IAddLeaseStakeholderFormProps & IPrimaryContactWarningModalProps>
   >;
-  isPayableLease: boolean;
 }
 
 export const AddLeaseStakeholderContainer: React.FunctionComponent<
   React.PropsWithChildren<IAddLeaseStakeholderContainerProps>
-> = ({
-  formikRef,
-  onEdit,
-  children,
-  View,
-  stakeholders: initialStakeholders,
-  onSuccess,
-  refreshLease,
-  isPayableLease,
-}) => {
-  const lease: any = null;
-  const [stakeholders, setStakeholders] = useState<FormStakeholder[]>(initialStakeholders);
+> = ({ leaseId, View }) => {
+  const [lease, setLease] = useState<ApiGen_Concepts_Lease | null>(null);
+
+  const [initialStakeholders, setInitialStakeholders] = useState<FormStakeholder[]>([]);
+  const [stakeholders, setStakeholders] = useState<FormStakeholder[]>([]);
+
   const [selectedContacts, setSelectedContacts] = useState<IContactSearchResult[]>(
     stakeholders.map(t => FormStakeholder.toContactSearchResult(t)) || [],
   );
   const [showContactManager, setShowContactManager] = React.useState<boolean>(false);
   const [handleSubmit, setHandleSubmit] = useState<(() => void) | undefined>(undefined);
 
+  const pathResolver = usePathResolver();
+
+  const { getLease } = useLeaseRepository();
+  const getLeaseExecute = getLease.execute;
   const { getPersonConcept } = useApiContacts();
   const { execute: executeGetPerson } = useApiRequestWrapper({
     requestFunction: getPersonConcept,
@@ -73,30 +68,35 @@ export const AddLeaseStakeholderContainer: React.FunctionComponent<
     },
   } = useLeaseRepository();
 
-  const leaseId = lease?.id;
-  useEffect(() => {
-    const stakeholderFunc = async () => {
-      const stakeholders = await getLeaseStakeholders(leaseId ?? 0);
-      if (stakeholders !== undefined) {
-        setStakeholders(
-          stakeholders.map((t: ApiGen_Concepts_LeaseStakeholder) => new FormStakeholder(t)),
-        );
-        setSelectedContacts(
-          stakeholders.map((t: ApiGen_Concepts_LeaseStakeholder) =>
-            FormStakeholder.toContactSearchResult(new FormStakeholder(t)),
-          ) || [],
-        );
-      }
-    };
-    stakeholderFunc();
-  }, [leaseId, getLeaseStakeholders]);
+  const fetchLease = useCallback(async () => {
+    const leasePromise = getLeaseExecute(leaseId);
+    const stakeholderPromise = getLeaseStakeholders(leaseId ?? 0);
+
+    const [lease, stakeholders] = await Promise.all([leasePromise, stakeholderPromise]);
+    await getLeaseStakeholderTypes();
+
+    if (exists(stakeholders)) {
+      setStakeholders(
+        stakeholders.map((t: ApiGen_Concepts_LeaseStakeholder) => new FormStakeholder(t)),
+      );
+      setInitialStakeholders(
+        stakeholders.map((t: ApiGen_Concepts_LeaseStakeholder) => new FormStakeholder(t)),
+      );
+      setSelectedContacts(
+        stakeholders.map((t: ApiGen_Concepts_LeaseStakeholder) =>
+          FormStakeholder.toContactSearchResult(new FormStakeholder(t)),
+        ) || [],
+      );
+    }
+
+    if (exists(lease)) {
+      setLease(lease);
+    }
+  }, [getLeaseExecute, leaseId, getLeaseStakeholders, getLeaseStakeholderTypes]);
 
   useEffect(() => {
-    const stakeholderTypesFunc = async () => {
-      await getLeaseStakeholderTypes();
-    };
-    stakeholderTypesFunc();
-  }, [getLeaseStakeholderTypes]);
+    fetchLease();
+  }, [fetchLease]);
 
   const setSelectedStakeholdersWithPersonData = async (
     updatedStakeholders?: IContactSearchResult[],
@@ -141,6 +141,8 @@ export const AddLeaseStakeholderContainer: React.FunctionComponent<
     setStakeholders([...formTenants, ...matchingExistingTenants]);
   };
 
+  const formikRef = useRef<FormikProps<LeaseFormModel>>(null);
+
   const submit = async (leaseToUpdate: ApiGen_Concepts_Lease) => {
     if (isValidId(leaseToUpdate.id)) {
       try {
@@ -155,8 +157,6 @@ export const AddLeaseStakeholderContainer: React.FunctionComponent<
               stakeholders: updatedStakeholders,
             }),
           });
-          onEdit && onEdit(false);
-          refreshLease && refreshLease();
           onSuccess();
         }
       } catch (e) {
@@ -192,7 +192,23 @@ export const AddLeaseStakeholderContainer: React.FunctionComponent<
     }
   };
 
-  return lease ? (
+  const isPayableLease = useMemo(() => {
+    return lease?.paymentReceivableType.id !== 'RCVBL' ? true : false;
+  }, [lease]);
+
+  const stakeholderPageName =
+    lease.paymentReceivableType.id === 'RCVBL' ? TabRouteType.tenant : TabRouteType.payee;
+
+  const onSuccess = () => {
+    pathResolver.showDetail('lease', leaseId, stakeholderPageName, true);
+  };
+
+  const handleCancel = () => {
+    setHandleSubmit(undefined);
+    pathResolver.showDetail('lease', leaseId, stakeholderPageName, true);
+  };
+
+  return exists(lease) ? (
     <View
       initialValues={{ ...new LeaseFormModel(), ...LeaseFormModel.fromApi(lease) }}
       selectedContacts={selectedContacts}
@@ -204,13 +220,11 @@ export const AddLeaseStakeholderContainer: React.FunctionComponent<
       showContactManager={showContactManager}
       setShowContactManager={setShowContactManager}
       saveCallback={handleSubmit}
-      onCancel={() => setHandleSubmit(undefined)}
+      onCancel={handleCancel}
       loading={loading}
       isPayableLease={isPayableLease}
       stakeholderTypesOptions={leaseStakeholderTypesResponse}
-    >
-      {children}
-    </View>
+    />
   ) : (
     <></>
   );

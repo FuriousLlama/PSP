@@ -1,55 +1,59 @@
 import { Formik, FormikProps } from 'formik';
-import { Prompt } from 'react-router-dom';
-import styled from 'styled-components';
 
+import { StyledSummarySection } from '@/components/common/Section/SectionStyles';
 import { AddLeaseYupSchema } from '@/features/leases/add/AddLeaseYupSchema';
 import AdministrationSubForm from '@/features/leases/add/AdministrationSubForm';
 import FeeDeterminationSubForm from '@/features/leases/add/FeeDeterminationSubForm';
 import LeaseDetailSubForm from '@/features/leases/add/LeaseDetailSubForm';
 import RenewalSubForm from '@/features/leases/add/RenewalSubForm';
-import { getDefaultFormLease, LeaseFormModel } from '@/features/leases/models';
+import { LeaseFormModel } from '@/features/leases/models';
 import { LeasePropertySelector } from '@/features/leases/shared/propertyPicker/LeasePropertySelector';
+import SidebarFooter from '@/features/mapSideBar/shared/SidebarFooter';
+import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 
 export interface IUpdateLeaseFormProps {
   onSubmit: (lease: LeaseFormModel) => Promise<void>;
-  initialValues?: LeaseFormModel;
+  onClose: () => void;
+  lease: ApiGen_Concepts_Lease;
   formikRef: React.Ref<FormikProps<LeaseFormModel>>;
 }
 
 export const UpdateLeaseForm: React.FunctionComponent<IUpdateLeaseFormProps> = ({
   onSubmit,
+  onClose,
+  lease,
   formikRef,
 }) => {
+  const initialForm = LeaseFormModel.fromApi(lease);
+
   return (
-    <StyledFormWrapper>
-      <Formik<LeaseFormModel>
-        validationSchema={AddLeaseYupSchema}
-        onSubmit={values => onSubmit(values)}
-        initialValues={getDefaultFormLease()}
-        innerRef={formikRef}
-      >
-        {formikProps => (
+    <Formik<LeaseFormModel>
+      validationSchema={AddLeaseYupSchema}
+      onSubmit={values => onSubmit(values)}
+      initialValues={initialForm}
+      innerRef={formikRef}
+    >
+      {formikProps => (
+        <>
           <>
-            <Prompt
-              when={formikProps.dirty}
-              message="You have made changes on this form. Do you wish to leave without saving?"
-            />
-            <>
-              <LeaseDetailSubForm formikProps={formikProps}></LeaseDetailSubForm>
+            <StyledSummarySection>
+              <LeaseDetailSubForm formikProps={formikProps} />
               <RenewalSubForm formikProps={formikProps} />
               <LeasePropertySelector formikProps={formikProps} />
-              <AdministrationSubForm formikProps={formikProps}></AdministrationSubForm>
-              <FeeDeterminationSubForm formikProps={formikProps}></FeeDeterminationSubForm>
-            </>
+              <AdministrationSubForm formikProps={formikProps} />
+              <FeeDeterminationSubForm formikProps={formikProps} />
+            </StyledSummarySection>
+            <SidebarFooter
+              isOkDisabled={formikProps?.isSubmitting}
+              onSave={formikProps.submitForm}
+              onCancel={onClose}
+              displayRequiredFieldError={!formikProps.isValid && !!formikProps.submitCount}
+            />
           </>
-        )}
-      </Formik>
-    </StyledFormWrapper>
+        </>
+      )}
+    </Formik>
   );
 };
 
 export default UpdateLeaseForm;
-
-const StyledFormWrapper = styled.div`
-  background-color: ${props => props.theme.css.highlightBackgroundColor};
-`;

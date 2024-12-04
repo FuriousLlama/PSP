@@ -1,12 +1,26 @@
 import { generatePath, useHistory, useRouteMatch } from 'react-router-dom';
 
+import { TabRouteType } from './tabs/RouterTabs';
+
 export interface IPathResolverMethods {
   newFile: (fileType: string) => void;
   showFile: (fileType: string, fileId: number) => void;
-  showDetail: (fileType: string, fileId: number, detailType: string) => void;
-  editDetails: (fileType: string, fileId: number, detailType: string) => void;
-  editDetail: (fileType: string, fileId: number, detailType: string, detailId: number) => void;
-  addDetail: (fileType: string, fileId: number, detailType: string) => void;
+  showDetail: (
+    fileType: string,
+    fileId: number,
+    detailType: TabRouteType,
+    replace: boolean,
+  ) => void;
+  editDetails: (fileType: string, fileId: number, detailType: TabRouteType) => void;
+  editDetail: (
+    fileType: string,
+    fileId: number,
+    detailType: TabRouteType,
+    detailId: number,
+  ) => void;
+  addDetail: (fileType: string, fileId: number, detailType: TabRouteType) => void;
+  editProperties: (fileType: string, fileId: number) => void;
+  showPropertyTabs: (fileType: string, fileId: number, propertyId: number) => void;
 }
 
 export type IPathResolver = () => IPathResolverMethods;
@@ -34,7 +48,12 @@ const usePathResolver: IPathResolver = () => {
     history.push(path);
   };
 
-  const showDetail = (fileType: string, fileId: number, detailType: string) => {
+  const showDetail = (
+    fileType: string,
+    fileId: number,
+    detailType: TabRouteType,
+    replace: boolean,
+  ) => {
     const a = '/mapview/sidebar/:fileType/:fileId/file/:detailType';
     const path = generatePath(a, {
       fileType: fileType,
@@ -42,10 +61,14 @@ const usePathResolver: IPathResolver = () => {
       detailType: detailType,
     });
 
-    history.push(path);
+    if (replace) {
+      history.replace(path);
+    } else {
+      history.push(path);
+    }
   };
 
-  const editDetails = (fileType: string, fileId: number, detailType: string) => {
+  const editDetails = (fileType: string, fileId: number, detailType: TabRouteType) => {
     const a = '/mapview/sidebar/:fileType/:fileId/edit/:detailType';
     const path = generatePath(a, {
       fileType: fileType,
@@ -56,7 +79,12 @@ const usePathResolver: IPathResolver = () => {
     history.push(path);
   };
 
-  const editDetail = (fileType: string, fileId: number, detailType: string, detailId: number) => {
+  const editDetail = (
+    fileType: string,
+    fileId: number,
+    detailType: TabRouteType,
+    detailId: number,
+  ) => {
     const a = '/mapview/sidebar/:fileType/:fileId/edit/:detailType/:detailId';
     const path = generatePath(a, {
       fileType: fileType,
@@ -68,8 +96,8 @@ const usePathResolver: IPathResolver = () => {
     history.push(path);
   };
 
-  const addDetail = (fileType: string, fileId: number, detailType: string) => {
-    const a = '/mapview/sidebar/:fileType/:fileId/add/:detailType';
+  const addDetail = (fileType: string, fileId: number, detailType: TabRouteType) => {
+    const a = '/mapview/sidebar/:fileType/:fileId/edit/:detailType';
     const path = generatePath(a, {
       fileType: fileType,
       fileId: fileId,
@@ -79,7 +107,37 @@ const usePathResolver: IPathResolver = () => {
     history.push(path);
   };
 
-  return { newFile, showFile, showDetail, editDetail, editDetails, addDetail };
+  const editProperties = (fileType: string, fileId: number) => {
+    const a = '/mapview/sidebar/edit-properties/:fileType/:fileId';
+    const path = generatePath(a, {
+      fileType: fileType,
+      fileId: fileId,
+    });
+
+    history.push(path);
+  };
+
+  const showPropertyTabs = (fileType: string, fileId: number, propertyId: number) => {
+    const a = '/mapview/sidebar/:fileType/:fileId/property/:propertyId';
+    const path = generatePath(a, {
+      fileType: fileType,
+      fileId: fileId,
+      propertyId: propertyId,
+    });
+
+    history.push(path);
+  };
+
+  return {
+    newFile,
+    showFile,
+    showDetail,
+    editDetail,
+    editDetails,
+    addDetail,
+    editProperties,
+    showPropertyTabs,
+  };
 };
 
 export default usePathResolver;

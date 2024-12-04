@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect } from 'react';
-import { RouteComponentProps, Switch, useHistory, useRouteMatch } from 'react-router-dom';
+import { Switch, useHistory, useRouteMatch } from 'react-router-dom';
 
 import { SideBarType } from '@/components/common/mapFSM/machineDefinition/types';
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
@@ -13,17 +13,11 @@ import DispositionView from '../disposition/DispositionView';
 import LeaseContainer from '../lease/LeaseContainer';
 import ProjectContainer from '../project/ProjectContainer';
 import ProjectContainerView from '../project/ProjectContainerView';
-
-interface NavComponent {
-  fileType: string;
-  component: (props: RouteComponentProps<any>, onClose: () => void) => React.ReactNode;
-  claims: Claims[];
-  title: string;
-}
+import { NavComponent } from '../shared/router/navComponent';
 
 const navigations: NavComponent[] = [
   {
-    fileType: 'acquisition',
+    matcher: 'acquisition',
     claims: [Claims.ACQUISITION_VIEW],
     title: 'Acquisition File',
     component: ({ match }, onClose) => (
@@ -35,7 +29,7 @@ const navigations: NavComponent[] = [
     ),
   },
   {
-    fileType: 'disposition',
+    matcher: 'disposition',
     claims: [Claims.DISPOSITION_VIEW],
     title: 'Disposition File',
     component: ({ match }, onClose) => (
@@ -47,7 +41,7 @@ const navigations: NavComponent[] = [
     ),
   },
   {
-    fileType: 'project',
+    matcher: 'project',
     claims: [Claims.PROJECT_VIEW],
     title: 'Project',
     component: ({ match }, onClose) => (
@@ -59,7 +53,7 @@ const navigations: NavComponent[] = [
     ),
   },
   {
-    fileType: 'lease',
+    matcher: 'lease',
     claims: [Claims.LEASE_VIEW],
     title: 'Lease / Licence File',
     component: ({ match }, onClose) => (
@@ -93,10 +87,10 @@ export const FileViewRouter: React.FunctionComponent = memo(() => {
     <Switch>
       {navigations.map((obj: NavComponent) => (
         <AppRoute
-          path={`${match.path}/${obj.fileType}/:fileId`}
+          path={`${match.path}/${obj.matcher}/:fileId`}
           customRender={props => obj.component(props, onClose)}
           claim={obj.claims}
-          key={obj.fileType}
+          key={obj.matcher}
           title={obj.title}
         />
       ))}

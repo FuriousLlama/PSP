@@ -4,6 +4,7 @@ import { FiCheck, FiMinus, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 
 import { EditButton } from '@/components/common/EditButton';
+import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { Section } from '@/components/common/Section/Section';
 import { SectionField } from '@/components/common/Section/SectionField';
 import { StyledEditWrapper, StyledSummarySection } from '@/components/common/Section/SectionStyles';
@@ -17,6 +18,7 @@ import { isDefaultState, lastModifiedBy, sortByDisplayOrder } from '@/utils/file
 import { StyledChecklistItemStatus, StyledSectionCentered } from './styles';
 
 export interface IChecklistViewProps {
+  isLoading: boolean;
   checklistItems: ApiGen_Concepts_FileChecklistItem[];
   onEdit: () => void;
   canEdit: boolean;
@@ -25,6 +27,7 @@ export interface IChecklistViewProps {
 }
 
 export const ChecklistView: React.FC<IChecklistViewProps> = ({
+  isLoading,
   checklistItems,
   prefix,
   onEdit,
@@ -38,6 +41,7 @@ export const ChecklistView: React.FC<IChecklistViewProps> = ({
 
   return (
     <StyledSummarySection>
+      <LoadingBackdrop show={isLoading} parentScreen />
       {canEdit && (
         <StyledEditWrapper className="mr-3 my-1">
           <EditButton title="Edit checklist" onClick={onEdit} />

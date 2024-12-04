@@ -1,16 +1,13 @@
-import { FieldArrayRenderProps, getIn, useFormikContext } from 'formik';
+import { FieldArrayRenderProps } from 'formik';
 import { FaExternalLinkAlt } from 'react-icons/fa';
-import styled from 'styled-components';
 
 import { SectionField } from '@/components/common/Section/SectionField';
 import { StyledLink } from '@/components/maps/leaflet/LayerPopup/styles';
-import { LeaseFormModel } from '@/features/leases/models';
-import { withNameSpace } from '@/utils/formUtils';
 
 import { FormStakeholder } from './models';
 
 export interface ITenantPersonContactInfoProps {
-  nameSpace: string;
+  stakeholder: FormStakeholder;
 }
 
 /**
@@ -19,27 +16,20 @@ export interface ITenantPersonContactInfoProps {
  */
 export const TenantPersonContactInfo: React.FunctionComponent<
   React.PropsWithChildren<ITenantPersonContactInfoProps & Partial<FieldArrayRenderProps>>
-> = ({ nameSpace }) => {
-  const { values } = useFormikContext<LeaseFormModel>();
-  const tenant: FormStakeholder = getIn(values, nameSpace);
+> = ({ stakeholder }) => {
   return (
-    <StyledSectionWrapper>
+    <div>
       <SectionField labelWidth="3" label="Person">
-        {getIn(values, withNameSpace(nameSpace, 'summary')) && (
+        {stakeholder.summary && (
           <>
-            <StyledLink to={`/contact/${tenant?.id}`} target="_blank" rel="noopener noreferrer">
-              {getIn(values, withNameSpace(nameSpace, 'summary'))} <FaExternalLinkAlt />
+            <StyledLink to={`/contact/${stakeholder.id}`} target="_blank" rel="noopener noreferrer">
+              {stakeholder.summary} <FaExternalLinkAlt />
             </StyledLink>
           </>
         )}
       </SectionField>
-    </StyledSectionWrapper>
+    </div>
   );
 };
-
-const StyledSectionWrapper = styled.div`
-  border-bottom: 0.1rem gray solid;
-  padding-top: 2rem;
-`;
 
 export default TenantPersonContactInfo;

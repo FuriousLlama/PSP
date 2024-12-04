@@ -1,38 +1,33 @@
 import axios, { AxiosError } from 'axios';
 import { FormikHelpers } from 'formik';
 import { useCallback, useEffect, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import { useOrganizationRepository } from '@/features/contacts/repositories/useOrganizationRepository';
 import { usePersonRepository } from '@/features/contacts/repositories/usePersonRepository';
+import usePathResolver from '@/features/mapSideBar/shared/sidebarPathSolver';
+import { TabRouteType } from '@/features/mapSideBar/shared/tabs/RouterTabs';
 import { useConsultationProvider } from '@/hooks/repositories/useConsultationProvider';
 import { IApiError } from '@/interfaces/IApiError';
 import { exists, isValidId } from '@/utils';
 
-import { LeasePageNames } from '../../../LeaseContainer';
 import { IConsultationEditFormProps } from './ConsultationEditForm';
 import { ConsultationFormModel } from './models';
 
 export interface IConsultationUpdateContainerProps {
   leaseId: number;
   consultationId: number;
-  onSuccess: () => void;
   View: React.FunctionComponent<React.PropsWithChildren<IConsultationEditFormProps>>;
 }
 
 const ConsultationUpdateContainer: React.FunctionComponent<
   React.PropsWithChildren<IConsultationUpdateContainerProps>
-> = ({ leaseId, consultationId, onSuccess, View }) => {
-  const history = useHistory();
-  const location = useLocation();
+> = ({ leaseId, consultationId, View }) => {
   const [initialValues, setInitialValues] = useState<ConsultationFormModel>(
     new ConsultationFormModel(leaseId),
   );
 
-  const backUrl = location.pathname.split(
-    `/${LeasePageNames.CONSULTATIONS}/${consultationId}/edit`,
-  )[0];
+  const pathResolver = usePathResolver();
 
   const {
     getLeaseConsultationById: { execute: getConsultation, loading: getConsultationLoading },
@@ -88,8 +83,7 @@ const ConsultationUpdateContainer: React.FunctionComponent<
     try {
       const consultationSaved = await updateConsultation(leaseId, values.id, values.toApi());
       if (consultationSaved) {
-        onSuccess();
-        history.push(backUrl);
+        pathResolver.showDetail('lease', leaseId, TabRouteType.consultations, true);
       }
     } catch (e) {
       if (axios.isAxiosError(e)) {
@@ -99,6 +93,10 @@ const ConsultationUpdateContainer: React.FunctionComponent<
     } finally {
       formikHelpers.setSubmitting(false);
     }
+  };
+
+  const handleCancel = () => {
+    pathResolver.showDetail('lease', leaseId, TabRouteType.consultations, true);
   };
 
   return (
@@ -111,7 +109,7 @@ const ConsultationUpdateContainer: React.FunctionComponent<
         getOrganizationLoading
       }
       onSubmit={handleSubmit}
-      onCancel={() => history.push(backUrl)}
+      onCancel={handleCancel}
     />
   );
 };

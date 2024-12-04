@@ -1,84 +1,106 @@
 import { AxiosError } from 'axios';
-import { FormikProps } from 'formik/dist/types';
-import { useCallback } from 'react';
+import { FormikProps } from 'formik';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import * as API from '@/constants/API';
-import { useLeaseDetail } from '@/features/leases/hooks/useLeaseDetail';
 import { useUpdateLease } from '@/features/leases/hooks/useUpdateLease';
 import { LeaseFormModel } from '@/features/leases/models';
+import { SideBarContext } from '@/features/mapSideBar/context/sidebarContext';
+import usePathResolver from '@/features/mapSideBar/shared/sidebarPathSolver';
+import { TabRouteType } from '@/features/mapSideBar/shared/tabs/RouterTabs';
+import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
+import { usePropertyLeaseRepository } from '@/hooks/repositories/usePropertyLeaseRepository';
 import useApiUserOverride from '@/hooks/useApiUserOverride';
 import useLookupCodeHelpers from '@/hooks/useLookupCodeHelpers';
 import { useModalContext } from '@/hooks/useModalContext';
-import useDeepCompareEffect from '@/hooks/util/useDeepCompareEffect';
 import { IApiError } from '@/interfaces/IApiError';
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { UserOverrideCode } from '@/models/api/UserOverrideCode';
-import { isValidId } from '@/utils';
+import { exists, isValidId } from '@/utils';
 
 import { IUpdateLeaseFormProps } from './UpdateLeaseForm';
 
 export interface UpdateLeaseContainerProps {
-  formikRef: React.RefObject<FormikProps<LeaseFormModel>>;
-  onEdit: (isEditing: boolean) => void;
+  leaseId: number;
   View: React.FunctionComponent<IUpdateLeaseFormProps>;
 }
 
 export const UpdateLeaseContainer: React.FunctionComponent<UpdateLeaseContainerProps> = ({
-  formikRef,
-  onEdit,
+  leaseId,
   View,
 }) => {
-  const lease: any = null;
-  const { getCompleteLease, refresh, loading } = useLeaseDetail(lease?.id ?? undefined);
+  const [lease, setLease] = useState<ApiGen_Concepts_Lease | null>();
   const { updateApiLease } = useUpdateLease();
+
+  const { setStaleFile } = useContext(SideBarContext);
+
   const withUserOverride = useApiUserOverride<
     (userOverrideCodes: UserOverrideCode[]) => Promise<any | void>
   >('Failed to update Lease File');
+
+  const {
+    getLease: { execute: getLease, loading: getLeaseLoading },
+  } = useLeaseRepository();
+
+  const {
+    getPropertyLeases: { execute: getPropertyLeases, loading: propertyLeasesLoading },
+  } = usePropertyLeaseRepository();
 
   const { setModalContent, setDisplayModal } = useModalContext();
 
   const mapMachine = useMapStateMachine();
 
+  const pathResolver = usePathResolver();
+
   const { getByType } = useLookupCodeHelpers();
   const consultationTypes = getByType(API.CONSULTATION_TYPES);
 
-  // Not all consultations might be coming from the backend. Add the ones missing.
+  const formikRef = useRef<FormikProps<any>>();
 
-  const leaseId = lease?.id;
-  useDeepCompareEffect(() => {
-    const exec = async () => {
-      if (leaseId) {
-        const lease = await getCompleteLease();
-        formikRef?.current?.resetForm({ values: LeaseFormModel.fromApi(lease) });
+  // Not all consultations might be coming from the backend. Add the ones missing.
+  //
+
+  const fetchLease = useCallback(async () => {
+    if (leaseId) {
+      const getLeasePromise = getLease(leaseId);
+      const getPropertiesPromise = getPropertyLeases(leaseId);
+
+      const [leaseResponse, propertiesResponse] = await Promise.all([
+        getLeasePromise,
+        getPropertiesPromise,
+      ]);
+
+      if (exists(leaseResponse) && exists(propertiesResponse)) {
+        leaseResponse.fileProperties = propertiesResponse;
+        setLease(leaseResponse);
       }
-    };
-    exec();
-  }, [getCompleteLease, leaseId, formikRef, consultationTypes]);
+    }
+  }, [leaseId, getLease, getPropertyLeases]);
+
+  useEffect(() => {
+    fetchLease();
+  }, [fetchLease]);
 
   const afterSubmit = useCallback(
-    async (updatedLease?: ApiGen_Concepts_Lease) => {
+    (updatedLease?: ApiGen_Concepts_Lease) => {
       if (isValidId(updatedLease?.id)) {
-        formikRef?.current?.resetForm({ values: formikRef?.current?.values });
-        await refresh();
-        mapMachine.refreshMapProperties();
-        onEdit(false);
+        //mapMachine.refreshMapProperties();
+        setStaleFile(true);
+        pathResolver.showDetail('lease', leaseId, TabRouteType.fileDetails);
       }
     },
-    [formikRef, mapMachine, onEdit, refresh],
+    [leaseId, pathResolver, setStaleFile],
   );
 
   const onSubmit = useCallback(
     async (lease: LeaseFormModel, userOverrideCodes: UserOverrideCode[] = []) => {
-      try {
-        const leaseToUpdate = LeaseFormModel.toApi(lease);
+      const leaseToUpdate = LeaseFormModel.toApi(lease);
 
-        const updatedLease = await updateApiLease.execute(leaseToUpdate, userOverrideCodes);
-        afterSubmit(updatedLease);
-      } finally {
-        formikRef?.current?.setSubmitting(false);
-      }
+      const updatedLease = await updateApiLease.execute(leaseToUpdate, userOverrideCodes);
+      formikRef?.current?.setSubmitting(false);
+      afterSubmit(updatedLease);
     },
     [afterSubmit, formikRef, updateApiLease],
   );
@@ -97,21 +119,29 @@ export const UpdateLeaseContainer: React.FunctionComponent<UpdateLeaseContainerP
     }
   };
 
-  return (
-    <>
-      <LoadingBackdrop show={loading} parentScreen></LoadingBackdrop>
-      <View
-        onSubmit={(lease: LeaseFormModel) =>
-          withUserOverride(
-            (userOverrideCodes: UserOverrideCode[]) => onSubmit(lease, userOverrideCodes),
+  const onClose = () => {
+    console.log('closing');
+    pathResolver.showDetail('lease', leaseId, TabRouteType.fileDetails);
+  };
 
-            [],
-            customErrorHandler,
-          )
-        }
-        formikRef={formikRef}
-      />
-    </>
+  if (!exists(lease)) {
+    return <LoadingBackdrop parentScreen />;
+  }
+
+  return (
+    <View
+      onSubmit={(lease: LeaseFormModel) =>
+        withUserOverride(
+          (userOverrideCodes: UserOverrideCode[]) => onSubmit(lease, userOverrideCodes),
+
+          [],
+          customErrorHandler,
+        )
+      }
+      onClose={onClose}
+      lease={lease}
+      formikRef={formikRef}
+    />
   );
 };
 

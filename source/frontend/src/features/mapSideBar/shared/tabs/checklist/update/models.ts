@@ -1,7 +1,6 @@
 import { ApiGen_Base_BaseAudit } from '@/models/api/generated/ApiGen_Base_BaseAudit';
 import { ApiGen_Concepts_FileChecklistItem } from '@/models/api/generated/ApiGen_Concepts_FileChecklistItem';
 import { ApiGen_Concepts_FileChecklistItemType } from '@/models/api/generated/ApiGen_Concepts_FileChecklistItemType';
-import { ApiGen_Concepts_FileWithChecklist } from '@/models/api/generated/ApiGen_Concepts_FileWithChecklist';
 import { EpochIsoDateTime, UtcIsoDateTime } from '@/models/api/UtcIsoDateTime';
 import { getEmptyBaseAudit } from '@/models/defaultInitializers';
 import { ILookupCode } from '@/store/slices/lookupCodes';
@@ -9,18 +8,13 @@ import { lastModifiedBy, sortByDisplayOrder } from '@/utils/fileUtils';
 import { fromTypeCode, toTypeCodeNullable } from '@/utils/formUtils';
 
 export class ChecklistFormModel {
-  id?: number;
-  rowVersion?: number;
   checklistSections: ChecklistSectionFormModel[] = [];
 
   static fromApi(
-    apiFile: ApiGen_Concepts_FileWithChecklist,
+    checklist: ApiGen_Concepts_FileChecklistItem[],
     sectionTypes: ILookupCode[],
   ): ChecklistFormModel {
-    const checklist = apiFile.fileChecklistItems || [];
     const model = new ChecklistFormModel();
-    model.id = apiFile.id;
-    model.rowVersion = apiFile.rowVersion ?? undefined;
     model.checklistSections = sectionTypes.map(section =>
       ChecklistSectionFormModel.fromApi(
         section,
@@ -31,7 +25,7 @@ export class ChecklistFormModel {
     return model;
   }
 
-  toApi(): ApiGen_Concepts_FileWithChecklist {
+  toApi(): ApiGen_Concepts_FileChecklistItem[] {
     const allChecklistItems = this.checklistSections.reduce(
       (acc: ChecklistItemFormModel[], section) => {
         return acc.concat(section.items);
@@ -39,16 +33,7 @@ export class ChecklistFormModel {
       [],
     );
 
-    return {
-      id: this.id ?? 0,
-      fileChecklistItems: allChecklistItems.map(c => c.toApi()),
-      fileName: null,
-      fileNumber: null,
-      totalAllowableCompensation: null,
-      fileProperties: null,
-      fileStatusTypeCode: null,
-      ...getEmptyBaseAudit(this.rowVersion),
-    };
+    return allChecklistItems.map(c => c.toApi());
   }
 
   lastModifiedBy(): ApiGen_Base_BaseAudit | undefined {

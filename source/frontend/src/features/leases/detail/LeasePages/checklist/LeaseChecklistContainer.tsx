@@ -4,6 +4,7 @@ import { Claims } from '@/constants';
 import * as API from '@/constants/API';
 import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
 import { IChecklistViewProps } from '@/features/mapSideBar/shared/tabs/checklist/detail/ChecklistView';
+import { TabRouteType } from '@/features/mapSideBar/shared/tabs/RouterTabs';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 import useKeycloakWrapper from '@/hooks/useKeycloakWrapper';
 import { ApiGen_Concepts_FileChecklistItem } from '@/models/api/generated/ApiGen_Concepts_FileChecklistItem';
@@ -33,13 +34,14 @@ const LeaseChecklistContainer: React.FunctionComponent<
   }, [fetchChecklist]);
 
   const onEdit = () => {
-    pathResolver.editDetails('lease', props.fileId, 'checklist');
+    pathResolver.editDetails('lease', props.fileId, TabRouteType.checklist);
   };
 
   const View = props.View;
 
   return (
     <View
+      isLoading={getLeaseChecklist.loading}
       checklistItems={checklist}
       onEdit={onEdit}
       sectionTypeName={API.LEASE_CHECKLIST_SECTION_TYPES}

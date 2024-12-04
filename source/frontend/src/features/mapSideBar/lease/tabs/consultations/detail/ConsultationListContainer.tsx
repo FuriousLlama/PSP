@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { TabInteractiveContainerProps } from '@/features/mapSideBar/shared/TabDetail';
+import { TabRouteType } from '@/features/mapSideBar/shared/tabs/RouterTabs';
 import { useConsultationProvider } from '@/hooks/repositories/useConsultationProvider';
 import { ApiGen_Concepts_ConsultationLease } from '@/models/api/generated/ApiGen_Concepts_ConsultationLease';
 import { isValidId } from '@/utils';
@@ -34,11 +35,11 @@ export const ConsultationListContainer: React.FunctionComponent<
   }, [fileId, getConsultations]);
 
   const handleConsultationAdd = async () => {
-    pathResolver.addDetail('lease', fileId, 'consultations');
+    pathResolver.addDetail('lease', fileId, TabRouteType.consultations_add);
   };
 
   const handleConsultationEdit = async (consultationId: number) => {
-    pathResolver.editDetail('lease', fileId, 'consultations', consultationId);
+    pathResolver.editDetail('lease', fileId, TabRouteType.consultations_edit, consultationId);
   };
 
   const handleConsultationDeleted = async (consultationId: number) => {

@@ -208,8 +208,6 @@ export const DepositsContainer: React.FunctionComponent<
     }
   };
 
-  debugger;
-
   if (!exists(lease)) {
     return <LoadingBackdrop parentScreen />;
   }

@@ -9,6 +9,7 @@ import { SectionField } from '@/components/common/Section/SectionField';
 import { StyledSummarySection } from '@/components/common/Section/SectionStyles';
 import TooltipIcon from '@/components/common/TooltipIcon';
 import { PropertyImprovementTypes } from '@/constants/propertyImprovementTypes';
+import SidebarFooter from '@/features/mapSideBar/shared/SidebarFooter';
 import { withNameSpace } from '@/utils/formUtils';
 
 import { AddImprovementsYupSchema } from './AddImprovementsYupSchema';
@@ -19,13 +20,14 @@ import * as Styled from './styles';
 export interface IAddImprovementsFormProps {
   loading?: boolean;
   onSubmit: (lease: ILeaseImprovementsForm) => Promise<void>;
+  onClose: () => void;
   initialValues?: ILeaseImprovementsForm;
   formikRef: React.Ref<FormikProps<ILeaseImprovementsForm>>;
 }
 
 export const AddImprovementsForm: React.FunctionComponent<
   React.PropsWithChildren<IAddImprovementsFormProps>
-> = ({ onSubmit, initialValues, formikRef, loading }) => {
+> = ({ onSubmit, onClose, initialValues, formikRef, loading }) => {
   return (
     <StyledSummarySection>
       <LoadingBackdrop show={loading} parentScreen />
@@ -103,6 +105,12 @@ export const AddImprovementsForm: React.FunctionComponent<
                 }
               />
             </>
+            <SidebarFooter
+              isOkDisabled={formikProps?.isSubmitting}
+              onSave={formikProps.submitForm}
+              onCancel={onClose}
+              displayRequiredFieldError={!formikProps.isValid && !!formikProps.submitCount}
+            />
           </>
         )}
       </Formik>

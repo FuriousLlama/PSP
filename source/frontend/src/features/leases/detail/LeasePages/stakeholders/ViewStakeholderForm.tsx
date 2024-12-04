@@ -1,19 +1,18 @@
-import { Formik } from 'formik';
-import noop from 'lodash/noop';
 import styled from 'styled-components';
 
+import EditButton from '@/components/common/EditButton';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { Section } from '@/components/common/Section/Section';
-import { LeaseFormModel } from '@/features/leases/models';
+import { StyledEditWrapper } from '@/components/common/Section/SectionStyles';
 import { ApiGen_Concepts_LeaseStakeholderType } from '@/models/api/generated/ApiGen_Concepts_LeaseStakeholderType';
-import { withNameSpace } from '@/utils/formUtils';
 
 import { FormStakeholder } from './models';
 import TenantOrganizationContactInfo from './StakeholderOrganizationContactInfo';
 import TenantPersonContactInfo from './StakeholderPersonContactInfo';
 
 export interface ILeaseStakeholderViewProps {
-  nameSpace?: string;
+  canEdit: boolean;
+  onEdit: () => void;
   stakeholders: FormStakeholder[];
   leaseStakeholderTypes?: ApiGen_Concepts_LeaseStakeholderType[];
   loading?: boolean;
@@ -26,13 +25,14 @@ export interface ILeaseStakeholderViewProps {
  */
 export const LeaseStakeholderView: React.FunctionComponent<
   React.PropsWithChildren<ILeaseStakeholderViewProps>
-> = ({ nameSpace, stakeholders, loading, leaseStakeholderTypes, isPayableLease }) => {
+> = ({ canEdit, onEdit, stakeholders, loading, leaseStakeholderTypes, isPayableLease }) => {
   return (
-    <Formik
-      initialValues={{ ...new LeaseFormModel(), stakeholders }}
-      onSubmit={noop}
-      enableReinitialize
-    >
+    <>
+      {canEdit && (
+        <StyledEditWrapper className="mr-3 my-1">
+          <EditButton title="Edit checklist" onClick={onEdit} />
+        </StyledEditWrapper>
+      )}
       <>
         <LoadingBackdrop show={loading} parentScreen />
 
@@ -50,13 +50,9 @@ export const LeaseStakeholderView: React.FunctionComponent<
                     <div key={`stakeholders-${index}`}>
                       <>
                         {stakeholder.organizationId ? (
-                          <TenantOrganizationContactInfo
-                            nameSpace={withNameSpace(nameSpace, `stakeholders.${index}`)}
-                          />
+                          <TenantOrganizationContactInfo stakeholder={stakeholder} />
                         ) : (
-                          <TenantPersonContactInfo
-                            nameSpace={withNameSpace(nameSpace, `stakeholders.${index}`)}
-                          />
+                          <TenantPersonContactInfo stakeholder={stakeholder} />
                         )}
                       </>
                     </div>
@@ -72,7 +68,7 @@ export const LeaseStakeholderView: React.FunctionComponent<
           </StyledSection>
         )}
       </>
-    </Formik>
+    </>
   );
 };
 

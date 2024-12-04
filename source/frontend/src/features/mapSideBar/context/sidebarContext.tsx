@@ -5,21 +5,35 @@ import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineCo
 import { Api_LastUpdatedBy } from '@/models/api/File';
 import { ApiGen_CodeTypes_FileTypes } from '@/models/api/generated/ApiGen_CodeTypes_FileTypes';
 import { ApiGen_Concepts_File } from '@/models/api/generated/ApiGen_Concepts_File';
+import { ApiGen_Concepts_FileProperty } from '@/models/api/generated/ApiGen_Concepts_FileProperty';
 import { ApiGen_Concepts_Project } from '@/models/api/generated/ApiGen_Concepts_Project';
 import { exists } from '@/utils';
 import { getLatLng, locationFromFileProperty } from '@/utils/mapPropertyUtils';
 
+import { TabContent } from '../shared/tabs/RouterTabs';
+
 export interface TypedFile extends ApiGen_Concepts_File {
   fileType: ApiGen_CodeTypes_FileTypes;
-  projectId?: number | null;
+  projectId?: number | null; // TODO: If all files have project/product then the backend should match the typing
   productId?: number | null;
 }
 
 export interface ISideBarContext {
-  file?: TypedFile;
-  setFile: (file?: TypedFile) => void;
+  setFileData: (
+    fileType: string,
+    file: ApiGen_Concepts_File,
+    fileProperties: ApiGen_Concepts_FileProperty[],
+  ) => void;
+  fileType: string;
+  file: ApiGen_Concepts_File | null;
+  fileProperties: ApiGen_Concepts_FileProperty[];
+
   staleFile: boolean;
   setStaleFile: (stale: boolean) => void;
+
+  fileTabs: TabContent[];
+  setFileTabs: (tabs: TabContent[]) => void;
+
   fileLoading: boolean;
   setFileLoading: (loading: boolean) => void;
   resetFilePropertyLocations: () => void;
@@ -36,14 +50,22 @@ export interface ISideBarContext {
 }
 
 export const SideBarContext = createContext<ISideBarContext>({
-  file: undefined,
-  setFile: () => {
-    throw Error('setFile function not defined');
+  setFileData: () => {
+    throw Error('setFileData function not defined');
   },
+  fileType: 'NOT_DEFINED',
+  file: undefined,
+  fileProperties: [],
   fileLoading: false,
   setFileLoading: () => {
     throw Error('setFileLoading function not defined');
   },
+
+  fileTabs: [],
+  setFileTabs: () => {
+    throw Error('setFileTabs function not defined');
+  },
+
   resetFilePropertyLocations: () => {
     throw Error('resetFilePropertyLocations function not defined');
   },
@@ -77,7 +99,10 @@ export const SideBarContextProvider = (props: {
   project?: ApiGen_Concepts_Project;
   lastUpdatedBy?: Api_LastUpdatedBy;
 }) => {
-  const [file, setFile] = useState<TypedFile | undefined>(props.file);
+  const [fileType, setFileType] = useState<string>('NOT_DEFINED');
+  const [file, setFile] = useState<ApiGen_Concepts_File>(props.file);
+  const [fileProperties, setFileProperties] = useState<ApiGen_Concepts_FileProperty[]>([]);
+  const [fileTabs, setFileTabs] = useState<TabContent[]>([]);
   const [project, setProject] = useState<ApiGen_Concepts_Project | undefined>(props.project);
   const [staleFile, setStaleFile] = useState<boolean>(false);
   const [lastUpdatedBy, setLastUpdatedBy] = useState<Api_LastUpdatedBy | null>(
@@ -87,9 +112,16 @@ export const SideBarContextProvider = (props: {
   const [fileLoading, setFileLoading] = useState<boolean>(false);
   const [projectLoading, setProjectLoading] = useState<boolean>(false);
 
-  const setFileAndStale = useCallback(
-    (file?: TypedFile) => {
+  const setFileData = useCallback(
+    (
+      fileType: string,
+      file: ApiGen_Concepts_File,
+      fileProperties: ApiGen_Concepts_FileProperty[],
+    ) => {
+      setFileType(fileType);
       setFile(file);
+      setFileProperties(fileProperties);
+
       setStaleFile(false);
     },
     [setFile, setStaleFile],
@@ -111,11 +143,9 @@ export const SideBarContextProvider = (props: {
   );
 
   const getFilePropertyIndexById = (filePropertyId: number) =>
-    findIndex(file?.fileProperties, fp => fp.id === filePropertyId);
+    findIndex(fileProperties, fp => fp.id === filePropertyId);
 
   const { setFilePropertyLocations } = useMapStateMachine();
-
-  const fileProperties = file?.fileProperties;
 
   const resetFilePropertyLocations = useCallback(() => {
     if (exists(fileProperties)) {
@@ -144,8 +174,12 @@ export const SideBarContextProvider = (props: {
   return (
     <SideBarContext.Provider
       value={{
-        setFile: setFileAndStale,
+        setFileData: setFileData,
         file: file,
+        fileType: fileType,
+        fileProperties: fileProperties,
+        setFileTabs: setFileTabs,
+        fileTabs: fileTabs,
         setFileLoading: setFileLoading,
         fileLoading: fileLoading,
         resetFilePropertyLocations,

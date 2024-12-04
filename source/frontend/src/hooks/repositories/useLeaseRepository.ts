@@ -4,7 +4,6 @@ import { useCallback, useMemo } from 'react';
 import { useApiRequestWrapper } from '@/hooks/util/useApiRequestWrapper';
 import { Api_LastUpdatedBy } from '@/models/api/File';
 import { ApiGen_Concepts_FileChecklistItem } from '@/models/api/generated/ApiGen_Concepts_FileChecklistItem';
-import { ApiGen_Concepts_FileWithChecklist } from '@/models/api/generated/ApiGen_Concepts_FileWithChecklist';
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { ApiGen_Concepts_LeaseRenewal } from '@/models/api/generated/ApiGen_Concepts_LeaseRenewal';
 import { ApiGen_Concepts_LeaseStakeholderType } from '@/models/api/generated/ApiGen_Concepts_LeaseStakeholderType';
@@ -91,10 +90,14 @@ export const useLeaseRepository = () => {
   });
 
   const updateLeaseChecklistApi = useApiRequestWrapper<
-    (lease: ApiGen_Concepts_FileWithChecklist) => Promise<AxiosResponse<ApiGen_Concepts_Lease, any>>
+    (
+      leaseId: number,
+      checklist: ApiGen_Concepts_FileChecklistItem[],
+    ) => Promise<AxiosResponse<ApiGen_Concepts_FileChecklistItem[], any>>
   >({
     requestFunction: useCallback(
-      async (lease: ApiGen_Concepts_FileWithChecklist) => await putLeaseChecklist(lease),
+      async (leaseId: number, checklist: ApiGen_Concepts_FileChecklistItem[]) =>
+        await putLeaseChecklist(leaseId, checklist),
       [putLeaseChecklist],
     ),
     requestName: 'UpdateLeaseChecklist',

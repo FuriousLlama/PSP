@@ -5,7 +5,6 @@ import { ILeaseFilter } from '@/features/leases';
 import { Api_LastUpdatedBy } from '@/models/api/File';
 import { ApiGen_Base_Page } from '@/models/api/generated/ApiGen_Base_Page';
 import { ApiGen_Concepts_FileChecklistItem } from '@/models/api/generated/ApiGen_Concepts_FileChecklistItem';
-import { ApiGen_Concepts_FileWithChecklist } from '@/models/api/generated/ApiGen_Concepts_FileWithChecklist';
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { ApiGen_Concepts_LeaseRenewal } from '@/models/api/generated/ApiGen_Concepts_LeaseRenewal';
 import { ApiGen_Concepts_LeaseStakeholderType } from '@/models/api/generated/ApiGen_Concepts_LeaseStakeholderType';
@@ -67,8 +66,8 @@ export const useApiLeases = () => {
         api.get<ApiGen_Concepts_LeaseRenewal[]>(`/leases/${leaseId}/renewals`),
       getLeaseChecklist: (leaseId: number) =>
         api.get<ApiGen_Concepts_FileChecklistItem[]>(`/leases/${leaseId}/checklist`),
-      putLeaseChecklist: (lease: ApiGen_Concepts_FileWithChecklist) =>
-        api.put<ApiGen_Concepts_Lease>(`/leases/${lease?.id}/checklist`, lease.fileChecklistItems),
+      putLeaseChecklist: (leaseId: number, checklist: ApiGen_Concepts_FileChecklistItem[]) =>
+        api.put<ApiGen_Concepts_FileChecklistItem[]>(`/leases/${leaseId}/checklist`, checklist),
       getLeaseStakeholderTypes: () =>
         api.get<ApiGen_Concepts_LeaseStakeholderType[]>(`/leases/stakeholdertypes`),
     }),

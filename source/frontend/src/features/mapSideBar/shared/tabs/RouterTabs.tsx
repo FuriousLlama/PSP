@@ -44,6 +44,8 @@ export enum TabRouteType {
   SUB_FILES = 'subFiles',
   fileDetails = 'fileDetails',
   consultations = 'consultations',
+  consultations_edit = 'consultations-edit',
+  consultations_add = 'consultations-add',
   tenant = 'tenant',
   payee = 'payee',
   improvements = 'improvements',
@@ -81,17 +83,14 @@ export const RouterTabs: React.FunctionComponent<React.PropsWithChildren<IRouter
 
   const { hasClaim } = useKeycloakWrapper();
 
+  const detailType = match.params['detailType'];
+
   useEffect(() => {
-    if (match.params.detailType === activeTabKey) {
-      return;
-    }
-    const tab = tabs.find(tab => tab.key === match.params.detailType);
+    const tab = tabs.find(tab => tab.key === detailType);
     if (exists(tab)) {
       setActiveTabKey(tab.key);
     }
-  }, [activeTabKey, match.params.detailType, tabs]);
-
-  const detailType = match.params['detailType'];
+  }, [activeTabKey, detailType, tabs]);
 
   useEffect(() => {
     const tab = tabs.find(tab => tab.key === detailType);
