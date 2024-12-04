@@ -18,7 +18,7 @@ import { pidParser } from '@/utils/propertyUtils';
 
 import { mapMachine } from './machineDefinition/mapMachine';
 import { MachineContext, SideBarType } from './machineDefinition/types';
-import { FeatureSelected, MapFeatureData, RequestedFlyTo } from './models';
+import { FeatureSelected, MapFeatureData, RequestedCenterTo, RequestedFlyTo } from './models';
 import useLocationFeatureLoader, { LocationFeatureDataset } from './useLocationFeatureLoader';
 import { useMapSearch } from './useMapSearch';
 
@@ -26,7 +26,9 @@ export interface IMapStateMachineContext {
   mapSideBarViewState: IMapSideBarViewState;
   isShowingSearchBar: boolean;
   pendingFlyTo: boolean;
+  pendingCenterTo: boolean;
   requestedFlyTo: RequestedFlyTo;
+  requestedCenterTo: RequestedCenterTo;
   mapFeatureSelected: FeatureSelected | null;
   mapLocationSelected: LatLngLiteral | null;
   mapLocationFeatureDataset: LocationFeatureDataset | null;
@@ -53,10 +55,13 @@ export interface IMapStateMachineContext {
   mapLayersToRefresh: ILayerItem[];
   advancedSearchCriteria: PropertyFilterFormModel;
   isMapVisible: boolean;
+  currentMapBounds: LatLngBounds;
 
   requestFlyToLocation: (latlng: LatLngLiteral) => void;
+  requestCenterToLocation: (latlng: LatLngLiteral) => void;
   requestFlyToBounds: (bounds: LatLngBounds) => void;
   processFlyTo: () => void;
+  processCenterTo: () => void;
   processFitBounds: () => void;
   openSidebar: (sidebarType: SideBarType) => void;
   closeSidebar: () => void;
@@ -90,6 +95,7 @@ export interface IMapStateMachineContext {
   setFullWidthSideBar: (fullWidth: boolean) => void;
   resetMapFilter: () => void;
   setAdvancedSearchCriteria: (advancedSearchCriteria: PropertyFilterFormModel) => void;
+  setCurrentMapBounds: (bounds: LatLngBounds) => void;
 }
 
 const MapStateMachineContext = React.createContext<IMapStateMachineContext>(
@@ -133,8 +139,10 @@ export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>>
         const result = locationLoader.loadLocationDetails(
           event.type === 'MAP_CLICK' ? event.latlng : event.featureSelected.latlng,
         );
+
         if (event.type === 'MAP_MARKER_CLICK') {
-          // In the case of the map marker being clicked, we must use the search result properties, as the minimal layer does not have the necessary feature data. However, use the coordinates of the clicked marker.
+          // In the case of the map marker being clicked, we must use the search result properties, as the minimal layer does not have the necessary feature data.
+          // However, use the coordinates of the clicked marker.
           result.then(data => {
             data.pimsFeature = {
               properties: { ...data.pimsFeature.properties },
@@ -225,6 +233,16 @@ export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>>
     [serviceSend],
   );
 
+  const requestCenterToLocation = useCallback(
+    (latlng: LatLngLiteral) => {
+      serviceSend({
+        type: 'REQUEST_CENTER_TO_LOCATION',
+        latlng,
+      });
+    },
+    [serviceSend],
+  );
+
   const requestFlyToBounds = useCallback(
     (bounds: LatLngBounds) => {
       serviceSend({
@@ -238,6 +256,12 @@ export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>>
   const processFlyTo = useCallback(() => {
     serviceSend({
       type: 'PROCESS_FLY_TO',
+    });
+  }, [serviceSend]);
+
+  const processCenterTo = useCallback(() => {
+    serviceSend({
+      type: 'PROCESS_CENTER_TO',
     });
   }, [serviceSend]);
 
@@ -360,6 +384,13 @@ export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>>
     [serviceSend],
   );
 
+  const setCurrentMapBounds = useCallback(
+    (currentMapBounds: LatLngBounds) => {
+      serviceSend({ type: 'SET_CURRENT_MAP_BOUNDS', currentMapBounds });
+    },
+    [serviceSend],
+  );
+
   const toggleSidebarDisplay = useCallback(() => {
     serviceSend({ type: 'TOGGLE_SIDEBAR_SIZE' });
   }, [serviceSend]);
@@ -432,7 +463,9 @@ export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>>
         mapSideBarViewState: mapSideBarViewState,
         isShowingSearchBar: isShowingSearchBar,
         pendingFlyTo: state.matches({ mapVisible: { mapRequest: 'pendingFlyTo' } }),
+        pendingCenterTo: state.matches({ mapVisible: { mapRequest: 'pendingCenterTo' } }),
         requestedFlyTo: state.context.requestedFlyTo,
+        requestedCenterTo: state.context.requestedCenterTo,
         mapFeatureSelected: state.context.mapFeatureSelected,
         mapLocationSelected: state.context.mapLocationSelected,
         mapLocationFeatureDataset: state.context.mapLocationFeatureDataset,
@@ -459,14 +492,17 @@ export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>>
         showRetired: state.context.showRetired,
         mapLayersToRefresh: state.context.mapLayersToRefresh,
         isMapVisible: state.matches({ mapVisible: {} }),
+        currentMapBounds: state.context.currentMapBounds,
 
         setMapSearchCriteria,
         refreshMapProperties,
         processFlyTo,
+        processCenterTo,
         processFitBounds,
         openSidebar,
         closeSidebar,
         requestFlyToLocation,
+        requestCenterToLocation,
         requestFlyToBounds,
         mapClick,
         mapMarkerClick,
@@ -489,6 +525,7 @@ export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>>
         setFullWidthSideBar,
         resetMapFilter,
         setAdvancedSearchCriteria,
+        setCurrentMapBounds,
       }}
     >
       {props.children}
@@ -509,6 +546,6 @@ const getQueryParams = (filter: IPropertyFilter): IGeoSearchParams => {
     HISTORICAL_FILE_NUMBER_STR: filter.historical,
     latitude: filter.latitude,
     longitude: filter.longitude,
-    forceExactMatch: true,
+    forceExactMatch: pidValue.length === 9,
   };
 };
