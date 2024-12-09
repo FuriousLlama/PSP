@@ -34,6 +34,9 @@ export interface ISideBarContext {
   fileTabs: TabContent[];
   setFileTabs: (tabs: TabContent[]) => void;
 
+  fileGenerateContainer: React.ReactNode | null;
+  setFileGenerateContainer: (generateContainer: React.ReactNode) => void;
+
   fileLoading: boolean;
   setFileLoading: (loading: boolean) => void;
   resetFilePropertyLocations: () => void;
@@ -63,6 +66,11 @@ export const SideBarContext = createContext<ISideBarContext>({
 
   fileTabs: [],
   setFileTabs: () => {
+    throw Error('setFileTabs function not defined');
+  },
+
+  fileGenerateContainer: null,
+  setFileGenerateContainer: () => {
     throw Error('setFileTabs function not defined');
   },
 
@@ -103,6 +111,7 @@ export const SideBarContextProvider = (props: {
   const [file, setFile] = useState<ApiGen_Concepts_File>(props.file);
   const [fileProperties, setFileProperties] = useState<ApiGen_Concepts_FileProperty[]>([]);
   const [fileTabs, setFileTabs] = useState<TabContent[]>([]);
+  const [fileGenerateContainer, setFileGenerateContainer] = useState<React.ReactNode | null>(null);
   const [project, setProject] = useState<ApiGen_Concepts_Project | undefined>(props.project);
   const [staleFile, setStaleFile] = useState<boolean>(false);
   const [lastUpdatedBy, setLastUpdatedBy] = useState<Api_LastUpdatedBy | null>(
@@ -180,6 +189,8 @@ export const SideBarContextProvider = (props: {
         fileProperties: fileProperties,
         setFileTabs: setFileTabs,
         fileTabs: fileTabs,
+        fileGenerateContainer: fileGenerateContainer,
+        setFileGenerateContainer: setFileGenerateContainer,
         setFileLoading: setFileLoading,
         fileLoading: fileLoading,
         resetFilePropertyLocations,

@@ -95,9 +95,9 @@ namespace Pims.Api.Models.Concepts.Lease
         public CodeTypeModel<string> PaymentReceivableType { get; set; }
 
         /// <summary>
-        /// get/set - The entity that initiated this lease.
+        /// get/set - The lease type.
         /// </summary>
-        public CodeTypeModel<string> Type { get; set; }
+        public CodeTypeModel<string> LeaseType { get; set; }
 
         /// <summary>
         /// get/set - The entity that initiated this lease.

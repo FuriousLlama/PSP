@@ -22,7 +22,7 @@ export const FileBodyContainer: React.FunctionComponent<IFileBodyContainerProps>
 
   const pathResolver = usePathResolver();
 
-  const { fileType, fileProperties, fileTabs } = useContext(SideBarContext);
+  const { fileType, fileProperties, fileTabs, fileGenerateContainer } = useContext(SideBarContext);
 
   const onSelectFileSummary = () => {
     history.push(`${stripTrailingSlash(match.url)}/file`);
@@ -50,6 +50,7 @@ export const FileBodyContainer: React.FunctionComponent<IFileBodyContainerProps>
       canEdit={true}
       fileType={ApiGen_CodeTypes_FileTypes.Lease}
       fileTabs={fileTabs}
+      FileFormContainer={fileGenerateContainer}
     />
   );
 };

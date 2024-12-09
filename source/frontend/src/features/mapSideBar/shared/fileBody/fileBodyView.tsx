@@ -2,6 +2,7 @@ import React from 'react';
 
 import { ApiGen_CodeTypes_FileTypes } from '@/models/api/generated/ApiGen_CodeTypes_FileTypes';
 import { ApiGen_Concepts_FileProperty } from '@/models/api/generated/ApiGen_Concepts_FileProperty';
+import { exists } from '@/utils';
 
 import FileLayout from '../../layout/FileLayout';
 import { TabContent, TabRouteType } from '../../shared/tabs/RouterTabs';
@@ -14,6 +15,7 @@ export interface IFileBodyViewProps {
   canEdit: boolean;
   fileType: ApiGen_CodeTypes_FileTypes;
   fileTabs: TabContent[];
+  FileFormContainer: React.ReactNode | null;
   onSelectFileSummary: () => void;
   onSelectProperty: (propertyId: number) => void;
   onEditProperties: () => void;
@@ -27,6 +29,7 @@ export const FileBodyView: React.FunctionComponent<IFileBodyViewProps> = ({
   onSelectFileSummary,
   onSelectProperty,
   onEditProperties,
+  FileFormContainer,
 }) => {
   return (
     <FileLayout
@@ -37,7 +40,9 @@ export const FileBodyView: React.FunctionComponent<IFileBodyViewProps> = ({
           onSelectFileSummary={onSelectFileSummary}
           onSelectProperty={onSelectProperty}
           onEditProperties={onEditProperties}
-        />
+        >
+          {exists(FileFormContainer) && FileFormContainer}
+        </FileMenu>
       }
       bodyComponent={
         <StyledFormWrapper>

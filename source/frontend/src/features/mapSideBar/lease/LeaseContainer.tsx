@@ -2,15 +2,18 @@ import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 
 import LeaseIcon from '@/assets/images/lease-icon.svg?react';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
+import { useLeaseStakeholderRepository } from '@/hooks/repositories/useLeaseStakeholderRepository';
 import { usePropertyLeaseRepository } from '@/hooks/repositories/usePropertyLeaseRepository';
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { exists } from '@/utils';
 
+import GenerateFormView from '../acquisition/common/GenerateForm/GenerateFormView';
 import { SideBarContext } from '../context/sidebarContext';
 import MapSideBarLayout from '../layout/MapSideBarLayout';
 import FileBodyRouter from '../shared/router/FileBodyRouter';
 import LeaseHeader from './common/LeaseHeader';
 import leaseEditDetailNavigations from './LeaseEditPages';
+import LeaseGenerateFormContainer from './LeaseGenerateFormContainer';
 import getLeaseTabs from './tabs/leaseTabs';
 
 export interface ILeaseContainerProps {
@@ -28,17 +31,23 @@ export const LeaseContainer: React.FC<ILeaseContainerProps> = ({ leaseId, onClos
     staleLastUpdatedBy,
     lastUpdatedBy,
     setFileTabs,
+    setFileGenerateContainer,
   } = useContext(SideBarContext);
 
   const {
     getLease: { execute: getLease, loading: getLeaseLoading },
+    getLeaseRenewals: { execute: getRenewals, loading: getLeaseRenewalsLoading },
 
     getLastUpdatedBy: { execute: getLastUpdatedBy, loading: getLastUpdatedByLoading },
   } = useLeaseRepository();
 
   const {
-    getPropertyLeases: { execute: getPropertyLeases, loading: propertyLeasesLoading },
+    getPropertyLeases: { execute: getProperties, loading: propertyLeasesLoading },
   } = usePropertyLeaseRepository();
+
+  const {
+    getLeaseStakeholders: { execute: getStakeholders, loading: getLeaseStakeholdersLoading },
+  } = useLeaseStakeholderRepository();
 
   const onSuccess = useCallback(() => {
     console.log('suceesss');
@@ -47,19 +56,45 @@ export const LeaseContainer: React.FC<ILeaseContainerProps> = ({ leaseId, onClos
   const fetchLease = useCallback(async () => {
     if (leaseId) {
       const getLeasePromise = getLease(leaseId);
-      const getPropertiesPromise = getPropertyLeases(leaseId);
+      const getRenewalsPromise = getRenewals(leaseId);
+      const getPropertiesPromise = getProperties(leaseId);
+      const getLeaseStakeholders = getStakeholders(leaseId);
       const getLastUpdatedByPromise = getLastUpdatedBy(leaseId);
 
-      const [leaseResponse, propertiesResponse, lastUpdatedBy] = await Promise.all([
+      const [
+        leaseResponse,
+        renewalsResponse,
+        propertiesResponse,
+        stakeholdersResponse,
+        lastUpdatedBy,
+      ] = await Promise.all([
         getLeasePromise,
+        getRenewalsPromise,
         getPropertiesPromise,
+        getLeaseStakeholders,
         getLastUpdatedByPromise,
       ]);
 
       if (exists(leaseResponse) && exists(propertiesResponse)) {
+        leaseResponse.renewals = renewalsResponse;
+        leaseResponse.fileProperties = propertiesResponse;
+        leaseResponse.stakeholders = stakeholdersResponse;
+
         setFileData('lease', leaseResponse, propertiesResponse);
 
         setFileTabs(getLeaseTabs(leaseResponse, onSuccess));
+
+        const leaseTypeCode = exists(leaseResponse.leaseType?.id)
+          ? leaseResponse.leaseType?.id
+          : null;
+
+        setFileGenerateContainer(
+          <LeaseGenerateFormContainer
+            leaseId={leaseId}
+            leaseType={leaseTypeCode}
+            View={GenerateFormView}
+          />,
+        );
       }
 
       if (exists(lastUpdatedBy)) {
@@ -67,13 +102,16 @@ export const LeaseContainer: React.FC<ILeaseContainerProps> = ({ leaseId, onClos
       }
     }
   }, [
-    leaseId,
-    getLease,
-    getPropertyLeases,
     getLastUpdatedBy,
-    setFileData,
-    setFileTabs,
+    getLease,
+    getProperties,
+    getRenewals,
+    getStakeholders,
+    leaseId,
     onSuccess,
+    setFileData,
+    setFileGenerateContainer,
+    setFileTabs,
     setLastUpdatedBy,
   ]);
 

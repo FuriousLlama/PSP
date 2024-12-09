@@ -13,4 +13,8 @@ export enum FormDocumentType {
   H179T = 'H179T',
   // 	General Letter
   LETTER = 'LETTER',
+  // 	????
+  H1005_A = 'H1005_A',
+  // 	???
+  H1005 = 'H1005',
 }

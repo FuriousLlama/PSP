@@ -144,7 +144,7 @@ export class LeaseFormModel {
     leaseDetail.responsibilityTypeCode = fromTypeCode(apiModel?.responsibilityType) || '';
     leaseDetail.initiatorTypeCode = fromTypeCode(apiModel?.initiatorType) || '';
     leaseDetail.statusTypeCode = fromTypeCode(apiModel?.fileStatusTypeCode) || '';
-    leaseDetail.leaseTypeCode = fromTypeCode(apiModel?.type) || '';
+    leaseDetail.leaseTypeCode = fromTypeCode(apiModel?.leaseType) || '';
     leaseDetail.regionId = fromTypeCode(apiModel?.region)?.toString() || '';
     leaseDetail.programTypeCode = fromTypeCode(apiModel?.programType) || '';
     leaseDetail.note = apiModel?.note || '';
@@ -199,7 +199,7 @@ export class LeaseFormModel {
       responsibilityType: toTypeCodeNullable(formLease.responsibilityTypeCode) ?? null,
       initiatorType: toTypeCodeNullable(formLease.initiatorTypeCode) ?? null,
       fileStatusTypeCode: toTypeCodeNullable(formLease.statusTypeCode) ?? null,
-      type: toTypeCodeNullable(formLease.leaseTypeCode) ?? null,
+      leaseType: toTypeCodeNullable(formLease.leaseTypeCode) ?? null,
       region: toTypeCodeNullable(Number(formLease.regionId)) ?? null,
       programType: toTypeCodeNullable(formLease.programTypeCode) ?? null,
       note: stringToNull(formLease.note),
@@ -340,7 +340,7 @@ export const getDefaultFormLease: () => LeaseFormModel = () =>
     paymentReceivableType: toTypeCodeNullable(ApiGen_CodeTypes_LeaseAccountTypes.RCVBL),
     leasePurposes: [],
     programType: null,
-    type: null,
+    leaseType: null,
     initiatorType: null,
     responsibilityType: null,
     region: null,

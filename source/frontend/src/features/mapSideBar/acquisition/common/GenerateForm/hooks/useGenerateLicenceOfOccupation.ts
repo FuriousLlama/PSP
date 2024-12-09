@@ -11,7 +11,6 @@ import { useApiRequestWrapper } from '@/hooks/util/useApiRequestWrapper';
 import { ApiGen_CodeTypes_ExternalResponseStatus } from '@/models/api/generated/ApiGen_CodeTypes_ExternalResponseStatus';
 import { ApiGen_CodeTypes_FormTypes } from '@/models/api/generated/ApiGen_CodeTypes_FormTypes';
 import { ApiGen_CodeTypes_LeaseLicenceTypes } from '@/models/api/generated/ApiGen_CodeTypes_LeaseLicenceTypes';
-import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { Api_GenerateLease } from '@/models/generate/lease/GenerateLease';
 import { exists, useAxiosErrorHandler } from '@/utils';
 
@@ -53,15 +52,15 @@ export const useGenerateLicenceOfOccupation = () => {
     ApiGen_CodeTypes_LeaseLicenceTypes.LIPPUBHWY.toString(),
   ];
 
-  const generateLicenceOfOccupation = async (lease: ApiGen_Concepts_Lease) => {
-    if (lease?.id) {
-      const updatedLeasePromise = getLease(lease.id);
-      const insurancesPromise = getInsurances(lease.id);
-      const stakeholdersPromise = getLeaseStakeholders(lease.id);
-      const renewalsPromise = getLeaseRenewals(lease.id);
-      const securityDepositsPromise = getLeaseDeposits(lease.id);
-      const periodsPromise = getLeasePeriods(lease.id);
-      const propertyLeasesPromise = getPropertyLeases(lease.id);
+  const generateLicenceOfOccupation = async (leaseId: number) => {
+    if (leaseId) {
+      const updatedLeasePromise = getLease(leaseId);
+      const insurancesPromise = getInsurances(leaseId);
+      const stakeholdersPromise = getLeaseStakeholders(leaseId);
+      const renewalsPromise = getLeaseRenewals(leaseId);
+      const securityDepositsPromise = getLeaseDeposits(leaseId);
+      const periodsPromise = getLeasePeriods(leaseId);
+      const propertyLeasesPromise = getPropertyLeases(leaseId);
       const [
         updatedLease,
         insurances,
@@ -84,7 +83,7 @@ export const useGenerateLicenceOfOccupation = () => {
         throw new Error('Failed to load lease, reload this page to try again.');
       }
 
-      if (!updatedLease.type?.id || !VALID_LICENCE_TYPES.includes(updatedLease.type.id)) {
+      if (!updatedLease.leaseType?.id || !VALID_LICENCE_TYPES.includes(updatedLease.leaseType.id)) {
         throw new Error('Invalid licence type.');
       }
 
@@ -99,7 +98,7 @@ export const useGenerateLicenceOfOccupation = () => {
       );
 
       let formTemplateType: ApiGen_CodeTypes_FormTypes;
-      switch (updatedLease.type.id) {
+      switch (updatedLease.leaseType.id) {
         case ApiGen_CodeTypes_LeaseLicenceTypes.LOOBCTFA:
           formTemplateType = ApiGen_CodeTypes_FormTypes.H1005A;
           break;

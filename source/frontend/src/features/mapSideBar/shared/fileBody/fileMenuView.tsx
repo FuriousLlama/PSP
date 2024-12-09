@@ -26,6 +26,7 @@ const FileMenu: React.FunctionComponent<React.PropsWithChildren<IFileMenuProps>>
   onSelectFileSummary,
   onSelectProperty,
   onEditProperties,
+  children,
 }) => {
   const location = useLocation();
 
@@ -74,35 +75,38 @@ const FileMenu: React.FunctionComponent<React.PropsWithChildren<IFileMenuProps>>
         )}
       </StyledMenuHeaderWrapper>
       <div className={'p-1'} />
-      {properties.map((property: ApiGen_Concepts_FileProperty, index: number) => {
-        const propertyName = getFilePropertyName(property);
-        return (
-          <StyledRow
-            key={`menu-item-row-${index}`}
-            data-testid={`menu-item-row-${index}`}
-            className={cx('no-gutters', { selected: currentPropertyIndex === index })}
-            onClick={() => {
-              if (currentPropertyIndex !== index) {
-                onSelectProperty(property.property.id);
-              }
-            }}
-          >
-            <Col xs="1">{currentPropertyIndex === index && <FaCaretRight />}</Col>
-            <Col xs="auto" className="pr-2">
-              <StyledIconWrapper className={cx({ selected: currentPropertyIndex === index })}>
-                {index}
-              </StyledIconWrapper>
-            </Col>
-            <Col>
-              {currentPropertyIndex === index ? (
-                <span title="View">{propertyName.value}</span>
-              ) : (
-                <LinkButton title="View">{propertyName.value}</LinkButton>
-              )}
-            </Col>
-          </StyledRow>
-        );
-      })}
+      <StyledMenuBodyWrapper>
+        {properties.map((property: ApiGen_Concepts_FileProperty, index: number) => {
+          const propertyName = getFilePropertyName(property);
+          return (
+            <StyledRow
+              key={`menu-item-row-${index}`}
+              data-testid={`menu-item-row-${index}`}
+              className={cx('no-gutters', { selected: currentPropertyIndex === index })}
+              onClick={() => {
+                if (currentPropertyIndex !== index) {
+                  onSelectProperty(property.property.id);
+                }
+              }}
+            >
+              <Col xs="1">{currentPropertyIndex === index && <FaCaretRight />}</Col>
+              <Col xs="auto" className="pr-2">
+                <StyledIconWrapper className={cx({ selected: currentPropertyIndex === index })}>
+                  {index}
+                </StyledIconWrapper>
+              </Col>
+              <Col>
+                {currentPropertyIndex === index ? (
+                  <span title="View">{propertyName.value}</span>
+                ) : (
+                  <LinkButton title="View">{propertyName.value}</LinkButton>
+                )}
+              </Col>
+            </StyledRow>
+          );
+        })}
+      </StyledMenuBodyWrapper>
+      <>{children}</>
     </StyledMenuWrapper>
   );
 };
@@ -110,11 +114,15 @@ const FileMenu: React.FunctionComponent<React.PropsWithChildren<IFileMenuProps>>
 export default FileMenu;
 
 const StyledMenuWrapper = styled.div`
+  flex: 1;
   text-align: left;
   padding: 0px;
   margin: 0px;
   width: 100%;
   color: ${props => props.theme.css.linkColor};
+
+  display: flex;
+  flex-direction: column;
 `;
 
 const StyledRow = styled(Row)`
@@ -165,4 +173,8 @@ const StyledMenuHeader = styled.span`
   font-size: 1.6rem;
   color: ${props => props.theme.bcTokens.iconsColorSecondary};
   line-height: 2.2rem;
+`;
+
+const StyledMenuBodyWrapper = styled.div`
+  flex-grow: 1;
 `;

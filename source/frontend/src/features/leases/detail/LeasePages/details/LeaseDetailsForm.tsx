@@ -14,19 +14,16 @@ import DetailAdministration from './DetailAdministration';
 import { DetailFeeDetermination } from './DetailFeeDetermination';
 import { LeaseDetailSummaryView } from './LeaseDetailView';
 import { LeaseRenewalsView } from './LeaseRenewalsView';
-import PropertiesInformation from './PropertiesInformation';
 
 export interface ILeaseDetailsViewProps {
   lease?: ApiGen_Concepts_Lease;
   canEdit: boolean;
-  onGenerate: (lease?: ApiGen_Concepts_Lease) => void;
   onEdit: () => void;
 }
 
 export const LeaseDetailsView: React.FunctionComponent<ILeaseDetailsViewProps> = ({
   lease,
   canEdit,
-  onGenerate,
   onEdit,
 }) => {
   const displayLeaseTerminationMessage = () => {
@@ -66,9 +63,8 @@ export const LeaseDetailsView: React.FunctionComponent<ILeaseDetailsViewProps> =
             </StyledEditWrapper>
           )}
         </StyledTerminationWrapper>
-        <LeaseDetailSummaryView lease={lease} onGenerate={onGenerate} />
+        <LeaseDetailSummaryView lease={lease} />
         <LeaseRenewalsView renewals={lease.renewals} />
-        <PropertiesInformation disabled={true} />
         <DetailAdministration disabled={true} />
         <DetailFeeDetermination disabled={true} />
       </StyledDetails>
