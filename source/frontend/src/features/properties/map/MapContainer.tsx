@@ -19,7 +19,6 @@ import CompensationRequisitionRouter from '@/features/mapSideBar/router/Compensa
 import PropertyActivityRouter from '@/features/mapSideBar/router/PropertyActivityRouter';
 import RightSideLayout from '@/features/rightSideLayout/RightSideLayout';
 import { usePimsPropertyRepository } from '@/hooks/repositories/usePimsPropertyRepository';
-import useTraceUpdate from '@/hooks/util/useTraceUpdate';
 import { Api_PropertyFilterCriteria } from '@/models/api/ProjectFilterCriteria';
 
 enum MapCursors {
@@ -28,9 +27,7 @@ enum MapCursors {
   DEFAULT = 'default',
 }
 
-let count = 0;
-
-const MapContainer: React.FC<React.PropsWithChildren<MapContainerProps>> = props => {
+const MapContainer: React.FC<React.PropsWithChildren<MapContainerProps>> = () => {
   const [showActionBar, setShowActionBar] = useState(false);
   const {
     isSelecting,
@@ -46,11 +43,6 @@ const MapContainer: React.FC<React.PropsWithChildren<MapContainerProps>> = props
     openSidebar,
     closeSidebar,
   } = useMapStateMachine();
-
-  console.log('MapContainer', count);
-  count++;
-
-  useTraceUpdate(props);
 
   const { getMatchingProperties } = usePimsPropertyRepository();
 

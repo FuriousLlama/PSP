@@ -4,7 +4,7 @@ import { Switch, useHistory, useRouteMatch } from 'react-router-dom';
 import { Claims } from '@/constants';
 import AppRoute from '@/utils/AppRoute';
 
-import AcquisitionPropertyEditContainer from '../acquisition/AcquistionPropertyEditContainer';
+import LeasePropertyEditContainer from '../lease/LeasePropertyEditContainer';
 
 export const FilePropertyRouter: React.FC<unknown> = () => {
   const history = useHistory();
@@ -14,18 +14,18 @@ export const FilePropertyRouter: React.FC<unknown> = () => {
   return (
     <Switch>
       <AppRoute
-        path={`${match.path}/acquisition/:fileId`}
+        path={`${match.path}/lease/:fileId`}
         customRender={({ match }) => (
-          <AcquisitionPropertyEditContainer
-            acquisitionFileId={Number(match.params.fileId)}
+          <LeasePropertyEditContainer
+            leaseId={Number(match.params.fileId)}
             onSuccess={() => {
-              history.push(`/mapview/sidebar/acquisition/${Number(match.params.fileId)}`);
+              history.push(`/mapview/sidebar/lease/${Number(match.params.fileId)}`);
             }}
           />
         )}
-        claim={Claims.ACQUISITION_EDIT}
-        key={'EditAcquisitionProperties'}
-        title={'Edit Acquisition Properties'}
+        claim={Claims.LEASE_EDIT}
+        key={'EditLeaseProperties'}
+        title={'Edit Lease Properties'}
       />
     </Switch>
   );

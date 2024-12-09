@@ -6,7 +6,7 @@ import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineCo
 import Claims from '@/constants/claims';
 import AppRoute from '@/utils/AppRoute';
 
-import AcquisitionPropertyEditContainer from '../acquisition/AcquistionPropertyEditContainer';
+import LeasePropertyEditContainer from '../lease/LeasePropertyEditContainer';
 
 export const FileEditPropertiesRouter: React.FunctionComponent = memo(() => {
   console.log('FileEditPropertiesRouter');
@@ -29,16 +29,16 @@ export const FileEditPropertiesRouter: React.FunctionComponent = memo(() => {
   return (
     <Switch>
       <AppRoute
-        path={`${match.path}/acquisition/:fileId`}
+        path={`${match.path}/lease/:fileId`}
         customRender={({ match }) => (
-          <AcquisitionPropertyEditContainer
-            acquisitionFileId={match.params['fileId']}
+          <LeasePropertyEditContainer
+            leaseId={match.params['fileId']}
             onSuccess={() => {
-              history.push(`/mapview/sidebar/acquisition/${match.params['fileId']}`);
+              history.push(`/mapview/sidebar/lease/${match.params['fileId']}`);
             }}
           />
         )}
-        claim={Claims.ACQUISITION_VIEW}
+        claim={Claims.LEASE_EDIT}
         key={'Acquisition'}
         title={'Acquisition File'}
       />

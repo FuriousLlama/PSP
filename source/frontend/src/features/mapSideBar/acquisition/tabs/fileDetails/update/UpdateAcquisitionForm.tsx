@@ -20,7 +20,6 @@ import TooltipIcon from '@/components/common/TooltipIcon';
 import { RestrictContactType } from '@/components/contact/ContactManagerView/ContactFilterComponent/ContactFilterComponent';
 import * as API from '@/constants/API';
 import { useOrganizationRepository } from '@/features/contacts/repositories/useOrganizationRepository';
-import SidebarFooter from '@/features/mapSideBar/shared/SidebarFooter';
 import { useProjectProvider } from '@/hooks/repositories/useProjectProvider';
 import { useLookupCodeHelpers } from '@/hooks/useLookupCodeHelpers';
 import { IAutocompletePrediction } from '@/interfaces';
@@ -46,11 +45,10 @@ export interface IUpdateAcquisitionFormProps {
     values: UpdateAcquisitionSummaryFormModel,
     formikHelpers: FormikHelpers<UpdateAcquisitionSummaryFormModel>,
   ) => void | Promise<any>;
-  onClose: () => void;
 }
 
 export const UpdateAcquisitionForm: React.FC<IUpdateAcquisitionFormProps> = props => {
-  const { formikRef, initialValues, validationSchema, onSubmit, onClose } = props;
+  const { formikRef, initialValues, validationSchema, onSubmit } = props;
 
   return (
     <Formik<UpdateAcquisitionSummaryFormModel>
@@ -61,17 +59,7 @@ export const UpdateAcquisitionForm: React.FC<IUpdateAcquisitionFormProps> = prop
       onSubmit={onSubmit}
     >
       {formikProps => {
-        return (
-          <>
-            <AcquisitionDetailSubForm formikProps={formikProps} />
-            <SidebarFooter
-              isOkDisabled={formikProps?.isSubmitting}
-              onSave={formikProps.submitForm}
-              onCancel={onClose}
-              displayRequiredFieldError={!formikProps.isValid && !!formikProps.submitCount}
-            />
-          </>
-        );
+        return <AcquisitionDetailSubForm formikProps={formikProps}></AcquisitionDetailSubForm>;
       }}
     </Formik>
   );

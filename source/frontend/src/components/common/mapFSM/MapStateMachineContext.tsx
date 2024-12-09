@@ -12,7 +12,6 @@ import {
   defaultPropertyFilter,
   IPropertyFilter,
 } from '@/features/properties/filter/IPropertyFilter';
-import useTraceUpdate from '@/hooks/util/useTraceUpdate';
 import { exists } from '@/utils';
 import { pidParser } from '@/utils/propertyUtils';
 
@@ -110,12 +109,9 @@ export function useMapStateMachine() {
   return context;
 }
 
-let count = 0;
-export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>> = props => {
-  console.log('MapStateMachineProvider', count);
-  count++;
-  useTraceUpdate(props);
-
+export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>> = ({
+  children,
+}) => {
   const locationLoader = useLocationFeatureLoader();
   const mapSearch = useMapSearch();
   const history = useHistory();
@@ -528,7 +524,7 @@ export const MapStateMachineProvider: React.FC<React.PropsWithChildren<unknown>>
         setCurrentMapBounds,
       }}
     >
-      {props.children}
+      {children}
     </MapStateMachineContext.Provider>
   );
 };

@@ -1,5 +1,6 @@
 import { AxiosError } from 'axios';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import React from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 
 import { useAcquisitionProvider } from '@/hooks/repositories/useAcquisitionProvider';
@@ -14,14 +15,15 @@ import { exists, isValidId } from '@/utils';
 
 import UpdatePropertiesView from '../shared/update/properties/UpdateProperties';
 
-interface IAcquisitionPropertyEditContainer {
-  acquisitionFileId: number;
+interface ILeasePropertyEditContainer {
+  leaseId: number;
   onSuccess: () => void;
 }
 
-export const AcquisitionPropertyEditContainer: React.FunctionComponent<
-  IAcquisitionPropertyEditContainer
-> = ({ acquisitionFileId, onSuccess }) => {
+export const LeasePropertyEditContainer: React.FunctionComponent<ILeasePropertyEditContainer> = ({
+  leaseId,
+  onSuccess,
+}) => {
   const [acquisitionFile, setAcquisitionFile] = useState<ApiGen_Concepts_AcquisitionFile | null>(
     null,
   );
@@ -49,18 +51,18 @@ export const AcquisitionPropertyEditContainer: React.FunctionComponent<
   const fetchAcquisitionFile = useCallback(async () => {
     // NOTE: The view does not seem like it uses the file itself, only the properties.
     // Assess if the file needs to be retrieved.
-    const retrieved = await retrieveAcquisitionFile(acquisitionFileId);
+    const retrieved = await retrieveAcquisitionFile(leaseId);
     if (exists(retrieved)) {
-      const acquisitionProperties = await retrieveAcquisitionFileProperties(acquisitionFileId);
+      const acquisitionProperties = await retrieveAcquisitionFileProperties(leaseId);
 
       retrieved.fileProperties = acquisitionProperties ?? null;
       setAcquisitionFile(retrieved);
     }
-  }, [acquisitionFileId, retrieveAcquisitionFileProperties, retrieveAcquisitionFile]);
+  }, [leaseId, retrieveAcquisitionFileProperties, retrieveAcquisitionFile]);
 
   useEffect(() => {
     fetchAcquisitionFile();
-  }, [fetchAcquisitionFile, acquisitionFileId]);
+  }, [fetchAcquisitionFile, leaseId]);
 
   const isFileLoading = useMemo(
     () => loadingAcquisitionFile || loadingAcquisitionFileProperties,
@@ -107,16 +109,14 @@ export const AcquisitionPropertyEditContainer: React.FunctionComponent<
       if (isValidId(propertyId)) {
         const response = await getPropertyAssociations(propertyId);
         const acquisitionAssociations = response?.acquisitionAssociations ?? [];
-        const otherAcqFiles = acquisitionAssociations.filter(
-          a => exists(a.id) && a.id !== acquisitionFileId,
-        );
+        const otherAcqFiles = acquisitionAssociations.filter(a => exists(a.id) && a.id !== leaseId);
         return otherAcqFiles.length > 0;
       } else {
         // the property is not in PIMS db -> no need to confirm
         return false;
       }
     },
-    [getPropertyAssociations, acquisitionFileId],
+    [getPropertyAssociations, leaseId],
   );
 
   const closePropertySelector = () => {
@@ -150,4 +150,4 @@ export const AcquisitionPropertyEditContainer: React.FunctionComponent<
   );
 };
 
-export default AcquisitionPropertyEditContainer;
+export default LeasePropertyEditContainer;

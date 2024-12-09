@@ -9,7 +9,6 @@ import { StyledIconButton } from '@/components/common/buttons/IconButton';
 import { StyledAddButton } from '@/components/common/styles';
 import TooltipWrapper from '@/components/common/TooltipWrapper';
 import Claims from '@/constants/claims';
-import usePathResolver from '@/features/mapSideBar/shared/sidebarPathSolver';
 import { useApiAcquisitionFile } from '@/hooks/pims-api/useApiAcquisitionFile';
 import { useAcquisitionProvider } from '@/hooks/repositories/useAcquisitionProvider';
 import useKeycloakWrapper from '@/hooks/useKeycloakWrapper';
@@ -53,8 +52,6 @@ export const AcquisitionListView: React.FunctionComponent<
     getAcquisitionFiles,
     'No matching results can be found. Try widening your search criteria.',
   );
-
-  const pathResolver = usePathResolver();
 
   const { exportAcquisitionFiles } = useAcquisitionFileExport();
 
@@ -118,7 +115,7 @@ export const AcquisitionListView: React.FunctionComponent<
           </Row>
         </Styled.PageToolbar>
         {hasClaim(Claims.ACQUISITION_ADD) && (
-          <StyledAddButton onClick={() => pathResolver.newFile('acquisition')}>
+          <StyledAddButton onClick={() => history.push('/mapview/sidebar/acquisition/new')}>
             <FaPlus />
             &nbsp;Create an acquisition file
           </StyledAddButton>

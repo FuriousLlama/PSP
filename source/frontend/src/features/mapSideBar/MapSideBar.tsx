@@ -14,15 +14,8 @@ export interface IMapSideBarViewState {
   type: SideBarType;
 }
 
-let count = 0;
-
 const MapSideBar: React.FunctionComponent<React.PropsWithChildren<unknown>> = () => {
   const mapMachine = useMapStateMachine();
-
-  console.log('MapSideBar', count);
-  console.log('viewState', mapMachine.mapSideBarViewState);
-
-  count++;
 
   return (
     <StyledMapSideBar sideBarState={mapMachine.mapSideBarViewState}>

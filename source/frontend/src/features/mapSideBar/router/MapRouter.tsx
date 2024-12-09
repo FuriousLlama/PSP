@@ -201,9 +201,47 @@ export const MapRouter: React.FunctionComponent = memo(() => {
         key={'Research'}
         title={'Research File'}
       />
-      <Route
-        path={`/mapview/sidebar/acquisition`}
-        render={() => <AcquistionRouter onClose={onClose} />}
+      <AppRoute
+        path={`/mapview/sidebar/acquisition/new`}
+        customRender={() => (
+          <AddAcquisitionContainer
+            onClose={onClose}
+            onSuccess={(newAcquisitionId: number) => {
+              history.push(`/mapview/sidebar/acquisition/${newAcquisitionId}`);
+            }}
+          />
+        )}
+        claim={Claims.ACQUISITION_ADD}
+        key={'NewAcquisition'}
+        title={'Create Acquisition File'}
+      />
+      <AppRoute
+        path={`/mapview/sidebar/acquisition/:id`}
+        customRender={({ match }) => (
+          <AcquisitionContainer
+            acquisitionFileId={Number(match.params.id)}
+            onClose={onClose}
+            View={AcquisitionView}
+          />
+        )}
+        claim={Claims.ACQUISITION_VIEW}
+        key={'Acquisition'}
+        title={'Acquisition File'}
+      />
+      <AppRoute
+        path={`/mapview/sidebar/disposition/new`}
+        customRender={() => (
+          <AddDispositionContainer
+            onClose={onClose}
+            View={AddDispositionContainerView}
+            onSuccess={(newDispositionId: number) => {
+              history.replace(`/mapview/sidebar/disposition/${newDispositionId}`);
+            }}
+          />
+        )}
+        claim={Claims.DISPOSITION_ADD}
+        key={'NewDisposition'}
+        title={'Create Disposition File'}
       />
       <AppRoute
         path={`/mapview/sidebar/disposition/:fileId`}

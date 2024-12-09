@@ -6,8 +6,8 @@ import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineCo
 import Claims from '@/constants/claims';
 import AppRoute from '@/utils/AppRoute';
 
-import AcquisitionFileContainer from '../acquisition/AcquisitionFileContainer';
-import AcquisitionFileView from '../acquisition/AcquisitionFileView';
+import AcquisitionContainer from '../acquisition/AcquisitionContainer';
+import AcquisitionView from '../acquisition/AcquisitionView';
 import DispositionContainer from '../disposition/DispositionContainer';
 import DispositionView from '../disposition/DispositionView';
 import LeaseContainer from '../lease/LeaseContainer';
@@ -21,10 +21,10 @@ const navigations: NavComponent[] = [
     claims: [Claims.ACQUISITION_VIEW],
     title: 'Acquisition File',
     component: ({ match }, onClose) => (
-      <AcquisitionFileContainer
+      <AcquisitionContainer
         acquisitionFileId={Number(match.params.fileId)}
         onClose={onClose}
-        View={AcquisitionFileView}
+        View={AcquisitionView}
       />
     ),
   },

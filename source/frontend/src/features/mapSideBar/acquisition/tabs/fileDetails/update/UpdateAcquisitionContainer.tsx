@@ -1,6 +1,6 @@
 import { AxiosError } from 'axios';
 import { FormikHelpers, FormikProps } from 'formik';
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import { FaExclamationCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
@@ -11,14 +11,14 @@ import { useModalContext } from '@/hooks/useModalContext';
 import { IApiError } from '@/interfaces/IApiError';
 import { ApiGen_Concepts_AcquisitionFile } from '@/models/api/generated/ApiGen_Concepts_AcquisitionFile';
 import { UserOverrideCode } from '@/models/api/UserOverrideCode';
-import { exists, isValidId } from '@/utils';
+import { isValidId } from '@/utils';
 
 import { UpdateAcquisitionSummaryFormModel } from './models';
 import { UpdateAcquisitionFileYupSchema } from './UpdateAcquisitionFileYupSchema';
 import { IUpdateAcquisitionFormProps } from './UpdateAcquisitionForm';
 
 export interface IUpdateAcquisitionContainerProps {
-  acquisitionFileId: number;
+  acquisitionFile: ApiGen_Concepts_AcquisitionFile;
   onSuccess: () => void;
   View: React.FC<IUpdateAcquisitionFormProps>;
 }
@@ -38,12 +38,10 @@ export const UpdateAcquisitionContainer = React.forwardRef<
   FormikProps<UpdateAcquisitionSummaryFormModel>,
   IUpdateAcquisitionContainerProps
 >((props, formikRef) => {
-  const { acquisitionFileId, onSuccess, View } = props;
+  const { acquisitionFile, onSuccess, View } = props;
   const { setModalContent, setDisplayModal } = useModalContext();
-  const [acquisitionFile, setAcquisitionFile] = useState<ApiGen_Concepts_AcquisitionFile>(null);
 
   const {
-    getAcquisitionFile: { execute: getAcquisitionFile },
     updateAcquisitionFile: { execute: updateAcquisitionFile },
   } = useAcquisitionProvider();
 
@@ -55,17 +53,6 @@ export const UpdateAcquisitionContainer = React.forwardRef<
       { variant: 'info', title: 'Different Project or Product' },
     ],
   ]);
-
-  const fetchAcquisitionFile = useCallback(async () => {
-    const file = await getAcquisitionFile(acquisitionFileId);
-    if (exists(file)) {
-      setAcquisitionFile(file);
-    }
-  }, [acquisitionFileId, getAcquisitionFile]);
-
-  useEffect(() => {
-    fetchAcquisitionFile();
-  }, [fetchAcquisitionFile]);
 
   const withUserOverride = useApiUserOverride<
     (userOverrideCodes: UserOverrideCode[]) => Promise<ApiGen_Concepts_AcquisitionFile | void>
@@ -97,14 +84,6 @@ export const UpdateAcquisitionContainer = React.forwardRef<
     }
   };
 
-  const onClose = () => {
-    onSuccess();
-  };
-
-  if (!exists(acquisitionFile)) {
-    return <></>;
-  }
-
   return (
     <StyledFormWrapper>
       <View
@@ -131,7 +110,6 @@ export const UpdateAcquisitionContainer = React.forwardRef<
           )
         }
         validationSchema={UpdateAcquisitionFileYupSchema}
-        onClose={onClose}
       />
     </StyledFormWrapper>
   );
