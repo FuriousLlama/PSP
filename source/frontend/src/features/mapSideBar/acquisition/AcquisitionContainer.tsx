@@ -56,7 +56,7 @@ export const AcquisitionContainer: React.FunctionComponent<IAcquisitionContainer
   // Load state from props and side-bar context
   const { acquisitionFileId, onClose, View } = props;
   const {
-    setFile,
+    setFileData,
     setFileLoading,
     staleFile,
     setStaleFile,
@@ -64,6 +64,7 @@ export const AcquisitionContainer: React.FunctionComponent<IAcquisitionContainer
     setLastUpdatedBy,
     lastUpdatedBy,
     staleLastUpdatedBy,
+    fileType,
   } = useContext(SideBarContext);
   const [isValid, setIsValid] = useState<boolean>(true);
   const withUserOverride = useApiUserOverride<
@@ -140,17 +141,17 @@ export const AcquisitionContainer: React.FunctionComponent<IAcquisitionContainer
 
       retrieved.fileProperties = acquisitionProperties ?? null;
       retrieved.fileChecklistItems = acquisitionChecklist ?? [];
-      setFile({ ...retrieved, fileType: ApiGen_CodeTypes_FileTypes.Acquisition });
+      setFileData(ApiGen_CodeTypes_FileTypes.Acquisition, retrieved, acquisitionProperties);
       setStaleFile(false);
     } else {
-      setFile(undefined);
+      //setFileData();
     }
   }, [
     acquisitionFileId,
     retrieveAcquisitionFileProperties,
     retrieveAcquisitionFile,
     retrieveAcquisitionFileChecklist,
-    setFile,
+    setFileData,
     setStaleFile,
   ]);
 
@@ -322,7 +323,7 @@ export const AcquisitionContainer: React.FunctionComponent<IAcquisitionContainer
   if (
     loadingAcquisitionFile ||
     (loadingAcquisitionFileProperties && !isPropertySelector) ||
-    file?.fileType !== ApiGen_CodeTypes_FileTypes.Acquisition ||
+    fileType !== ApiGen_CodeTypes_FileTypes.Acquisition ||
     file?.id !== acquisitionFileId
   ) {
     return <LoadingBackdrop show={true} parentScreen={true}></LoadingBackdrop>;

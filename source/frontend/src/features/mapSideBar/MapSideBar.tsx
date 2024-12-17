@@ -5,6 +5,7 @@ import { SideBarType } from '@/components/common/mapFSM/machineDefinition/types'
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import { Backdrop } from '@/components/common/styles';
 
+import MapRouter from './router/MapRouter';
 import { SidebarRouter } from './router/SidebarRouter';
 
 export interface IMapSideBarViewState {
@@ -50,6 +51,7 @@ const MapSideBar: React.FunctionComponent<React.PropsWithChildren<unknown>> = ()
         </StyledBackdrop>
       )}
       <SidebarRouter />
+      <MapRouter />
     </StyledMapSideBar>
   );
 };

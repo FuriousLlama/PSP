@@ -10,6 +10,7 @@ import TooltipIcon from '@/components/common/TooltipIcon';
 import { ColumnWithProps, renderTypeCode, Table } from '@/components/Table';
 import { TableSort } from '@/components/Table/TableSort';
 import { HistoricalNumberFieldView } from '@/features/mapSideBar/shared/header/HistoricalNumberFieldView';
+import { sidebarBasePath } from '@/features/mapSideBar/shared/sidebarPathSolver';
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { exists, prettyFormatDate } from '@/utils';
 import { formatApiPersonNames } from '@/utils/personUtils';
@@ -30,7 +31,7 @@ const columns: ColumnWithProps<ApiGen_Concepts_Lease>[] = [
     width: 10,
     maxWidth: 20,
     Cell: (props: CellProps<ApiGen_Concepts_Lease>) => (
-      <Link to={`/mapview/sidebar/lease/${props.row.original.id}`}>
+      <Link to={`${sidebarBasePath}/lease/${props.row.original.id}`}>
         {props.row.original.lFileNo}
       </Link>
     ),

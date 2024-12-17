@@ -1,5 +1,5 @@
 import moment from 'moment';
-import React from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Col, Row } from 'react-bootstrap';
 import { AiOutlineExclamationCircle } from 'react-icons/ai';
 import styled from 'styled-components';
@@ -15,29 +15,93 @@ import { StyledFiller } from '@/components/common/HeaderField/styles';
 import { InlineFlexDiv } from '@/components/common/styles';
 import { LeaseHeaderAddresses } from '@/features/leases/detail/LeaseHeaderAddresses';
 import { getCalculatedExpiry } from '@/features/leases/leaseUtils';
+import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
+import { useLeaseStakeholderRepository } from '@/hooks/repositories/useLeaseStakeholderRepository';
+import { usePropertyLeaseRepository } from '@/hooks/repositories/usePropertyLeaseRepository';
 import { Api_LastUpdatedBy } from '@/models/api/File';
 import { ApiGen_CodeTypes_LeasePaymentReceivableTypes } from '@/models/api/generated/ApiGen_CodeTypes_LeasePaymentReceivableTypes';
 import { ApiGen_CodeTypes_LeaseStatusTypes } from '@/models/api/generated/ApiGen_CodeTypes_LeaseStatusTypes';
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
 import { exists, prettyFormatDate } from '@/utils';
 
+import { SideBarContext } from '../../context/sidebarContext';
 import HistoricalNumbersContainer from '../../shared/header/HistoricalNumberContainer';
 import { HistoricalNumberSectionView } from '../../shared/header/HistoricalNumberSectionView';
 import { LeaseHeaderStakeholders } from './LeaseHeaderTenants';
 
 export interface ILeaseHeaderProps {
-  lease?: ApiGen_Concepts_Lease;
-  lastUpdatedBy: Api_LastUpdatedBy | null;
+  leaseId: number;
 }
 
-export const LeaseHeader: React.FC<ILeaseHeaderProps> = ({ lease, lastUpdatedBy }) => {
-  const propertyIds = lease?.fileProperties?.map(fp => fp.propertyId) ?? [];
+export const LeaseHeader: React.FC<ILeaseHeaderProps> = ({ leaseId }) => {
+  const [lease, setLease] = useState<ApiGen_Concepts_Lease | null>(null);
+  const [lastUpdatedBy, setLastUpdatedBy] = useState<Api_LastUpdatedBy | null>(null);
+
+  const { fileProperties, staleLastUpdateBy } = useContext(SideBarContext);
+
+  const {
+    getLease: { execute: getLease, loading: getLeaseLoading },
+    getLeaseRenewals: { execute: getRenewals, loading: getLeaseRenewalsLoading },
+
+    getLastUpdatedBy: { execute: getLastUpdatedBy, loading: getLastUpdatedByLoading },
+  } = useLeaseRepository();
+
+  const {
+    getPropertyLeases: { execute: getProperties, loading: propertyLeasesLoading },
+  } = usePropertyLeaseRepository();
+
+  const {
+    getLeaseStakeholders: { execute: getStakeholders, loading: getLeaseStakeholdersLoading },
+  } = useLeaseStakeholderRepository();
+
+  const propertyIds = fileProperties?.map(fp => fp.propertyId) ?? [];
+
   const calculatedExpiry = exists(lease) ? getCalculatedExpiry(lease, lease.renewals || []) : '';
   const isExpired = moment().isAfter(moment(calculatedExpiry, 'YYYY-MM-DD'), 'day');
+
   const stakeholdersLabel =
     lease?.paymentReceivableType.id === ApiGen_CodeTypes_LeasePaymentReceivableTypes.RCVBL
       ? 'Tenant:'
       : 'Payee:';
+
+  const fetchLease = useCallback(async () => {
+    if (leaseId) {
+      const getLeasePromise = getLease(leaseId);
+      const getRenewalsPromise = getRenewals(leaseId);
+      const getPropertiesPromise = getProperties(leaseId);
+      const getLeaseStakeholders = getStakeholders(leaseId);
+      const getLastUpdatedByPromise = getLastUpdatedBy(leaseId);
+
+      const [
+        leaseResponse,
+        renewalsResponse,
+        propertiesResponse,
+        stakeholdersResponse,
+        lastUpdatedBy,
+      ] = await Promise.all([
+        getLeasePromise,
+        getRenewalsPromise,
+        getPropertiesPromise,
+        getLeaseStakeholders,
+        getLastUpdatedByPromise,
+      ]);
+
+      if (exists(leaseResponse)) {
+        leaseResponse.renewals = renewalsResponse;
+        leaseResponse.fileProperties = propertiesResponse;
+        leaseResponse.stakeholders = stakeholdersResponse;
+        setLease(leaseResponse);
+      }
+
+      if (exists(lastUpdatedBy)) {
+        setLastUpdatedBy(lastUpdatedBy);
+      }
+    }
+  }, [getLastUpdatedBy, getLease, getProperties, getRenewals, getStakeholders, leaseId]);
+
+  useEffect(() => {
+    fetchLease();
+  }, [fetchLease]);
 
   return (
     <Container>

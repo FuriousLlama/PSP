@@ -24,6 +24,7 @@ export const LeasePropertyEditContainer: React.FunctionComponent<ILeasePropertyE
   leaseId,
   onSuccess,
 }) => {
+  debugger;
   const [acquisitionFile, setAcquisitionFile] = useState<ApiGen_Concepts_AcquisitionFile | null>(
     null,
   );

@@ -1,22 +1,24 @@
 import queryString from 'query-string';
 import { memo, useCallback, useContext, useEffect, useMemo } from 'react';
-import { matchPath, Route, Switch, useHistory, useLocation } from 'react-router-dom';
+import { matchPath, Switch, useHistory, useLocation } from 'react-router-dom';
 
 import { SideBarType } from '@/components/common/mapFSM/machineDefinition/types';
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import Claims from '@/constants/claims';
-import { AddLeaseContainer } from '@/features/leases';
 import MotiInventoryContainer from '@/features/mapSideBar/property/MotiInventoryContainer';
 import { isValidId } from '@/utils';
 import AppRoute from '@/utils/AppRoute';
 
-import AcquistionRouter from '../acquisition/router/AcquisitionRouter';
+import AcquisitionContainer from '../acquisition/AcquisitionContainer';
+import AcquisitionView from '../acquisition/AcquisitionView';
+import AddAcquisitionContainer from '../acquisition/add/AddAcquisitionContainer';
 import AddConsolidationContainer from '../consolidation/AddConsolidationContainer';
 import AddConsolidationView from '../consolidation/AddConsolidationView';
 import { SideBarContext } from '../context/sidebarContext';
+import AddDispositionContainer from '../disposition/add/AddDispositionContainer';
+import AddDispositionContainerView from '../disposition/add/AddDispositionContainerView';
 import DispositionContainer from '../disposition/DispositionContainer';
 import DispositionView from '../disposition/DispositionView';
-import LeaseContainer from '../lease/LeaseContainer';
 import AddProjectContainer from '../project/add/AddProjectContainer';
 import ProjectContainer from '../project/ProjectContainer';
 import ProjectContainerView from '../project/ProjectContainerView';
@@ -29,7 +31,7 @@ import AddSubdivisionContainerView from '../subdivision/AddSubdivisionView';
 export const MapRouter: React.FunctionComponent = memo(() => {
   const location = useLocation();
   const history = useHistory();
-  const { setFile } = useContext(SideBarContext);
+  const { clearFileData } = useContext(SideBarContext);
 
   const { openSidebar, closeSidebar } = useMapStateMachine();
 
@@ -165,9 +167,9 @@ export const MapRouter: React.FunctionComponent = memo(() => {
   const onClose = useCallback(
     (nextLocation = '/mapview') => {
       history.push(nextLocation);
-      setFile(undefined); // clean up file context when sidebar is closed
+      clearFileData(); // clean up file context when sidebar is closed
     },
-    [history, setFile],
+    [history, clearFileData],
   );
 
   const pidQueryString = queryString.parse(location.search).pid?.toString() ?? '';
@@ -279,21 +281,6 @@ export const MapRouter: React.FunctionComponent = memo(() => {
         title={'Property Information - Non Inventory'}
       />
       <AppRoute
-        path={`/mapview/sidebar/lease/new`}
-        customRender={() => (
-          <AddLeaseContainer
-            onClose={onClose}
-            onSuccess={(newLeaseId: number) => {
-              history.replace(`/mapview/sidebar/lease/${newLeaseId}`);
-            }}
-          />
-        )}
-        claim={Claims.LEASE_ADD}
-        exact
-        key={'NewLease'}
-        title={'Create Lease'}
-      />
-      <AppRoute
         path={`/mapview/sidebar/project/new`}
         customRender={() => (
           <AddProjectContainer
@@ -321,15 +308,6 @@ export const MapRouter: React.FunctionComponent = memo(() => {
         exact
         key={'Project'}
         title={'Project'}
-      />
-      <AppRoute
-        path={`/mapview/sidebar/lease/:id`}
-        customRender={({ match }) => (
-          <LeaseContainer leaseId={Number(match.params.id)} onClose={onClose} />
-        )}
-        claim={Claims.LEASE_VIEW}
-        key={'LeaseLicense'}
-        title={'Lease / Licence File'}
       />
       <AppRoute
         path={`/mapview/sidebar/subdivision/new`}

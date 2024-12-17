@@ -10,6 +10,8 @@ import { ApiGen_Concepts_Project } from '@/models/api/generated/ApiGen_Concepts_
 import { exists } from '@/utils';
 import { getLatLng, locationFromFileProperty } from '@/utils/mapPropertyUtils';
 
+import { IFileBodyContainer } from '../lease/LeaseBodyContainer';
+import { NavComponent } from '../shared/router/navComponent';
 import { TabContent } from '../shared/tabs/RouterTabs';
 
 export interface TypedFile extends ApiGen_Concepts_File {
@@ -18,24 +20,17 @@ export interface TypedFile extends ApiGen_Concepts_File {
   productId?: number | null;
 }
 
-export interface ISideBarContext {
-  setFileData: (
-    fileType: string,
-    file: ApiGen_Concepts_File,
-    fileProperties: ApiGen_Concepts_FileProperty[],
-  ) => void;
-  fileType: string;
-  file: ApiGen_Concepts_File | null;
-  fileProperties: ApiGen_Concepts_FileProperty[];
+export interface FileComponents {
+  defaultFileTab: string;
+  propertyTabs: TabContent[];
+  defaultPropertyTab: string;
+  editNavComponents: NavComponent[];
+  fileBodyContainer: React.FunctionComponent<IFileBodyContainer>;
+}
 
+export interface ISideBarContext {
   staleFile: boolean;
   setStaleFile: (stale: boolean) => void;
-
-  fileTabs: TabContent[];
-  setFileTabs: (tabs: TabContent[]) => void;
-
-  fileGenerateContainer: React.ReactNode | null;
-  setFileGenerateContainer: (generateContainer: React.ReactNode) => void;
 
   fileLoading: boolean;
   setFileLoading: (loading: boolean) => void;
@@ -50,28 +45,22 @@ export interface ISideBarContext {
   setLastUpdatedBy: (lastUpdatedBy: Api_LastUpdatedBy | null) => void;
   staleLastUpdatedBy: boolean;
   setStaleLastUpdatedBy: (stale: boolean) => void;
+
+  fileType: string;
+  fileComponents: FileComponents;
+
+  setFileComponents: (fileType: string, components: FileComponents) => void;
+  clearFileData: () => void;
 }
 
 export const SideBarContext = createContext<ISideBarContext>({
-  setFileData: () => {
-    throw Error('setFileData function not defined');
+  clearFileData: () => {
+    throw Error('clearFileData function not defined');
   },
   fileType: 'NOT_DEFINED',
-  file: undefined,
-  fileProperties: [],
   fileLoading: false,
   setFileLoading: () => {
     throw Error('setFileLoading function not defined');
-  },
-
-  fileTabs: [],
-  setFileTabs: () => {
-    throw Error('setFileTabs function not defined');
-  },
-
-  fileGenerateContainer: null,
-  setFileGenerateContainer: () => {
-    throw Error('setFileTabs function not defined');
   },
 
   resetFilePropertyLocations: () => {
@@ -99,6 +88,11 @@ export const SideBarContext = createContext<ISideBarContext>({
   setStaleLastUpdatedBy: () => {
     throw Error('setStaleLastUpdatedBy function not defined');
   },
+
+  fileComponents: null,
+  setFileComponents: () => {
+    throw Error('setFileComponents function not defined');
+  },
 });
 
 export const SideBarContextProvider = (props: {
@@ -107,11 +101,6 @@ export const SideBarContextProvider = (props: {
   project?: ApiGen_Concepts_Project;
   lastUpdatedBy?: Api_LastUpdatedBy;
 }) => {
-  const [fileType, setFileType] = useState<string>('NOT_DEFINED');
-  const [file, setFile] = useState<ApiGen_Concepts_File>(props.file);
-  const [fileProperties, setFileProperties] = useState<ApiGen_Concepts_FileProperty[]>([]);
-  const [fileTabs, setFileTabs] = useState<TabContent[]>([]);
-  const [fileGenerateContainer, setFileGenerateContainer] = useState<React.ReactNode | null>(null);
   const [project, setProject] = useState<ApiGen_Concepts_Project | undefined>(props.project);
   const [staleFile, setStaleFile] = useState<boolean>(false);
   const [lastUpdatedBy, setLastUpdatedBy] = useState<Api_LastUpdatedBy | null>(
@@ -121,20 +110,27 @@ export const SideBarContextProvider = (props: {
   const [fileLoading, setFileLoading] = useState<boolean>(false);
   const [projectLoading, setProjectLoading] = useState<boolean>(false);
 
-  const setFileData = useCallback(
-    (
-      fileType: string,
-      file: ApiGen_Concepts_File,
-      fileProperties: ApiGen_Concepts_FileProperty[],
-    ) => {
-      setFileType(fileType);
-      setFile(file);
-      setFileProperties(fileProperties);
+  const [fileType, setFileType] = useState<string>('NOT_DEFINED');
+  const [fileProperties, setFileProperties] = useState<ApiGen_Concepts_FileProperty[]>([]);
 
-      setStaleFile(false);
-    },
-    [setFile, setStaleFile],
-  );
+  const [fileComponents, setFileComponents] = useState<FileComponents>();
+
+  const [fileTabs, setFileTabs] = useState<TabContent[]>([]);
+
+  const clearFileData = useCallback(() => {
+    setFileType(null);
+    setFileProperties(null);
+    setFileComponents(null);
+
+    setStaleFile(false);
+  }, []);
+
+  const setComponents = useCallback((fileType: string, components: FileComponents) => {
+    //setFileType(fileType);
+    debugger;
+    setFileComponents(components);
+    setStaleFile(false);
+  }, []);
 
   const setLastUpdatedByAndStale = useCallback(
     (lastUpdatedBy: Api_LastUpdatedBy | null) => {
@@ -183,14 +179,6 @@ export const SideBarContextProvider = (props: {
   return (
     <SideBarContext.Provider
       value={{
-        setFileData: setFileData,
-        file: file,
-        fileType: fileType,
-        fileProperties: fileProperties,
-        setFileTabs: setFileTabs,
-        fileTabs: fileTabs,
-        fileGenerateContainer: fileGenerateContainer,
-        setFileGenerateContainer: setFileGenerateContainer,
         setFileLoading: setFileLoading,
         fileLoading: fileLoading,
         resetFilePropertyLocations,
@@ -205,6 +193,12 @@ export const SideBarContextProvider = (props: {
         setLastUpdatedBy: setLastUpdatedByAndStale,
         staleLastUpdatedBy,
         setStaleLastUpdatedBy,
+
+        clearFileData: clearFileData,
+        fileType: fileType,
+
+        fileComponents: fileComponents,
+        setFileComponents: setComponents,
       }}
     >
       {props.children}

@@ -1,6 +1,8 @@
-import { generatePath, useHistory, useRouteMatch } from 'react-router-dom';
+import { generatePath, useHistory } from 'react-router-dom';
 
 import { TabRouteType } from './tabs/RouterTabs';
+
+export const sidebarBasePath = '/mapview/sidebar/_temp_';
 
 export interface IPathResolverMethods {
   newFile: (fileType: string) => void;
@@ -27,10 +29,9 @@ export type IPathResolver = () => IPathResolverMethods;
 
 const usePathResolver: IPathResolver = () => {
   const history = useHistory();
-  const match = useRouteMatch<{ fileType: string; fileId: string }>();
 
   const newFile = (fileType: string) => {
-    const a = '/mapview/sidebar/new/:fileType';
+    const a = `${sidebarBasePath}/new/:fileType`;
     const path = generatePath(a, {
       fileType: fileType,
     });
@@ -39,7 +40,7 @@ const usePathResolver: IPathResolver = () => {
   };
 
   const showFile = (fileType: string, fileId: number) => {
-    const a = '/mapview/sidebar/:fileType/:fileId';
+    const a = `${sidebarBasePath}/:fileType/:fileId`;
     const path = generatePath(a, {
       fileType: fileType,
       fileId: fileId,
@@ -54,7 +55,7 @@ const usePathResolver: IPathResolver = () => {
     detailType: TabRouteType,
     replace: boolean,
   ) => {
-    const a = '/mapview/sidebar/:fileType/:fileId/file/:detailType';
+    const a = `${sidebarBasePath}/:fileType/:fileId/file/:detailType`;
     const path = generatePath(a, {
       fileType: fileType,
       fileId: fileId,
@@ -69,7 +70,7 @@ const usePathResolver: IPathResolver = () => {
   };
 
   const editDetails = (fileType: string, fileId: number, detailType: TabRouteType) => {
-    const a = '/mapview/sidebar/:fileType/:fileId/edit/:detailType';
+    const a = `${sidebarBasePath}/:fileType/:fileId/edit/:detailType`;
     const path = generatePath(a, {
       fileType: fileType,
       fileId: fileId,
@@ -85,7 +86,7 @@ const usePathResolver: IPathResolver = () => {
     detailType: TabRouteType,
     detailId: number,
   ) => {
-    const a = '/mapview/sidebar/:fileType/:fileId/edit/:detailType/:detailId';
+    const a = `${sidebarBasePath}/:fileType/:fileId/edit/:detailType/:detailId`;
     const path = generatePath(a, {
       fileType: fileType,
       fileId: fileId,
@@ -97,7 +98,7 @@ const usePathResolver: IPathResolver = () => {
   };
 
   const addDetail = (fileType: string, fileId: number, detailType: TabRouteType) => {
-    const a = '/mapview/sidebar/:fileType/:fileId/edit/:detailType';
+    const a = `${sidebarBasePath}/:fileType/:fileId/edit/:detailType`;
     const path = generatePath(a, {
       fileType: fileType,
       fileId: fileId,
@@ -108,7 +109,7 @@ const usePathResolver: IPathResolver = () => {
   };
 
   const editProperties = (fileType: string, fileId: number) => {
-    const a = '/mapview/sidebar/edit-properties/:fileType/:fileId';
+    const a = `${sidebarBasePath}/edit-properties/:fileType/:fileId`;
     const path = generatePath(a, {
       fileType: fileType,
       fileId: fileId,
@@ -118,7 +119,7 @@ const usePathResolver: IPathResolver = () => {
   };
 
   const showPropertyTabs = (fileType: string, fileId: number, propertyId: number) => {
-    const a = '/mapview/sidebar/:fileType/:fileId/property/:propertyId';
+    const a = `${sidebarBasePath}/:fileType/:fileId/property/:propertyId`;
     const path = generatePath(a, {
       fileType: fileType,
       fileId: fileId,

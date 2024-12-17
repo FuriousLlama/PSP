@@ -39,6 +39,7 @@ export const PropertyFileTabContainer: React.FunctionComponent<IPropertyFileTabC
   defaultTab,
   View,
 }) => {
+  debugger;
   const pid = fileProperty?.property?.pid ?? undefined;
   const id = fileProperty?.property?.id ?? undefined;
   const location = fileProperty?.property?.location ?? undefined;

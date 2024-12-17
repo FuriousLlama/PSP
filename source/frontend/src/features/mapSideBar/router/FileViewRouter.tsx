@@ -62,11 +62,7 @@ const navigations: NavComponent[] = [
   },
 ];
 
-let counter = 0;
-
 export const FileViewRouter: React.FunctionComponent = memo(() => {
-  console.log('FileViewRouter', counter);
-  counter++;
   const { openSidebar, closeSidebar } = useMapStateMachine();
   const match = useRouteMatch();
 

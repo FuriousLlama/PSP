@@ -54,7 +54,6 @@ export const AcquisitionRouter: React.FC<IAcquisitionRouterProps> = props => {
         </Route>
         <Route exact path={`${stripTrailingSlash(path)}/${FileTabType.CHECKLIST}`}>
           <UpdateAcquisitionChecklistContainer
-            formikRef={props.formikRef}
             acquisitionFile={props.acquisitionFile}
             onSuccess={props.onSuccess}
             View={UpdateChecklistForm}

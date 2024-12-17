@@ -196,8 +196,10 @@ export const AddLeaseStakeholderContainer: React.FunctionComponent<
     return lease?.paymentReceivableType.id !== 'RCVBL' ? true : false;
   }, [lease]);
 
-  const stakeholderPageName =
-    lease.paymentReceivableType.id === 'RCVBL' ? TabRouteType.tenant : TabRouteType.payee;
+  const stakeholderPageName = useMemo(
+    () => (isPayableLease ? TabRouteType.tenant : TabRouteType.payee),
+    [isPayableLease],
+  );
 
   const onSuccess = () => {
     pathResolver.showDetail('lease', leaseId, stakeholderPageName, true);

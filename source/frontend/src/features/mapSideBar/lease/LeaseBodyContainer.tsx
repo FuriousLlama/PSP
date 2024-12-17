@@ -1,87 +1,95 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 
-import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 import { usePropertyLeaseRepository } from '@/hooks/repositories/usePropertyLeaseRepository';
 import { ApiGen_CodeTypes_FileTypes } from '@/models/api/generated/ApiGen_CodeTypes_FileTypes';
-import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';
-import { exists, stripTrailingSlash } from '@/utils';
+import { ApiGen_Concepts_FileProperty } from '@/models/api/generated/ApiGen_Concepts_FileProperty';
+import { exists, isValidId } from '@/utils';
 
+import GenerateFormView from '../acquisition/common/GenerateForm/GenerateFormView';
+import { SideBarContext } from '../context/sidebarContext';
 import { IFileBodyViewProps } from '../shared/fileBody/fileBodyView';
-import { getLeaseTabs } from './tabs/leaseTabs';
+import usePathResolver from '../shared/sidebarPathSolver';
+import { TabContent } from '../shared/tabs/RouterTabs';
+import LeaseGenerateFormContainer from './LeaseGenerateFormContainer';
+import getLeaseTabs from './tabs/leaseTabs';
 
-export interface ILeaseBodyContainerProps {
-  leaseFileId: number;
+export interface IFileBodyContainer {
+  fileId: number;
   View: React.FunctionComponent<React.PropsWithChildren<IFileBodyViewProps>>;
 }
 
-export const LeaseBodyContainer: React.FunctionComponent<ILeaseBodyContainerProps> = props => {
-  const { leaseFileId, View } = props;
+export const LeaseBodyContainer: React.FunctionComponent<IFileBodyContainer> = ({
+  fileId,
+  View,
+}) => {
+  const pathResolver = usePathResolver();
 
-  const history = useHistory();
-  const match = useRouteMatch();
+  const [fileProperties, setFileProperties] = useState<ApiGen_Concepts_FileProperty[]>([]);
+  const [fileTabs, setFileTabs] = useState<TabContent[]>([]);
+
+  const { fileType } = useContext(SideBarContext);
 
   const {
-    getPropertyLeases: { execute: getPropertyLeases, loading: propertyLeasesLoading },
+    getLease: { execute: getLease, loading: getLeaseLoading },
+    getLeaseRenewals: { execute: getRenewals, loading: getLeaseRenewalsLoading },
+
+    getLastUpdatedBy: { execute: getLastUpdatedBy, loading: getLastUpdatedByLoading },
+  } = useLeaseRepository();
+
+  const {
+    getPropertyLeases: { execute: getProperties },
   } = usePropertyLeaseRepository();
 
-  const [lease, setLease] = useState<ApiGen_Concepts_Lease | null>(null);
-  const { getLease } = useLeaseRepository();
-  const getLeaseExecute = getLease.execute;
+  const onSuccess = () => {
+    console.log('asdfasd');
+  };
 
   const fetchLease = useCallback(async () => {
-    const result = await getLeaseExecute(leaseFileId);
-
-    if (exists(result)) {
-      const properties = await getPropertyLeases(leaseFileId);
-      result.fileProperties = properties;
-
-      setLease(result);
+    if (isValidId(fileId)) {
+      const lease = await getLease(fileId);
+      const retrieved = await getProperties(fileId);
+      if (exists(retrieved)) {
+        setFileProperties(retrieved);
+        setFileTabs(getLeaseTabs(lease, onSuccess));
+      }
     }
-  }, [getLeaseExecute, leaseFileId, getPropertyLeases]);
+  }, [fileId, getLease, getProperties]);
 
   useEffect(() => {
     fetchLease();
   }, [fetchLease]);
 
   const onSelectFileSummary = () => {
-    history.push(`${stripTrailingSlash(match.url)}/file`);
+    pathResolver.showFile(fileType, fileId);
   };
 
   const onSelectProperty = (propertyId: number) => {
-    const route = `/property/${propertyId}`;
-    history.push(`${stripTrailingSlash(match.url)}${route}`);
+    pathResolver.showPropertyTabs(fileType, fileId, propertyId);
   };
 
   const onEditProperties = () => {
-    history.push(`/mapview/sidebar/edit-properties/lease/${props.leaseFileId}`);
+    pathResolver.editProperties(fileType, fileId);
   };
-
-  const onSuccess = () => {
-    console.log('called!');
-  };
-
-  const tabs = useMemo(() => getLeaseTabs(lease, onSuccess), [lease]);
 
   // UI components
-  if (getLease.loading || propertyLeasesLoading) {
-    return <LoadingBackdrop show={true} parentScreen={true} />;
-  }
-
-  if (!exists(lease)) {
+  if (!exists(fileProperties)) {
     return <></>;
   }
 
+  const fileGenerateContainer = (
+    <LeaseGenerateFormContainer leaseId={fileId} leaseType={null} View={GenerateFormView} />
+  );
   return (
     <View
-      fileProperties={lease.fileProperties}
+      fileProperties={fileProperties}
       onSelectFileSummary={onSelectFileSummary}
       onSelectProperty={onSelectProperty}
       onEditProperties={onEditProperties}
       canEdit={true}
       fileType={ApiGen_CodeTypes_FileTypes.Lease}
-      fileTabs={tabs}
+      fileTabs={fileTabs}
+      FileFormContainer={fileGenerateContainer}
     />
   );
 };

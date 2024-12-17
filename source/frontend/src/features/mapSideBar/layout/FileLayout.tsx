@@ -27,7 +27,7 @@ const StyledRowContent = styled(Row)`
 const StyledColSidebar = styled(Col)`
   overflow: auto;
   height: 100%;
-  width: 19rem;
+  width: 21rem;
 `;
 
 const StyledColContent = styled(Col)`
