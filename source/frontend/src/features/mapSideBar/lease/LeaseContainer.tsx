@@ -35,14 +35,13 @@ export const LeaseContainer: React.FC<ILeaseContainerProps> = ({ leaseId, onClos
     console.log('suceesss');
   }, []);
 
-  setFileComponents('lease', {
-    defaultFileTab: 'sdfsf',
-    propertyTabs: [],
-    defaultPropertyTab: 'sometihg',
-
-    editNavComponents: leaseEditDetailNavigations,
-    fileBodyContainer: LeaseBodyContainer,
-  });
+  useEffect(() => {
+    setFileComponents('lease', {
+      defaultFileTab: 'sdfsf',
+      editNavComponents: leaseEditDetailNavigations,
+      fileBodyContainer: LeaseBodyContainer,
+    });
+  }, [setFileComponents]);
 
   const fetchLastUpdatedBy = useCallback(async () => {
     if (leaseId) {

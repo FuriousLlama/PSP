@@ -5,6 +5,7 @@ import { ApiGen_Concepts_FileProperty } from '@/models/api/generated/ApiGen_Conc
 import { exists } from '@/utils';
 
 import FileLayout from '../../layout/FileLayout';
+import { IFilePropertyContainer } from '../../lease/tabs/leasePropertyContainer';
 import { TabContent, TabRouteType } from '../../shared/tabs/RouterTabs';
 import FileBodyTabRouter from '../router/FileBodyTabRouter';
 import { StyledFormWrapper } from '../styles';
@@ -14,22 +15,28 @@ export interface IFileBodyViewProps {
   fileProperties: ApiGen_Concepts_FileProperty[];
   canEdit: boolean;
   fileType: ApiGen_CodeTypes_FileTypes;
+  defaultFileTabKey: TabRouteType;
   fileTabs: TabContent[];
+  filePropertyContainer: React.FC<IFilePropertyContainer>;
   FileFormContainer: React.ReactNode | null;
   onSelectFileSummary: () => void;
   onSelectProperty: (propertyId: number) => void;
   onEditProperties: () => void;
+  onTabSelect: (tabName: string | null) => void;
 }
 
 export const FileBodyView: React.FunctionComponent<IFileBodyViewProps> = ({
   fileProperties,
   canEdit,
   fileType,
+  defaultFileTabKey,
   fileTabs,
+  filePropertyContainer,
   onSelectFileSummary,
   onSelectProperty,
   onEditProperties,
   FileFormContainer,
+  onTabSelect,
 }) => {
   return (
     <FileLayout
@@ -47,13 +54,14 @@ export const FileBodyView: React.FunctionComponent<IFileBodyViewProps> = ({
       bodyComponent={
         <StyledFormWrapper>
           <FileBodyTabRouter
-            defaultFileTabKey={TabRouteType.FILE_DETAILS}
-            fileTabs={fileTabs}
-            fileProperty={undefined}
             fileType={fileType}
+            fileTabs={fileTabs}
+            defaultFileTabKey={defaultFileTabKey}
+            filePropertyContainer={filePropertyContainer}
+            onTabSelect={onTabSelect}
           />
         </StyledFormWrapper>
       }
-    ></FileLayout>
+    />
   );
 };

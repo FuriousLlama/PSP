@@ -22,8 +22,6 @@ export interface TypedFile extends ApiGen_Concepts_File {
 
 export interface FileComponents {
   defaultFileTab: string;
-  propertyTabs: TabContent[];
-  defaultPropertyTab: string;
   editNavComponents: NavComponent[];
   fileBodyContainer: React.FunctionComponent<IFileBodyContainer>;
 }
@@ -45,6 +43,9 @@ export interface ISideBarContext {
   setLastUpdatedBy: (lastUpdatedBy: Api_LastUpdatedBy | null) => void;
   staleLastUpdatedBy: boolean;
   setStaleLastUpdatedBy: (stale: boolean) => void;
+
+  fileProperties: ApiGen_Concepts_FileProperty[];
+  setFileProperties: (properties: ApiGen_Concepts_FileProperty[]) => void;
 
   fileType: string;
   fileComponents: FileComponents;
@@ -93,6 +94,11 @@ export const SideBarContext = createContext<ISideBarContext>({
   setFileComponents: () => {
     throw Error('setFileComponents function not defined');
   },
+
+  fileProperties: [],
+  setFileProperties: () => {
+    throw Error('setFileProperties function not defined');
+  },
 });
 
 export const SideBarContextProvider = (props: {
@@ -127,7 +133,6 @@ export const SideBarContextProvider = (props: {
 
   const setComponents = useCallback((fileType: string, components: FileComponents) => {
     //setFileType(fileType);
-    debugger;
     setFileComponents(components);
     setStaleFile(false);
   }, []);
@@ -193,6 +198,8 @@ export const SideBarContextProvider = (props: {
         setLastUpdatedBy: setLastUpdatedByAndStale,
         staleLastUpdatedBy,
         setStaleLastUpdatedBy,
+        fileProperties,
+        setFileProperties,
 
         clearFileData: clearFileData,
         fileType: fileType,

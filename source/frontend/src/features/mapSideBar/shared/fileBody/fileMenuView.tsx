@@ -32,13 +32,13 @@ const FileMenu: React.FunctionComponent<React.PropsWithChildren<IFileMenuProps>>
 
   const currentPropertyIndex = useMemo(() => {
     const match = matchPath(location.pathname, {
-      path: '*/property/:propertyId/',
+      path: '*/file_property/:filePropertyId/',
       exact: false,
       strict: false,
     });
     if (exists(match)) {
-      const propertyId = Number(match.params['propertyId']);
-      return properties.findIndex(x => x.property.id === propertyId);
+      const filePropertyId = Number(match.params['filePropertyId']);
+      return properties.findIndex(x => x.id === filePropertyId);
     }
     return null;
   }, [location.pathname, properties]);
@@ -85,7 +85,7 @@ const FileMenu: React.FunctionComponent<React.PropsWithChildren<IFileMenuProps>>
               className={cx('no-gutters', { selected: currentPropertyIndex === index })}
               onClick={() => {
                 if (currentPropertyIndex !== index) {
-                  onSelectProperty(property.property.id);
+                  onSelectProperty(property.id);
                 }
               }}
             >

@@ -3,15 +3,15 @@ import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { useLeaseRepository } from '@/hooks/repositories/useLeaseRepository';
 import { usePropertyLeaseRepository } from '@/hooks/repositories/usePropertyLeaseRepository';
 import { ApiGen_CodeTypes_FileTypes } from '@/models/api/generated/ApiGen_CodeTypes_FileTypes';
-import { ApiGen_Concepts_FileProperty } from '@/models/api/generated/ApiGen_Concepts_FileProperty';
 import { exists, isValidId } from '@/utils';
 
 import GenerateFormView from '../acquisition/common/GenerateForm/GenerateFormView';
 import { SideBarContext } from '../context/sidebarContext';
 import { IFileBodyViewProps } from '../shared/fileBody/fileBodyView';
 import usePathResolver from '../shared/sidebarPathSolver';
-import { TabContent } from '../shared/tabs/RouterTabs';
+import { TabContent, TabRouteType } from '../shared/tabs/RouterTabs';
 import LeaseGenerateFormContainer from './LeaseGenerateFormContainer';
+import { LeasePropertyContainer } from './tabs/leasePropertyContainer';
 import getLeaseTabs from './tabs/leaseTabs';
 
 export interface IFileBodyContainer {
@@ -25,16 +25,14 @@ export const LeaseBodyContainer: React.FunctionComponent<IFileBodyContainer> = (
 }) => {
   const pathResolver = usePathResolver();
 
-  const [fileProperties, setFileProperties] = useState<ApiGen_Concepts_FileProperty[]>([]);
   const [fileTabs, setFileTabs] = useState<TabContent[]>([]);
 
-  const { fileType } = useContext(SideBarContext);
+  const fileType = ApiGen_CodeTypes_FileTypes.Lease;
+
+  const { fileProperties, setFileProperties } = useContext(SideBarContext);
 
   const {
     getLease: { execute: getLease, loading: getLeaseLoading },
-    getLeaseRenewals: { execute: getRenewals, loading: getLeaseRenewalsLoading },
-
-    getLastUpdatedBy: { execute: getLastUpdatedBy, loading: getLastUpdatedByLoading },
   } = useLeaseRepository();
 
   const {
@@ -54,7 +52,7 @@ export const LeaseBodyContainer: React.FunctionComponent<IFileBodyContainer> = (
         setFileTabs(getLeaseTabs(lease, onSuccess));
       }
     }
-  }, [fileId, getLease, getProperties]);
+  }, [fileId, getLease, getProperties, setFileProperties]);
 
   useEffect(() => {
     fetchLease();
@@ -64,9 +62,12 @@ export const LeaseBodyContainer: React.FunctionComponent<IFileBodyContainer> = (
     pathResolver.showFile(fileType, fileId);
   };
 
-  const onSelectProperty = (propertyId: number) => {
-    pathResolver.showPropertyTabs(fileType, fileId, propertyId);
-  };
+  const onSelectProperty = useCallback(
+    (filePropertyId: number) => {
+      pathResolver.showFileProperty(fileType, fileId, filePropertyId);
+    },
+    [fileId, fileType, pathResolver],
+  );
 
   const onEditProperties = () => {
     pathResolver.editProperties(fileType, fileId);
@@ -80,6 +81,12 @@ export const LeaseBodyContainer: React.FunctionComponent<IFileBodyContainer> = (
   const fileGenerateContainer = (
     <LeaseGenerateFormContainer leaseId={fileId} leaseType={null} View={GenerateFormView} />
   );
+
+  const onTabSelect = (eventKey: string | null) => {
+    const tab = Object.values(fileTabs).find(tab => tab.key === eventKey);
+    pathResolver.showDetail('lease', fileId, tab.key, false);
+  };
+
   return (
     <View
       fileProperties={fileProperties}
@@ -87,9 +94,12 @@ export const LeaseBodyContainer: React.FunctionComponent<IFileBodyContainer> = (
       onSelectProperty={onSelectProperty}
       onEditProperties={onEditProperties}
       canEdit={true}
-      fileType={ApiGen_CodeTypes_FileTypes.Lease}
+      fileType={fileType}
       fileTabs={fileTabs}
       FileFormContainer={fileGenerateContainer}
+      defaultFileTabKey={TabRouteType.FILE_DETAILS}
+      filePropertyContainer={LeasePropertyContainer}
+      onTabSelect={onTabSelect}
     />
   );
 };

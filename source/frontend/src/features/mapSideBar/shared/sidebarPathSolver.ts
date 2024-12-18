@@ -22,7 +22,14 @@ export interface IPathResolverMethods {
   ) => void;
   addDetail: (fileType: string, fileId: number, detailType: TabRouteType) => void;
   editProperties: (fileType: string, fileId: number) => void;
-  showPropertyTabs: (fileType: string, fileId: number, propertyId: number) => void;
+  showFileProperty: (fileType: string, fileId: number, propertyId: number) => void;
+  showFilePropertyDetail: (
+    fileType: string,
+    fileId: number,
+    filePropertyId: number,
+    detailType: TabRouteType,
+    replace: boolean,
+  ) => void;
 }
 
 export type IPathResolver = () => IPathResolverMethods;
@@ -118,15 +125,37 @@ const usePathResolver: IPathResolver = () => {
     history.push(path);
   };
 
-  const showPropertyTabs = (fileType: string, fileId: number, propertyId: number) => {
-    const a = `${sidebarBasePath}/:fileType/:fileId/property/:propertyId`;
+  const showFileProperty = (fileType: string, fileId: number, filePropertyId: number) => {
+    const a = `${sidebarBasePath}/:fileType/:fileId/file_property/:filePropertyId`;
     const path = generatePath(a, {
       fileType: fileType,
       fileId: fileId,
-      propertyId: propertyId,
+      filePropertyId: filePropertyId,
     });
 
     history.push(path);
+  };
+
+  const showFilePropertyDetail = (
+    fileType: string,
+    fileId: number,
+    filePropertyId: number,
+    detailType: TabRouteType,
+    replace: boolean,
+  ) => {
+    const a = `${sidebarBasePath}/:fileType/:fileId/file_property/:filePropertyId/:detailType`;
+    const path = generatePath(a, {
+      fileType: fileType,
+      fileId: fileId,
+      filePropertyId: filePropertyId,
+      detailType: detailType,
+    });
+
+    if (replace) {
+      history.replace(path);
+    } else {
+      history.push(path);
+    }
   };
 
   return {
@@ -137,7 +166,8 @@ const usePathResolver: IPathResolver = () => {
     editDetails,
     addDetail,
     editProperties,
-    showPropertyTabs,
+    showFileProperty,
+    showFilePropertyDetail,
   };
 };
 

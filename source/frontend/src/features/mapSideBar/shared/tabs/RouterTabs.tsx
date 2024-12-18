@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Tab } from 'react-bootstrap';
-import { generatePath, useHistory, useRouteMatch } from 'react-router-dom';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 
 import { useMapStateMachine } from '@/components/common/mapFSM/MapStateMachineContext';
 import TabView from '@/components/common/TabView';
@@ -20,17 +20,19 @@ export interface TabContent {
 export interface IRouterTabsProps {
   defaultTabKey: TabRouteType;
   tabs: TabContent[];
+  onTabSelect: (tabName: string | null) => void;
 }
 
 export enum TabRouteType {
-  property = 'details',
-  title = 'ltsa',
-  value = 'bcassessment',
-  research = 'research',
-  pims = 'pims',
-  takes = 'takes',
-  management = 'management',
-  crown = 'crown',
+  PROPERTY_DETAILS = 'details',
+  PROPERTY_LTSA = 'ltsa',
+  PROPERTY_ASSESSMENT = 'bcassessment',
+  PROPERTY_RESEARCH = 'research',
+  PROPERTY_PIMS = 'pims',
+  PROPERTY_TAKES = 'takes',
+  PROPERTY_MANAGEMENT = 'management',
+  PROPERTY_CROWN = 'crown',
+
   FILE_DETAILS = 'fileDetails',
   OFFERS_AND_SALE = 'offersAndSale',
   CHECKLIST = 'checklist',
@@ -67,13 +69,14 @@ let count = 0;
 export const RouterTabs: React.FunctionComponent<React.PropsWithChildren<IRouterTabsProps>> = ({
   defaultTabKey,
   tabs,
+  onTabSelect,
 }) => {
   console.log('RouterTabs', count);
   count++;
   const history = useHistory();
   const match = useRouteMatch<{
     fileId: string;
-    propertyId: string;
+    filePropertyId: string;
     detailType: string;
     detailId: string;
   }>();
@@ -84,15 +87,18 @@ export const RouterTabs: React.FunctionComponent<React.PropsWithChildren<IRouter
   const { hasClaim } = useKeycloakWrapper();
 
   const detailType = match.params['detailType'];
+  debugger;
 
   useEffect(() => {
     const tab = tabs.find(tab => tab.key === detailType);
+    debugger;
     if (exists(tab)) {
       setActiveTabKey(tab.key);
     }
   }, [activeTabKey, detailType, tabs]);
 
   useEffect(() => {
+    debugger;
     const tab = tabs.find(tab => tab.key === detailType);
     if (exists(tab)) {
       if (tab.isFullWidth === true) {
@@ -108,16 +114,8 @@ export const RouterTabs: React.FunctionComponent<React.PropsWithChildren<IRouter
     <TabView
       defaultActiveKey={defaultTabKey}
       activeKey={activeTabKey}
-      mountOnEnter={true}
-      onSelect={(eventKey: string | null) => {
-        const tab = Object.values(tabs).find(tab => tab.key === eventKey);
-        const path = generatePath(match.path, {
-          fileId: match.params.fileId,
-          detailType: tab.key,
-          detailId: tab.detailId,
-        });
-        history.push(path);
-      }}
+      mountOnEnter={false}
+      onSelect={onTabSelect}
     >
       {tabs.map(
         (content: TabContent, index: number) =>
