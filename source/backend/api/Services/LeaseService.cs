@@ -38,6 +38,7 @@ namespace Pims.Api.Services
         private readonly IPropertyService _propertyService;
         private readonly ILookupRepository _lookupRepository;
         private readonly ICompReqFinancialService _compReqFinancialService;
+        private readonly IPropertyOperationService _propertyOperationService;
 
         public LeaseService(
             ClaimsPrincipal user,
@@ -55,7 +56,8 @@ namespace Pims.Api.Services
             IUserRepository userRepository,
             IPropertyService propertyService,
             ILookupRepository lookupRepository,
-            ICompReqFinancialService compReqFinancialService)
+            ICompReqFinancialService compReqFinancialService,
+            IPropertyOperationService propertyOperationService)
             : base(user, logger)
         {
             _logger = logger;
@@ -74,6 +76,7 @@ namespace Pims.Api.Services
             _propertyService = propertyService;
             _lookupRepository = lookupRepository;
             _compReqFinancialService = compReqFinancialService;
+            _propertyOperationService = propertyOperationService;
         }
 
         public PimsLease GetById(long leaseId)
@@ -232,12 +235,6 @@ namespace Pims.Api.Services
             pimsUser.ThrowInvalidAccessToLeaseFile(lease.RegionCode);
 
             var currentFileProperties = _propertyLeaseRepository.GetAllByLeaseId(lease.LeaseId);
-            var newPropertiesAdded = lease.PimsPropertyLeases.Where(x => !currentFileProperties.Any(y => y.Internal_Id == x.Internal_Id)).ToList();
-
-            if (newPropertiesAdded.Any(x => x.Property.IsRetired.HasValue && x.Property.IsRetired.Value))
-            {
-                throw new BusinessRuleViolationException("Retired property can not be selected.");
-            }
 
             if (currentLease.LeaseStatusTypeCode != lease.LeaseStatusTypeCode)
             {
@@ -256,6 +253,12 @@ namespace Pims.Api.Services
             // Update marker locations in the context of this file
             foreach (var incomingLeaseProperty in leaseWithProperties.PimsPropertyLeases)
             {
+                var matchingProperty = currentFileProperties.FirstOrDefault(c => c.PropertyId == incomingLeaseProperty.PropertyId);
+                if (matchingProperty is not null && incomingLeaseProperty.Internal_Id == 0)
+                {
+                    incomingLeaseProperty.Internal_Id = matchingProperty.Internal_Id;
+                }
+
                 // If the property is not new, check if the marker location has been updated.
                 if (incomingLeaseProperty.Internal_Id != 0)
                 {
@@ -286,6 +289,11 @@ namespace Pims.Api.Services
                 if (_propertyLeaseRepository.LeaseFilePropertyInCompensationReq(deletedProperty.PropertyLeaseId))
                 {
                     throw new BusinessRuleViolationException("Lease File property can not be removed since it's assigned as a property for a compensation requisition");
+                }
+
+                if (_propertyOperationService.GetOperationsForProperty(deletedProperty.PropertyId).Count > 0)
+                {
+                    throw new BusinessRuleViolationException("This property cannot be deleted because it is part of a subdivision or consolidation");
                 }
 
                 var totalAssociationCount = _propertyRepository.GetAllAssociationsCountById(deletedProperty.PropertyId);
@@ -548,8 +556,11 @@ namespace Pims.Api.Services
             {
                 PimsProperty property = propertyLease.Property;
                 var existingPropertyLeases = _propertyLeaseRepository.GetAllByPropertyId(property.PropertyId);
+                var propertyWithAssociations = _propertyRepository.GetAllAssociationsById(property.PropertyId);
                 var isPropertyOnOtherLease = existingPropertyLeases.Any(p => p.LeaseId != lease.Internal_Id);
                 var isPropertyOnThisLease = existingPropertyLeases.Any(p => p.LeaseId == lease.Internal_Id);
+                var isDisposedOrRetired = existingPropertyLeases.Any(p => p.Property.IsRetired.HasValue && p.Property.IsRetired.Value)
+                    || propertyWithAssociations?.PimsDispositionFileProperties?.Any(d => d.DispositionFile.DispositionFileStatusTypeCode == DispositionFileStatusTypes.COMPLETE.ToString()) == true;
 
                 if (isPropertyOnOtherLease && !isPropertyOnThisLease && !userOverrides.Contains(UserOverrideCode.AddPropertyToInventory))
                 {
@@ -566,6 +577,11 @@ namespace Pims.Api.Services
                         $"{propertyLease?.Property?.Location.Coordinate.Y.ToString(CultureInfo.CurrentCulture) ?? string.Empty} {genericOverrideErrorMsg}";
 
                     throw new UserOverrideException(UserOverrideCode.AddPropertyToInventory, overrideError);
+                }
+
+                if (isDisposedOrRetired && !isPropertyOnThisLease)
+                {
+                    throw new BusinessRuleViolationException("Disposed or retired properties may not be added to a Lease. Remove any disposed or retired properties before continuing.");
                 }
 
                 // If the property exist dont update it, just refer to it by id.

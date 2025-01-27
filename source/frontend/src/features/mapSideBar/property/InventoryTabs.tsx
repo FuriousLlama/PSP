@@ -36,6 +36,11 @@ export const InventoryTabs: React.FunctionComponent<
   const match = useRouteMatch<{
     fileId: string;
     propertyId: string;
+    pid: string;
+    pin: string;
+    menuIndex: string;
+    id: string;
+    researchId: string;
   }>();
   return (
     <TabView
@@ -61,6 +66,8 @@ export const InventoryTabs: React.FunctionComponent<
           const path = generatePath(match.path, {
             fileId: match.params.fileId,
             propertyId: match.params.propertyId,
+            pid: match.params.pid,
+            pin: match.params.pin,
             tab,
           });
           history.push(path);

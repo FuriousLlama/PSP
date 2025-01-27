@@ -184,6 +184,63 @@ namespace Pims.Api.Test.Services
             propertyService.Verify(x => x.PopulateNewFileProperty(It.IsAny<PimsPropertyLease>()), Times.Never);
         }
 
+        [Fact]
+        public void Add_WithDisposedProperty_Should_Fail()
+        {
+            // Arrange
+            var lease = EntityHelper.CreateLease(1);
+            lease.RegionCode = 1;
+            var user = EntityHelper.CreateUser("Test");
+            user.PimsRegionUsers.Add(new PimsRegionUser() { RegionCode = lease.RegionCode.Value });
+
+            PimsProperty newProperty = new PimsProperty()
+            {
+                PropertyId = 100,
+                Pid = 1000,
+            };
+
+            PimsProperty disposedProperty = new PimsProperty()
+            {
+                PropertyId = 100,
+                Pid = 1000,
+                PimsDispositionFileProperties = new List<PimsDispositionFileProperty>()
+                {
+                    new PimsDispositionFileProperty()
+                    {
+                        DispositionFile = new PimsDispositionFile()
+                        {
+                            DispositionFileId = 1,
+                            DispositionFileStatusTypeCode = DispositionFileStatusTypes.COMPLETE.ToString(),
+                        },
+                    },
+                },
+            };
+
+            var service = this.CreateLeaseService(Permissions.LeaseAdd);
+
+            var leaseRepository = this._helper.GetService<Mock<ILeaseRepository>>();
+            leaseRepository.Setup(x => x.Add(It.IsAny<PimsLease>())).Returns(lease);
+
+            var propertyRepository = this._helper.GetService<Mock<IPropertyRepository>>();
+            propertyRepository.Setup(x => x.GetByPid(It.IsAny<int>(), true)).Returns(newProperty);
+            propertyRepository.Setup(x => x.GetAllAssociationsById(It.IsAny<long>())).Returns(disposedProperty);
+
+            var userRepository = this._helper.GetService<Mock<IUserRepository>>();
+            userRepository.Setup(x => x.GetByKeycloakUserId(It.IsAny<Guid>())).Returns(user);
+
+            var propertyService = this._helper.GetService<Mock<IPropertyService>>();
+
+            // Act
+            Action act = () => service.Add(lease, new List<UserOverrideCode>());
+
+            // Assert
+            var ex = act.Should().Throw<BusinessRuleViolationException>();
+            ex.WithMessage("Disposed or retired properties may not be added to a Lease. Remove any disposed or retired properties before continuing.");
+
+            leaseRepository.Verify(x => x.Add(It.IsAny<PimsLease>()), Times.Never);
+            propertyService.Verify(x => x.PopulateNewFileProperty(It.IsAny<PimsPropertyLease>()), Times.Never);
+        }
+
         #endregion
 
         #region Properties
@@ -453,18 +510,18 @@ namespace Pims.Api.Test.Services
             userRepository.Setup(x => x.GetByKeycloakUserId(It.IsAny<Guid>())).Returns(EntityHelper.CreateUser("Test"));
 
             var propertyService = this._helper.GetService<Mock<IPropertyService>>();
-            propertyService.Setup(x => x.UpdateLocation(It.IsAny<PimsProperty>(), ref It.Ref<PimsProperty>.IsAny, It.IsAny<IEnumerable<UserOverrideCode>>()));
+            propertyService.Setup(x => x.UpdateLocation(It.IsAny<PimsProperty>(), ref It.Ref<PimsProperty>.IsAny, It.IsAny<IEnumerable<UserOverrideCode>>(), false));
 
             // Act
             var updatedLease = service.Update(lease, new List<UserOverrideCode>() { UserOverrideCode.AddLocationToProperty });
 
             // Assert
             leaseRepository.Verify(x => x.Update(lease, false), Times.Once);
-            propertyService.Verify(x => x.UpdateLocation(It.IsAny<PimsProperty>(), ref It.Ref<PimsProperty>.IsAny, It.IsAny<IEnumerable<UserOverrideCode>>()), Times.Once);
+            propertyService.Verify(x => x.UpdateLocation(It.IsAny<PimsProperty>(), ref It.Ref<PimsProperty>.IsAny, It.IsAny<IEnumerable<UserOverrideCode>>(), false), Times.Once);
         }
 
         [Fact]
-        public void UpdateProperties_WithRetiredProperty_Should_Fail()
+        public void UpdateProperties_WithDisposedProperty_Should_Fail()
         {
             // Arrange
             var lease = EntityHelper.CreateLease(1);
@@ -479,10 +536,114 @@ namespace Pims.Api.Test.Services
             {
                 PropertyId = 100,
                 Pid = 1,
-                IsRetired = true,
+            };
+
+            PimsProperty disposedProperty = new PimsProperty()
+            {
+                PropertyId = 100,
+                Pid = 1000,
+                PimsDispositionFileProperties = new List<PimsDispositionFileProperty>()
+                {
+                    new PimsDispositionFileProperty()
+                    {
+                        DispositionFile = new PimsDispositionFile()
+                        {
+                            DispositionFileId = 1,
+                            DispositionFileStatusTypeCode = DispositionFileStatusTypes.COMPLETE.ToString(),
+                        },
+                    },
+                },
             };
 
             propertyRepository.Setup(x => x.GetByPid(It.IsAny<int>(), true)).Returns(property);
+            propertyRepository.Setup(x => x.GetAllAssociationsById(It.IsAny<long>())).Returns(disposedProperty);
+            leaseRepository.Setup(x => x.GetNoTracking(It.IsAny<long>())).Returns(lease);
+            leaseRepository.Setup(x => x.Get(It.IsAny<long>())).Returns(EntityHelper.CreateLease(1));
+            userRepository.Setup(x => x.GetByKeycloakUserId(It.IsAny<Guid>())).Returns(EntityHelper.CreateUser("Test"));
+
+            // Act
+            Action act = () => service.Update(lease, new List<UserOverrideCode>() { UserOverrideCode.AddLocationToProperty });
+
+            // Assert
+            var ex = act.Should().Throw<BusinessRuleViolationException>();
+            ex.WithMessage("Disposed or retired properties may not be added to a Lease. Remove any disposed or retired properties before continuing.");
+        }
+
+        [Fact]
+        public void UpdateProperties_WithExistingDisposedProperty_Should_Pass()
+        {
+            // Arrange
+            var lease = EntityHelper.CreateLease(1);
+
+            var service = this.CreateLeaseService(Permissions.LeaseEdit, Permissions.PropertyAdd, Permissions.PropertyView);
+            var leaseRepository = this._helper.GetService<Mock<ILeaseRepository>>();
+            var propertyLeaseRepository = this._helper.GetService<Mock<IPropertyLeaseRepository>>();
+            var propertyRepository = this._helper.GetService<Mock<IPropertyRepository>>();
+            var userRepository = this._helper.GetService<Mock<IUserRepository>>();
+
+            PimsProperty property = new PimsProperty()
+            {
+                PropertyId = 100,
+                Pid = 1,
+            };
+
+            PimsProperty disposedProperty = new PimsProperty()
+            {
+                PropertyId = 100,
+                Pid = 1000,
+                PimsDispositionFileProperties = new List<PimsDispositionFileProperty>()
+                {
+                    new PimsDispositionFileProperty()
+                    {
+                        DispositionFile = new PimsDispositionFile()
+                        {
+                            DispositionFileId = 1,
+                            DispositionFileStatusTypeCode = DispositionFileStatusTypes.COMPLETE.ToString(),
+                        },
+                    },
+                },
+            };
+            PimsPropertyLease propertyLease = new PimsPropertyLease()
+            {
+                Property = disposedProperty,
+                LeaseId = lease.LeaseId
+            };
+
+            propertyLeaseRepository.Setup(x => x.GetAllByPropertyId(It.IsAny<long>())).Returns(new List<PimsPropertyLease>() { propertyLease });
+            propertyRepository.Setup(x => x.GetByPid(It.IsAny<int>(), true)).Returns(property);
+            propertyRepository.Setup(x => x.GetAllAssociationsById(It.IsAny<long>())).Returns(disposedProperty);
+            leaseRepository.Setup(x => x.GetNoTracking(It.IsAny<long>())).Returns(lease);
+            leaseRepository.Setup(x => x.Get(It.IsAny<long>())).Returns(EntityHelper.CreateLease(1));
+            userRepository.Setup(x => x.GetByKeycloakUserId(It.IsAny<Guid>())).Returns(EntityHelper.CreateUser("Test"));
+
+            // Act
+            Action act = () => service.Update(lease, new List<UserOverrideCode>() { UserOverrideCode.AddLocationToProperty });
+
+            // Assert
+            var ex = act.Should().NotThrow<BusinessRuleViolationException>();
+            leaseRepository.Verify(x => x.Update(lease, false), Times.Once);
+        }
+
+        [Fact]
+        public void UpdateProperties_WithRetiredProperty_Should_Fail()
+        {
+            // Arrange
+            var lease = EntityHelper.CreateLease(1);
+
+            var service = this.CreateLeaseService(Permissions.LeaseEdit, Permissions.PropertyAdd, Permissions.PropertyView);
+            var leaseRepository = this._helper.GetService<Mock<ILeaseRepository>>();
+            var propertyLeaseRepository = this._helper.GetService<Mock<IPropertyLeaseRepository>>();
+            var propertyRepository = this._helper.GetService<Mock<IPropertyRepository>>();
+            var userRepository = this._helper.GetService<Mock<IUserRepository>>();
+
+            PimsProperty retiredProperty = new PimsProperty()
+            {
+                PropertyId = 100,
+                Pid = 1,
+                IsRetired = true,
+            };
+
+            propertyRepository.Setup(x => x.GetByPid(It.IsAny<int>(), true)).Returns(retiredProperty);
             leaseRepository.Setup(x => x.GetNoTracking(It.IsAny<long>())).Returns(lease);
             leaseRepository.Setup(x => x.Get(It.IsAny<long>())).Returns(EntityHelper.CreateLease(1));
             userRepository.Setup(x => x.GetByKeycloakUserId(It.IsAny<Guid>())).Returns(EntityHelper.CreateUser("Test"));
@@ -513,14 +674,50 @@ namespace Pims.Api.Test.Services
             userRepository.Setup(x => x.GetByKeycloakUserId(It.IsAny<Guid>())).Returns(EntityHelper.CreateUser("Test"));
 
             var propertyService = this._helper.GetService<Mock<IPropertyService>>();
-            propertyService.Setup(x => x.UpdateLocation(It.IsAny<PimsProperty>(), ref It.Ref<PimsProperty>.IsAny, It.IsAny<IEnumerable<UserOverrideCode>>()));
+            propertyService.Setup(x => x.UpdateLocation(It.IsAny<PimsProperty>(), ref It.Ref<PimsProperty>.IsAny, It.IsAny<IEnumerable<UserOverrideCode>>(), false));
 
             // Act
             var updatedLease = service.Update(lease, new List<UserOverrideCode>() { UserOverrideCode.AddLocationToProperty });
 
             // Assert
             leaseRepository.Verify(x => x.Update(lease, false), Times.Once);
-            propertyService.Verify(x => x.UpdateLocation(It.IsAny<PimsProperty>(), ref It.Ref<PimsProperty>.IsAny, It.IsAny<IEnumerable<UserOverrideCode>>()), Times.Once);
+            propertyService.Verify(x => x.UpdateLocation(It.IsAny<PimsProperty>(), ref It.Ref<PimsProperty>.IsAny, It.IsAny<IEnumerable<UserOverrideCode>>(), false), Times.Once);
+        }
+
+        [Fact]
+        public void UpdateProperties_MatchProperties_Success_NoInternalId()
+        {
+            // Arrange
+            var lease = EntityHelper.CreateLease(1);
+
+            var property = EntityHelper.CreateProperty(1, regionCode: 1);
+            var service = this.CreateLeaseService(Permissions.LeaseEdit, Permissions.PropertyAdd, Permissions.PropertyView);
+            var leaseRepository = this._helper.GetService<Mock<ILeaseRepository>>();
+            var propertyLeaseRepository = this._helper.GetService<Mock<IPropertyLeaseRepository>>();
+            var propertyRepository = this._helper.GetService<Mock<IPropertyRepository>>();
+            var userRepository = this._helper.GetService<Mock<IUserRepository>>();
+            var propertyLeases = new List<PimsPropertyLease>() {new PimsPropertyLease()
+            {
+                Property = property,
+                PropertyId = 1,
+                Lease = lease,
+                Internal_Id = 1,
+            } };
+            lease.PimsPropertyLeases = propertyLeases;
+
+            propertyLeaseRepository.Setup(x => x.GetAllByLeaseId(It.IsAny<long>())).Returns(propertyLeases);
+            propertyRepository.Setup(x => x.GetByPid(It.IsAny<int>(), true)).Returns(lease.PimsPropertyLeases.FirstOrDefault().Property);
+            leaseRepository.Setup(x => x.GetNoTracking(It.IsAny<long>())).Returns(lease);
+            userRepository.Setup(x => x.GetByKeycloakUserId(It.IsAny<Guid>())).Returns(EntityHelper.CreateUser("Test"));
+
+            var propertyService = this._helper.GetService<Mock<IPropertyService>>();
+            propertyService.Setup(x => x.UpdateLocation(It.IsAny<PimsProperty>(), ref It.Ref<PimsProperty>.IsAny, It.IsAny<IEnumerable<UserOverrideCode>>(), false));
+
+            // Act
+            var updatedLease = service.Update(lease, new List<UserOverrideCode>() { UserOverrideCode.AddLocationToProperty });
+
+            // Assert
+            var updatedProperty = updatedLease.PimsPropertyLeases.FirstOrDefault().Internal_Id.Should().Be(1);
         }
 
         [Fact]
@@ -589,12 +786,15 @@ namespace Pims.Api.Test.Services
             var propertyLeaseRepository = this._helper.GetService<Mock<IPropertyLeaseRepository>>();
             var propertyRepository = this._helper.GetService<Mock<IPropertyRepository>>();
             var userRepository = this._helper.GetService<Mock<IUserRepository>>();
+            var propertyOperationService = this._helper.GetService<Mock<IPropertyOperationService>>();
+
             propertyLeaseRepository.Setup(x => x.GetAllByLeaseId(It.IsAny<long>())).Returns(lease.PimsPropertyLeases);
             propertyRepository.Setup(x => x.GetByPid(It.IsAny<int>(), false)).Returns(lease.PimsPropertyLeases.FirstOrDefault().Property);
             propertyRepository.Setup(x => x.GetAllAssociationsCountById(It.IsAny<long>())).Returns(3);
             leaseRepository.Setup(x => x.GetNoTracking(It.IsAny<long>())).Returns(lease);
             leaseRepository.Setup(x => x.Get(It.IsAny<long>())).Returns(EntityHelper.CreateLease(1));
             userRepository.Setup(x => x.GetByKeycloakUserId(It.IsAny<Guid>())).Returns(EntityHelper.CreateUser("Test"));
+            propertyOperationService.Setup(x => x.GetOperationsForProperty(It.IsAny<long>())).Returns(new List<PimsPropertyOperation>());
 
             // Act
             updatedLease = service.Update(updatedLease, new List<UserOverrideCode>());
@@ -617,6 +817,7 @@ namespace Pims.Api.Test.Services
             var propertyLeaseRepository = this._helper.GetService<Mock<IPropertyLeaseRepository>>();
             var propertyRepository = this._helper.GetService<Mock<IPropertyRepository>>();
             var userRepository = this._helper.GetService<Mock<IUserRepository>>();
+            var propertyOperationService = this._helper.GetService<Mock<IPropertyOperationService>>();
 
             propertyLeaseRepository.Setup(x => x.GetAllByLeaseId(It.IsAny<long>())).Returns(lease.PimsPropertyLeases);
             propertyLeaseRepository.Setup(x => x.LeaseFilePropertyInCompensationReq(It.IsAny<long>())).Returns(true);
@@ -626,12 +827,45 @@ namespace Pims.Api.Test.Services
             leaseRepository.Setup(x => x.GetNoTracking(It.IsAny<long>())).Returns(lease);
             leaseRepository.Setup(x => x.Get(It.IsAny<long>())).Returns(EntityHelper.CreateLease(1));
             userRepository.Setup(x => x.GetByKeycloakUserId(It.IsAny<Guid>())).Returns(EntityHelper.CreateUser("Test"));
+            propertyOperationService.Setup(x => x.GetOperationsForProperty(It.IsAny<long>())).Returns(new List<PimsPropertyOperation>());
 
             // Act
             Action act = () => service.Update(updatedLease, new List<UserOverrideCode>());
 
             // Assert
-            var ex = act.Should().Throw<BusinessRuleViolationException>().WithMessage("Lease File property can not be removed since it's assigned as a property for a compensation requisition");
+            act.Should().Throw<BusinessRuleViolationException>().WithMessage("Lease File property can not be removed since it's assigned as a property for a compensation requisition");
+        }
+
+        [Fact]
+        public void UpdateProperties_RemoveProperty_Fails_PropertyIsSubdividedOrConsolidated()
+        {
+            // Arrange
+            var lease = EntityHelper.CreateLease(1);
+            var deletedProperty = lease.PimsPropertyLeases.FirstOrDefault().Property;
+            var updatedLease = EntityHelper.CreateLease(2, addProperty: false);
+
+            var service = this.CreateLeaseService(Permissions.LeaseEdit, Permissions.PropertyAdd, Permissions.PropertyView);
+            var leaseRepository = this._helper.GetService<Mock<ILeaseRepository>>();
+            var propertyLeaseRepository = this._helper.GetService<Mock<IPropertyLeaseRepository>>();
+            var propertyRepository = this._helper.GetService<Mock<IPropertyRepository>>();
+            var userRepository = this._helper.GetService<Mock<IUserRepository>>();
+            var propertyOperationService = this._helper.GetService<Mock<IPropertyOperationService>>();
+
+            propertyLeaseRepository.Setup(x => x.GetAllByLeaseId(It.IsAny<long>())).Returns(lease.PimsPropertyLeases);
+            propertyLeaseRepository.Setup(x => x.LeaseFilePropertyInCompensationReq(It.IsAny<long>())).Returns(false);
+            propertyRepository.Setup(x => x.GetByPid(It.IsAny<int>(), false)).Returns(deletedProperty);
+            propertyRepository.Setup(x => x.GetAllAssociationsById(It.IsAny<long>())).Returns(lease.PimsPropertyLeases.FirstOrDefault().Property);
+            propertyRepository.Setup(x => x.GetAllAssociationsCountById(It.IsAny<long>())).Returns(1);
+            leaseRepository.Setup(x => x.GetNoTracking(It.IsAny<long>())).Returns(lease);
+            leaseRepository.Setup(x => x.Get(It.IsAny<long>())).Returns(EntityHelper.CreateLease(1));
+            userRepository.Setup(x => x.GetByKeycloakUserId(It.IsAny<Guid>())).Returns(EntityHelper.CreateUser("Test"));
+            propertyOperationService.Setup(x => x.GetOperationsForProperty(It.IsAny<long>())).Returns(new List<PimsPropertyOperation>() { new() { Internal_Id = 1, SourcePropertyId = deletedProperty.Internal_Id, SourceProperty = deletedProperty } });
+
+            // Act
+            Action act = () => service.Update(updatedLease, new List<UserOverrideCode>());
+
+            // Assert
+            act.Should().Throw<BusinessRuleViolationException>().WithMessage("This property cannot be deleted because it is part of a subdivision or consolidation");
         }
 
         [Fact]
@@ -647,6 +881,7 @@ namespace Pims.Api.Test.Services
             var propertyLeaseRepository = this._helper.GetService<Mock<IPropertyLeaseRepository>>();
             var propertyRepository = this._helper.GetService<Mock<IPropertyRepository>>();
             var userRepository = this._helper.GetService<Mock<IUserRepository>>();
+            var propertyOperationService = this._helper.GetService<Mock<IPropertyOperationService>>();
 
             propertyLeaseRepository.Setup(x => x.GetAllByLeaseId(It.IsAny<long>())).Returns(lease.PimsPropertyLeases);
             propertyLeaseRepository.Setup(x => x.LeaseFilePropertyInCompensationReq(It.IsAny<long>())).Returns(false);
@@ -656,6 +891,7 @@ namespace Pims.Api.Test.Services
             leaseRepository.Setup(x => x.GetNoTracking(It.IsAny<long>())).Returns(lease);
             leaseRepository.Setup(x => x.Get(It.IsAny<long>())).Returns(EntityHelper.CreateLease(1));
             userRepository.Setup(x => x.GetByKeycloakUserId(It.IsAny<Guid>())).Returns(EntityHelper.CreateUser("Test"));
+            propertyOperationService.Setup(x => x.GetOperationsForProperty(It.IsAny<long>())).Returns(new List<PimsPropertyOperation>());
 
             // Act
             updatedLease = service.Update(updatedLease, new List<UserOverrideCode>());

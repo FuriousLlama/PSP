@@ -38,6 +38,8 @@ namespace Pims.Api.Services
         private readonly ITakeRepository _takeRepository;
         private readonly IAcquisitionStatusSolver _statusSolver;
         private readonly IPropertyService _propertyService;
+        private readonly IProjectRepository _projectRepository;
+        private readonly IPropertyOperationService _propertyOperationService;
 
         public AcquisitionFileService(
             ClaimsPrincipal user,
@@ -55,8 +57,10 @@ namespace Pims.Api.Services
             ICompReqFinancialService compReqFinancialService,
             IExpropriationPaymentRepository expropriationPaymentRepository,
             ITakeRepository takeRepository,
+            IProjectRepository projectRepository,
             IAcquisitionStatusSolver statusSolver,
-            IPropertyService propertyService)
+            IPropertyService propertyService,
+            IPropertyOperationService propertyOperationService)
         {
             _user = user;
             _logger = logger;
@@ -75,6 +79,8 @@ namespace Pims.Api.Services
             _takeRepository = takeRepository;
             _statusSolver = statusSolver;
             _propertyService = propertyService;
+            _projectRepository = projectRepository;
+            _propertyOperationService = propertyOperationService;
         }
 
         public Paged<PimsAcquisitionFile> GetPage(AcquisitionFilter filter)
@@ -206,7 +212,8 @@ namespace Pims.Api.Services
 
             _logger.LogInformation("Adding acquisition file with id {id}", acquisitionFile.Internal_Id);
             _user.ThrowIfNotAuthorized(Permissions.AcquisitionFileAdd);
-            acquisitionFile.ThrowMissingContractorInTeam(_user, _userRepository);
+
+            acquisitionFile.ThrowMissingContractorInTeam(_user, _userRepository, _projectRepository);
 
             // validate the new acq region
             var cannotDetermineRegion = _lookupRepository.GetAllRegions().FirstOrDefault(x => x.RegionName == "Cannot determine");
@@ -229,7 +236,10 @@ namespace Pims.Api.Services
                 _propertyService.PopulateNewFileProperty(incomingAcquisitionProperty);
             }
 
+            // Set default values, according to business rules
             acquisitionFile.AcquisitionFileStatusTypeCode = AcquisitionStatusTypes.ACTIVE.ToString();
+            acquisitionFile.AssignedDate ??= DateTime.Today;
+
             var newAcqFile = _acqFileRepository.Add(acquisitionFile);
             _acqFileRepository.CommitTransaction();
 
@@ -271,7 +281,7 @@ namespace Pims.Api.Services
             ValidateStaff(acquisitionFile);
             ValidateOrganizationStaff(acquisitionFile);
 
-            acquisitionFile.ThrowContractorRemovedFromTeam(_user, _userRepository);
+            acquisitionFile.ThrowContractorRemovedFromTeam(_user, _userRepository, _projectRepository);
 
             ValidatePayeeDependency(acquisitionFile);
 
@@ -315,6 +325,12 @@ namespace Pims.Api.Services
             // Check if the property is new or if it is being updated
             foreach (var incomingAcquisitionProperty in acquisitionFile.PimsPropertyAcquisitionFiles)
             {
+                var matchingProperty = currentFileProperties.FirstOrDefault(c => c.PropertyId == incomingAcquisitionProperty.PropertyId);
+                if (matchingProperty is not null && incomingAcquisitionProperty.Internal_Id == 0)
+                {
+                    incomingAcquisitionProperty.Internal_Id = matchingProperty.Internal_Id;
+                }
+
                 // If the property is not new, check if the name has been updated.
                 if (incomingAcquisitionProperty.Internal_Id != 0)
                 {
@@ -352,7 +368,7 @@ namespace Pims.Api.Services
             foreach (var deletedProperty in differenceSet)
             {
                 var acqFileProperties = _acquisitionFilePropertyRepository.GetPropertiesByAcquisitionFileId(acquisitionFile.Internal_Id).FirstOrDefault(ap => ap.PropertyId == deletedProperty.PropertyId);
-                if (acqFileProperties.PimsTakes.Any() || acqFileProperties.PimsInthldrPropInterests.Any())
+                if (acqFileProperties.PimsTakes.Count > 0 || acqFileProperties.PimsInthldrPropInterests.Count > 0)
                 {
                     throw new BusinessRuleViolationException("You must remove all takes and interest holders from an acquisition file property before removing that property from an acquisition file");
                 }
@@ -360,6 +376,11 @@ namespace Pims.Api.Services
                 if (_acquisitionFilePropertyRepository.AcquisitionFilePropertyInCompensationReq(deletedProperty.PropertyAcquisitionFileId))
                 {
                     throw new BusinessRuleViolationException("Acquisition File property can not be removed since it's assigned as a property for a compensation requisition");
+                }
+
+                if (_propertyOperationService.GetOperationsForProperty(deletedProperty.PropertyId).Count > 0)
+                {
+                    throw new BusinessRuleViolationException("This property cannot be deleted because it is part of a subdivision or consolidation");
                 }
 
                 _acquisitionFilePropertyRepository.Delete(deletedProperty);
@@ -823,34 +844,35 @@ namespace Pims.Api.Services
         {
             var currentAcquisitionFile = _acqFileRepository.GetById(acquisitionFile.Internal_Id);
             var compensationRequisitions = _compensationRequisitionRepository.GetAllByAcquisitionFileId(acquisitionFile.Internal_Id);
+            var compReqPayees = compensationRequisitions.SelectMany(x => x.PimsCompReqPayees).ToList();
 
-            if (compensationRequisitions.Count == 0)
+            if (compReqPayees.Count == 0)
             {
                 return;
             }
 
-            foreach (var compReq in compensationRequisitions)
+            foreach (var payee in compReqPayees)
             {
                 // Check for Acquisition File Owner removed
-                if (compReq.AcquisitionOwnerId is not null
-                    && !acquisitionFile.PimsAcquisitionOwners.Any(x => x.Internal_Id.Equals(compReq.AcquisitionOwnerId))
-                    && currentAcquisitionFile.PimsAcquisitionOwners.Any(x => x.Internal_Id.Equals(compReq.AcquisitionOwnerId)))
+                if (payee.AcquisitionOwnerId is not null
+                    && !acquisitionFile.PimsAcquisitionOwners.Any(x => x.Internal_Id.Equals(payee.AcquisitionOwnerId))
+                    && currentAcquisitionFile.PimsAcquisitionOwners.Any(x => x.Internal_Id.Equals(payee.AcquisitionOwnerId)))
                 {
                     throw new ForeignKeyDependencyException("Acquisition File Owner can not be removed since it's assigned as a payee for a compensation requisition");
                 }
 
-                // Check for Acquisition InterestHolders
-                if (compReq.InterestHolderId is not null
-                    && !acquisitionFile.PimsInterestHolders.Any(x => x.Internal_Id.Equals(compReq.InterestHolderId))
-                    && currentAcquisitionFile.PimsInterestHolders.Any(x => x.Internal_Id.Equals(compReq.InterestHolderId)))
+                //// Check for Acquisition InterestHolders
+                if (payee.InterestHolderId is not null
+                    && !acquisitionFile.PimsInterestHolders.Any(x => x.Internal_Id.Equals(payee.InterestHolderId))
+                    && currentAcquisitionFile.PimsInterestHolders.Any(x => x.Internal_Id.Equals(payee.InterestHolderId)))
                 {
                     throw new ForeignKeyDependencyException("Acquisition File Interest Holders can not be removed since it's assigned as a payee for a compensation requisition");
                 }
 
-                // Check for File Person
-                if (compReq.AcquisitionFileTeamId is not null
-                    && !acquisitionFile.PimsAcquisitionFileTeams.Any(x => x.Internal_Id.Equals(compReq.AcquisitionFileTeamId))
-                    && currentAcquisitionFile.PimsAcquisitionFileTeams.Any(x => x.Internal_Id.Equals(compReq.AcquisitionFileTeamId)))
+                //// Check for File Person
+                if (payee.AcquisitionFileTeamId is not null
+                    && !acquisitionFile.PimsAcquisitionFileTeams.Any(x => x.Internal_Id.Equals(payee.AcquisitionFileTeamId))
+                    && currentAcquisitionFile.PimsAcquisitionFileTeams.Any(x => x.Internal_Id.Equals(payee.AcquisitionFileTeamId)))
                 {
                     throw new ForeignKeyDependencyException("Acquisition File team member can not be removed since it's assigned as a payee for a compensation requisition");
                 }
@@ -861,18 +883,19 @@ namespace Pims.Api.Services
         {
             var currentAcquisitionFile = _acqFileRepository.GetById(acquisitionFileId);
             var compensationRequisitions = _compensationRequisitionRepository.GetAllByAcquisitionFileId(acquisitionFileId);
+            var compReqPayees = compensationRequisitions.SelectMany(x => x.PimsCompReqPayees).ToList();
 
-            if (compensationRequisitions.Count == 0)
+            if (compReqPayees.Count == 0)
             {
                 return;
             }
 
-            foreach (var compReq in compensationRequisitions)
+            foreach (var payee in compReqPayees)
             {
                 // Check for Interest Holder
-                if (compReq.InterestHolderId is not null
-                    && !interestHolders.Any(x => x.InterestHolderId.Equals(compReq.InterestHolderId))
-                    && currentAcquisitionFile.PimsInterestHolders.Any(x => x.Internal_Id.Equals(compReq.InterestHolderId)))
+                if (payee.InterestHolderId is not null
+                    && !interestHolders.Any(x => x.InterestHolderId.Equals(payee.InterestHolderId))
+                    && currentAcquisitionFile.PimsInterestHolders.Any(x => x.Internal_Id.Equals(payee.InterestHolderId)))
                 {
                     throw new ForeignKeyDependencyException("Acquisition File Interest Holder can not be removed since it's assigned as a payee for a compensation requisition");
                 }

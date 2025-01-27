@@ -80,6 +80,7 @@ export const mockAcquisitionFileResponse = (
     },
     regionCode: null,
     note: null,
+    projectPersons: [],
     projectProducts: [],
     ...getEmptyBaseAudit(),
   },
@@ -99,7 +100,7 @@ export const mockAcquisitionFileResponse = (
   },
   productId: null,
   legacyFileNumber: 'legacy file number',
-  assignedDate: '2022-06-27T00:00:00',
+  assignedDate: '2024-12-18T02:04:53.18',
   deliveryDate: '2022-07-29T00:00:00',
   estimatedCompletionDate: '2024-07-10T00:00:00',
   possessionDate: '2025-07-10T00:00:00',
@@ -414,6 +415,16 @@ export const mockAcquisitionFileResponse = (
   compensationRequisitions: null,
   fundingOther: null,
   fundingTypeCode: null,
+  acquisitionFileProgressStatuses: [],
+  acquisitionFileAppraisalStatusTypeCode: {
+    id: 'RECEIVED',
+    description: 'Received',
+    isDisabled: false,
+    displayOrder: 3,
+  },
+  acquisitionFileLegalSurveyStatusTypeCode: null,
+  acquisitionFileTakingStatuses: [],
+  acquisitionFileExpropiationRiskStatusTypeCode: null,
 });
 
 export const getMockExpropriationFile = (
@@ -1511,6 +1522,11 @@ export const mockAcquisitionFileSubFilesResponse = (): ApiGen_Concepts_Acquisiti
     appLastUpdateUserGuid: '939a27d0-76cd-49b0-b474-53166adb73da',
     appCreateUserGuid: '939a27d0-76cd-49b0-b474-53166adb73da',
     rowVersion: 1,
+    acquisitionFileProgressStatuses: [],
+    acquisitionFileAppraisalStatusTypeCode: null,
+    acquisitionFileLegalSurveyStatusTypeCode: null,
+    acquisitionFileTakingStatuses: [],
+    acquisitionFileExpropiationRiskStatusTypeCode: null,
   },
   {
     parentAcquisitionFileId: 64,
@@ -1561,5 +1577,10 @@ export const mockAcquisitionFileSubFilesResponse = (): ApiGen_Concepts_Acquisiti
     appLastUpdateUserGuid: '939a27d0-76cd-49b0-b474-53166adb73da',
     appCreateUserGuid: '939a27d0-76cd-49b0-b474-53166adb73da',
     rowVersion: 5,
+    acquisitionFileProgressStatuses: [],
+    acquisitionFileAppraisalStatusTypeCode: null,
+    acquisitionFileLegalSurveyStatusTypeCode: null,
+    acquisitionFileTakingStatuses: [],
+    acquisitionFileExpropiationRiskStatusTypeCode: null,
   },
 ];

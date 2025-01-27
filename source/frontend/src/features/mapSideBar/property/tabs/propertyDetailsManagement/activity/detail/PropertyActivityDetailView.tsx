@@ -4,8 +4,8 @@ import { MdClose } from 'react-icons/md';
 import { useHistory } from 'react-router-dom';
 import ReactVisibilitySensor from 'react-visibility-sensor';
 
+import EditButton from '@/components/common/buttons/EditButton';
 import ContactLink from '@/components/common/ContactLink';
-import EditButton from '@/components/common/EditButton';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { Section } from '@/components/common/Section/Section';
 import { SectionField } from '@/components/common/Section/SectionField';
@@ -85,6 +85,7 @@ export const PropertyActivityDetailView: React.FunctionComponent<
                           `/mapview/sidebar/property/${props.propertyId}/management/activity/${props.activity?.id}/edit`,
                         );
                       }}
+                      style={{ float: 'right' }}
                     />
                   )}
                 </StyledEditWrapper>
@@ -114,7 +115,11 @@ export const PropertyActivityDetailView: React.FunctionComponent<
                       <>{contact.person !== null && <ContactLink person={contact.person} />}</>
                     ))}
                   </SectionField>
-                  <SectionField label="Requested source" contentWidth="7">
+                  <SectionField
+                    label="Requestor"
+                    contentWidth="7"
+                    tooltip="Document the source of the request by entering the name of the person, organization or other entity from which the request has been received"
+                  >
                     {props.activity.requestSource}
                   </SectionField>
                   <SectionField label="Involved parties" contentWidth="8">

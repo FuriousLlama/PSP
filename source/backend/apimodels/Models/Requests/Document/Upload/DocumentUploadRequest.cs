@@ -22,6 +22,11 @@ namespace Pims.Api.Models.Requests.Document.Upload
         public long DocumentTypeId { get; set; }
 
         /// <summary>
+        /// get/set - The id of the document to be uploaded (in PIMS).
+        /// </summary>
+        public long DocumentId { get; set; }
+
+        /// <summary>
         /// get/set - Initial status code of the document.
         /// </summary>
         public string DocumentStatusCode { get; set; }

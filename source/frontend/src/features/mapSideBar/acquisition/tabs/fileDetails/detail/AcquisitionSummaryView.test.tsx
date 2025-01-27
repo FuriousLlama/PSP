@@ -8,10 +8,12 @@ import {
 import { getEmptyPerson } from '@/mocks/contacts.mock';
 import { getEmptyOrganization } from '@/mocks/organization.mock';
 import { ApiGen_Concepts_Person } from '@/models/api/generated/ApiGen_Concepts_Person';
-import { toTypeCodeNullable } from '@/utils/formUtils';
+import { getEmptyBaseAudit } from '@/models/defaultInitializers';
+import { formatMinistryProject, toTypeCodeNullable } from '@/utils/formUtils';
 import { act, cleanup, render, RenderOptions, userEvent, waitForEffects } from '@/utils/test-utils';
 
 import AcquisitionSummaryView, { IAcquisitionSummaryViewProps } from './AcquisitionSummaryView';
+import { mockProjects } from '@/mocks/projects.mock';
 
 // mock auth library
 
@@ -116,14 +118,143 @@ describe('AcquisitionSummaryView component', () => {
     expect(editWarningText).toBeVisible();
   });
 
+  it.each([
+    ['with project number', '001', `FTProjectTest`],
+    ['without project number', null, `FTProjectTest`],
+  ])(
+    'renders the file Project Number and name concatenated - %s',
+    async (_: string, projectNumber: string | null, projectDescription: string) => {
+      const { getByText } = setup(
+        {
+          acquisitionFile: {
+            ...mockAcquisitionFileResponse(),
+            project: {
+              id: 1,
+              projectStatusTypeCode: null,
+              code: projectNumber,
+              description: projectDescription,
+              costTypeCode: null,
+              businessFunctionCode: null,
+              workActivityCode: null,
+              regionCode: null,
+              note: null,
+              projectPersons: [],
+              projectProducts: [],
+              ...getEmptyBaseAudit(1),
+            },
+          },
+        },
+        { claims: [] },
+      );
+      await waitForEffects();
+
+      expect(getByText('Ministry project:')).toBeVisible();
+      expect(getByText(formatMinistryProject(projectNumber, projectDescription))).toBeVisible();
+    },
+  );
+
   it('renders historical file number', async () => {
     const { getByText } = setup({ acquisitionFile: mockAcquisitionFileResponse() }, { claims: [] });
     await waitForEffects();
     expect(getByText('legacy file number')).toBeVisible();
   });
 
+  it('renders the file progress statuses', async () => {
+    const { getByTestId } = setup(
+      {
+        acquisitionFile: {
+          ...mockAcquisitionFileResponse(),
+          estimatedCompletionDate: '2030-01-10T00:00:00',
+          possessionDate: '2035-03-10T00:00:00',
+          acquisitionFileProgressStatuses: [
+            {
+              id: 3,
+              acquisitionFileId: 64,
+              progressStatusTypeCode: {
+                id: 'OWNRCNTCTD',
+                description: 'Owner contacted',
+                isDisabled: false,
+                displayOrder: 6,
+              },
+              appCreateTimestamp: '2024-12-27T17:33:21.553',
+              appLastUpdateTimestamp: '2024-12-27T17:33:21.553',
+              appLastUpdateUserid: 'EHERRERA',
+              appCreateUserid: 'EHERRERA',
+              appLastUpdateUserGuid: '939a27d0-76cd-49b0-b474-53166adb73da',
+              appCreateUserGuid: '939a27d0-76cd-49b0-b474-53166adb73da',
+              rowVersion: 1,
+            },
+            {
+              id: 4,
+              acquisitionFileId: 64,
+              progressStatusTypeCode: {
+                id: 'WTG4PAPLN',
+                description: 'Waiting for PA plan',
+                isDisabled: false,
+                displayOrder: 7,
+              },
+              appCreateTimestamp: '2024-12-27T17:33:21.553',
+              appLastUpdateTimestamp: '2024-12-27T17:33:21.553',
+              appLastUpdateUserid: 'EHERRERA',
+              appCreateUserid: 'EHERRERA',
+              appLastUpdateUserGuid: '939a27d0-76cd-49b0-b474-53166adb73da',
+              appCreateUserGuid: '939a27d0-76cd-49b0-b474-53166adb73da',
+              rowVersion: 1,
+            },
+          ],
+          acquisitionFileAppraisalStatusTypeCode: {
+            id: 'RECEIVED',
+            description: 'Received',
+            isDisabled: false,
+            displayOrder: 3,
+          },
+          acquisitionFileLegalSurveyStatusTypeCode: {
+            id: 'OUT4SIGN',
+            description: 'Out for Signatures',
+            isDisabled: false,
+            displayOrder: 4,
+          },
+          acquisitionFileTakingStatuses: [
+            {
+              id: 4,
+              acquisitionFileId: 64,
+              takingStatusTypeCode: {
+                id: 'PARTLTACQ',
+                description: 'Partial Acquisition',
+                isDisabled: false,
+                displayOrder: 3,
+              },
+              appCreateTimestamp: '2024-12-27T17:33:21.553',
+              appLastUpdateTimestamp: '2024-12-27T17:33:21.553',
+              appLastUpdateUserid: 'EHERRERA',
+              appCreateUserid: 'EHERRERA',
+              appLastUpdateUserGuid: '939a27d0-76cd-49b0-b474-53166adb73da',
+              appCreateUserGuid: '939a27d0-76cd-49b0-b474-53166adb73da',
+              rowVersion: 1,
+            },
+          ],
+          acquisitionFileExpropiationRiskStatusTypeCode: {
+            id: 'MED',
+            description: 'Medium',
+            isDisabled: false,
+            displayOrder: 3,
+          },
+        },
+      },
+      { claims: [] },
+    );
+    await waitForEffects();
+
+    expect(getByTestId('prg-file-progress-status')).toHaveTextContent('Owner contacted');
+    expect(getByTestId('prg-file-progress-status')).toHaveTextContent('Waiting for PA plan');
+    expect(getByTestId('prg-appraisal-status')).toHaveTextContent('Received');
+    expect(getByTestId('prg-legal-survey-status')).toHaveTextContent('Out for Signatures');
+    expect(getByTestId('prg-taking-type-status')).toHaveTextContent('Partial Acquisition');
+    expect(getByTestId('prg-expropiation-risk-status')).toHaveTextContent('Medium');
+  });
+
   it('renders acquisition-related dates', async () => {
-    const { getByText } = setup(
+    const { getByText, getByTestId } = setup(
       {
         acquisitionFile: {
           ...mockAcquisitionFileResponse(),
@@ -136,6 +267,7 @@ describe('AcquisitionSummaryView component', () => {
     await waitForEffects();
     expect(getByText('Jan 10, 2030')).toBeVisible();
     expect(getByText('Mar 10, 2035')).toBeVisible();
+    expect(getByTestId('assigned-date')).toHaveTextContent('Dec 18, 2024');
   });
 
   it('renders owner solicitor information with primary contact', async () => {
@@ -371,6 +503,89 @@ describe('AcquisitionSummaryView component', () => {
       ).toBeVisible();
       expect(getByText(/Sub-interest solicitor/i)).toBeVisible();
       expect(getByText(/Sub-interest representative/i)).toBeVisible();
+    });
+  });
+
+  describe('Project persons', () => {
+    it('renders project persons if present', async () => {
+      const { findByText } = setup(
+        {
+          acquisitionFile: {
+            ...mockAcquisitionFileResponse(),
+            project: {
+              ...mockAcquisitionFileResponse().project,
+              projectPersons: [
+                {
+                  id: 1,
+                  personId: 1,
+                  person: {
+                    ...getEmptyPerson(),
+                    id: 1,
+                    surname: 'Doe',
+                    firstName: 'John',
+                    middleNames: 'A',
+                  },
+                  project: mockProjects()[0],
+                  projectId: 1,
+                  ...getEmptyBaseAudit(),
+                },
+              ],
+            },
+          },
+        },
+        { claims: [] },
+      );
+      await waitForEffects();
+      expect(await findByText(/Management team member/)).toBeVisible();
+      expect(await findByText(/John A Doe/)).toBeVisible();
+    });
+
+    it('renders multiple project persons if present', async () => {
+      const { findByText, findAllByText } = setup(
+        {
+          acquisitionFile: {
+            ...mockAcquisitionFileResponse(),
+            project: {
+              ...mockAcquisitionFileResponse().project,
+              projectPersons: [
+                {
+                  id: 1,
+                  personId: 1,
+                  person: {
+                    ...getEmptyPerson(),
+                    id: 1,
+                    surname: 'Doe',
+                    firstName: 'John',
+                    middleNames: 'A',
+                  },
+                  project: mockProjects()[0],
+                  projectId: 1,
+                  ...getEmptyBaseAudit(),
+                },
+                {
+                  id: 2,
+                  personId: 2,
+                  person: {
+                    ...getEmptyPerson(),
+                    id: 2,
+                    surname: 'Smith',
+                    firstName: 'Jane',
+                    middleNames: 'B',
+                  },
+                  project: mockProjects()[0],
+                  projectId: 1,
+                  ...getEmptyBaseAudit(),
+                },
+              ],
+            },
+          },
+        },
+        { claims: [] },
+      );
+      await waitForEffects();
+      expect((await findAllByText(/Management team member/))[0]).toBeVisible();
+      expect(await findByText(/John A Doe/)).toBeVisible();
+      expect(await findByText(/Jane B Smith/)).toBeVisible();
     });
   });
 });

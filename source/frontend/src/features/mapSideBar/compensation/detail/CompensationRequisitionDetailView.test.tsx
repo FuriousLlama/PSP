@@ -9,17 +9,18 @@ import {
   getMockApiDefaultCompensation,
   getMockCompensationPropertiesReq,
 } from '@/mocks/compensations.mock';
+import { ApiGen_CodeTypes_AcquisitionStatusTypes } from '@/models/api/generated/ApiGen_CodeTypes_AcquisitionStatusTypes';
+import { ApiGen_CodeTypes_FileTypes } from '@/models/api/generated/ApiGen_CodeTypes_FileTypes';
 import { ApiGen_Concepts_CompensationRequisition } from '@/models/api/generated/ApiGen_Concepts_CompensationRequisition';
 import { toTypeCodeNullable } from '@/utils/formUtils';
-import { act, render, RenderOptions, userEvent, waitFor } from '@/utils/test-utils';
+import { act, render, RenderOptions, userEvent, waitForEffects } from '@/utils/test-utils';
 
 import CompensationRequisitionDetailView, {
   CompensationRequisitionDetailViewProps,
 } from './CompensationRequisitionDetailView';
-import { ApiGen_CodeTypes_AcquisitionStatusTypes } from '@/models/api/generated/ApiGen_CodeTypes_AcquisitionStatusTypes';
-import { ApiGen_CodeTypes_FileTypes } from '@/models/api/generated/ApiGen_CodeTypes_FileTypes';
 
 const setEditMode = vi.fn();
+const onGenerate = vi.fn();
 
 const history = createMemoryHistory();
 
@@ -39,9 +40,9 @@ describe('Compensation Detail View Component', () => {
         loading={renderOptions.props?.loading ?? false}
         setEditMode={setEditMode}
         clientConstant={renderOptions.props?.clientConstant ?? '034'}
-        onGenerate={vi.fn()}
-        compensationContactPerson={undefined}
-        compensationContactOrganization={undefined}
+        onGenerate={onGenerate}
+        compensationLeaseStakeHolders={[]}
+        compensationPayees={[]}
       />,
       {
         ...renderOptions,
@@ -49,6 +50,8 @@ describe('Compensation Detail View Component', () => {
         claims: renderOptions?.claims ?? [Claims.COMPENSATION_REQUISITION_VIEW],
       },
     );
+
+    await waitForEffects();
 
     return {
       ...component,
@@ -61,8 +64,7 @@ describe('Compensation Detail View Component', () => {
 
   it('renders as expected', async () => {
     const { asFragment } = await setup({});
-    const fragment = await waitFor(() => asFragment());
-    expect(fragment).toMatchSnapshot();
+    expect(asFragment()).toMatchSnapshot();
   });
 
   it('Displays the Compensation Requisition Header Information with Draft Status', async () => {
@@ -126,14 +128,14 @@ describe('Compensation Detail View Component', () => {
   });
 
   it('Edit Compensation Button not displayed without claims when is in "Draft" status', async () => {
-    const acquistionFile = mockAcquisitionFileResponse();
+    const acquisition = mockAcquisitionFileResponse();
     const mockFinalCompensation = getMockApiDefaultCompensation();
 
     const { queryByTitle } = await setup({
       claims: [Claims.COMPENSATION_REQUISITION_VIEW],
       props: {
         file: {
-          ...acquistionFile,
+          ...acquisition,
           fileStatusTypeCode: toTypeCodeNullable(ApiGen_CodeTypes_AcquisitionStatusTypes.ACTIVE),
         },
         compensation: { ...mockFinalCompensation, isDraft: true },
@@ -163,13 +165,13 @@ describe('Compensation Detail View Component', () => {
   });
 
   it('User does not have the option to Edit Compensation when is in "FINAL" status', async () => {
-    const acquistionFile = mockAcquisitionFileResponse();
+    const acquisition = mockAcquisitionFileResponse();
     const mockFinalCompensation = getMockApiDefaultCompensation();
     const { queryByTitle, getByTestId } = await setup({
       claims: [Claims.COMPENSATION_REQUISITION_EDIT],
       props: {
         file: {
-          ...acquistionFile,
+          ...acquisition,
           fileStatusTypeCode: toTypeCodeNullable(ApiGen_CodeTypes_AcquisitionStatusTypes.COMPLT),
         },
         compensation: { ...mockFinalCompensation, isDraft: false },
@@ -194,7 +196,7 @@ describe('Compensation Detail View Component', () => {
   });
 
   it('displays the acquisition files properties selected', async () => {
-    const { findByText, findByTestId } = await setup({
+    const { findByText } = await setup({
       claims: [Claims.COMPENSATION_REQUISITION_EDIT],
       props: {
         compensation: getMockApiCompensationWithProperty(),
@@ -222,23 +224,6 @@ describe('Compensation Detail View Component', () => {
     expect(compensationFinalizedDate).toHaveTextContent('Jun 12, 2024');
   });
 
-  it('Displays the Advanced Payment Served Date', async () => {
-    const mockCompensation = getMockApiDefaultCompensation();
-    const { queryByTestId } = await setup({
-      claims: [Claims.COMPENSATION_REQUISITION_VIEW],
-      props: {
-        compensation: {
-          ...mockCompensation,
-          isDraft: true,
-          advancedPaymentServedDate: '2023-09-18T00:00:00',
-        },
-      },
-    });
-
-    const advancedPaymntServedDate = queryByTestId('advanced-payment-served-date');
-    expect(advancedPaymntServedDate).toHaveTextContent('Sep 18, 2023');
-  });
-
   it('Displays the Product information', async () => {
     const mockCompensation = getMockApiDefaultCompensation();
     const { queryByTestId } = await setup({
@@ -249,5 +234,14 @@ describe('Compensation Detail View Component', () => {
     });
 
     expect(queryByTestId('file-product')).toHaveTextContent('00048');
+  });
+
+  it('calls onGenerate when generation button is clicked', async () => {
+    const { getByTitle } = await setup({});
+
+    const generateButton = getByTitle(/Download File/i);
+    await act(async () => userEvent.click(generateButton));
+
+    expect(onGenerate).toHaveBeenCalled();
   });
 });

@@ -1,10 +1,10 @@
 import { Col, Row } from 'react-bootstrap';
-import { FaExternalLinkAlt, FaMoneyCheck, FaTrash } from 'react-icons/fa';
+import { FaExternalLinkAlt, FaFileContract } from 'react-icons/fa';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { StyledRemoveLinkButton } from '@/components/common/buttons';
-import EditButton from '@/components/common/EditButton';
+import { RemoveIconButton } from '@/components/common/buttons';
+import EditButton from '@/components/common/buttons/EditButton';
 import { Section } from '@/components/common/Section/Section';
 import { SectionField } from '@/components/common/Section/SectionField';
 import { H3, StyledSectionAddButton } from '@/components/common/styles';
@@ -15,6 +15,7 @@ import useKeycloakWrapper from '@/hooks/useKeycloakWrapper';
 import { getDeleteModalProps, useModalContext } from '@/hooks/useModalContext';
 import { ApiGen_Concepts_ExpropriationPayment } from '@/models/api/generated/ApiGen_Concepts_ExpropriationPayment';
 import { ApiGen_Concepts_InterestHolder } from '@/models/api/generated/ApiGen_Concepts_InterestHolder';
+import { prettyFormatDate } from '@/utils';
 import { formatMoney } from '@/utils/numberFormatUtils';
 import { formatApiPersonNames } from '@/utils/personUtils';
 
@@ -51,25 +52,26 @@ export const ExpropriationForm8Details: React.FunctionComponent<
       <Section isCollapsable initiallyExpanded>
         <StyledSubHeader>
           <StyledSectionAddButton
+            title="Download File"
             data-testid={`form8[${form8Index}].generate-form8`}
             onClick={() => onGenerate(form8.id as number, acquisitionFileNumber)}
           >
-            <FaMoneyCheck className="mr-2" />
-            Generate
+            <FaFileContract size={28} className="mr-2" />
+            Generate Form 8
           </StyledSectionAddButton>
 
           {keycloak.hasClaim(Claims.ACQUISITION_EDIT) && (
             <>
               <EditButton
                 title="Edit form 8"
-                dataTestId={`form8[${form8Index}].edit-form8`}
+                data-testId={`form8[${form8Index}].edit-form8`}
                 onClick={() => history.push(`${match.url}/${form8.id}`)}
+                style={{ float: 'right' }}
               />
-              <StyledRemoveLinkButton
+              <RemoveIconButton
                 title="Delete Form 8"
-                data-testid={`form8[${form8Index}].delete-form8`}
-                variant="light"
-                onClick={() => {
+                data-testId={`form8[${form8Index}].delete-form8`}
+                onRemove={() => {
                   setModalContent({
                     ...getDeleteModalProps(),
                     title: 'Remove Form 8',
@@ -85,9 +87,7 @@ export const ExpropriationForm8Details: React.FunctionComponent<
                   });
                   setDisplayModal(true);
                 }}
-              >
-                <FaTrash size="2rem" />
-              </StyledRemoveLinkButton>
+              />
             </>
           )}
         </StyledSubHeader>
@@ -124,6 +124,14 @@ export const ExpropriationForm8Details: React.FunctionComponent<
             <span>{form8?.expropriatingAuthority?.name ?? ''}</span>
             <FaExternalLinkAlt className="ml-2" size="1rem" />
           </StyledLink>
+        </SectionField>
+
+        <SectionField
+          label="Advanced payment served date"
+          labelWidth="4"
+          valueTestId={`form8[${form8Index}].advanced-payment-srv-date`}
+        >
+          {prettyFormatDate(form8?.advancedPaymentServedDate)}
         </SectionField>
 
         <SectionField

@@ -4,8 +4,11 @@ import { Col, Row } from 'react-bootstrap';
 import { FaFileAlt, FaFileExcel, FaPlus } from 'react-icons/fa';
 import { useHistory } from 'react-router';
 import { toast } from 'react-toastify';
+import styled from 'styled-components';
 
+import LeaseIcon from '@/assets/images/lease-icon.svg?react';
 import { StyledIconButton } from '@/components/common/buttons';
+import * as CommonStyled from '@/components/common/styles';
 import { StyledAddButton } from '@/components/common/styles';
 import TooltipWrapper from '@/components/common/TooltipWrapper';
 import Claims from '@/constants/claims';
@@ -80,7 +83,20 @@ export const LeaseListView: React.FunctionComponent<React.PropsWithChildren<unkn
   return (
     <Styled.ListPage>
       <Styled.Scrollable>
-        <Styled.PageHeader>Leases &amp; Licences</Styled.PageHeader>
+        <CommonStyled.H1>
+          <FlexDiv>
+            <div>
+              <LeaseIcon title="Lease and Licence icon" fill="currentColor" />
+              <span className="ml-2">Leases &amp; Licences</span>
+            </div>
+            {hasClaim(Claims.LEASE_ADD) && (
+              <StyledAddButton onClick={() => history.push('/mapview/sidebar/lease/new')}>
+                <FaPlus />
+                &nbsp;Create a Lease/Licence
+              </StyledAddButton>
+            )}
+          </FlexDiv>
+        </CommonStyled.H1>
         <Styled.PageToolbar>
           <Row>
             <Col>
@@ -126,3 +142,11 @@ export const LeaseListView: React.FunctionComponent<React.PropsWithChildren<unkn
 };
 
 export default LeaseListView;
+
+const FlexDiv = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+`;

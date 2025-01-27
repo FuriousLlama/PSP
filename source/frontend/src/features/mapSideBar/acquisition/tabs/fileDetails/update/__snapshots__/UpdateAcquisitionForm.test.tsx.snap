@@ -381,6 +381,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
   padding-bottom: 0.8rem;
   padding-left: 1.2rem;
   padding-right: 2.8rem;
+  word-break: break-all;
   background-image: none;
   color: #474543;
   border: #606060 solid 0.1rem;
@@ -813,6 +814,461 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
           <div
             class="col"
           >
+            Progress Statuses
+          </div>
+        </div>
+      </h2>
+      <div
+        class="collapse show"
+      >
+        <div
+          class="pb-2 row"
+        >
+          <div
+            class="pr-0 text-left col-4"
+          >
+            <label
+              class="c2"
+            >
+              File progress:
+            </label>
+          </div>
+          <div
+            class="c3 text-left col"
+          >
+            <div
+              class="form-group"
+            >
+              <div>
+                <div
+                  class="multiselect-container multiSelectContainer  "
+                  id="multiselect-progressStatuses"
+                  style="width: auto; color: black;"
+                >
+                  <div
+                    class="search-wrapper searchWrapper "
+                    style="background: white; border: 1px solid #606060; padding-top: 0.8rem; padding-bottom: 0.8rem; padding-left: 1.2rem;"
+                  >
+                    <input
+                      autocomplete="off"
+                      class="searchBox "
+                      id="multiselect-progressStatuses_input"
+                      name="search_name_input"
+                      placeholder=""
+                      type="text"
+                      value=""
+                    />
+                  </div>
+                  <div
+                    class="optionListContainer displayNone"
+                  >
+                    <ul
+                      class="optionContainer"
+                    >
+                      <li
+                        class="option  highlightOption highlight  "
+                      >
+                        Not required
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        No longer required
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Acquired by others
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Preliminary design stage
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Approved for acquisition
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Owner contacted
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Waiting for PA plan
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        PA plan received
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Waiting for ancillary plan
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Waiting for appraisal / other report
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Negotiating
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Offer made
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Contract signed
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Out for conveyancing
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Possession for construction
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Ownership (tenure)
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Expropriated
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Settled
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        File complete (return to MoTT)
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pb-2 row"
+        >
+          <div
+            class="pr-0 text-left col-4"
+          >
+            <label
+              class="c2"
+            >
+              Appraisal:
+            </label>
+          </div>
+          <div
+            class="c3 text-left col"
+          >
+            <div
+              class="form-group"
+            >
+              <select
+                class="form-select form-control"
+                id="input-appraisalStatusType"
+                name="appraisalStatusType"
+              >
+                <option
+                  value=""
+                >
+                  Select appraisal
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-NOTREQ"
+                  value="NOTREQ"
+                >
+                  Not required
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-ORDERED"
+                  value="ORDERED"
+                >
+                  Ordered
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-RECEIVED"
+                  value="RECEIVED"
+                >
+                  Received
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-OWNERCOMM"
+                  value="OWNERCOMM"
+                >
+                  Owner Commission
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pb-2 row"
+        >
+          <div
+            class="pr-0 text-left col-4"
+          >
+            <label
+              class="c2"
+            >
+              Legal survey:
+            </label>
+          </div>
+          <div
+            class="c3 text-left col"
+          >
+            <div
+              class="form-group"
+            >
+              <select
+                class="form-select form-control"
+                id="input-legalSurveyStatusType"
+                name="legalSurveyStatusType"
+              >
+                <option
+                  value=""
+                >
+                  Select legal survey
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-NOTREQ"
+                  value="NOTREQ"
+                >
+                  Not required
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-ORDERED"
+                  value="ORDERED"
+                >
+                  Ordered
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-RECEIVED"
+                  value="RECEIVED"
+                >
+                  Received
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-OUT4SIGN"
+                  value="OUT4SIGN"
+                >
+                  Out for Signatures
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-REGISTRD"
+                  value="REGISTRD"
+                >
+                  Registered
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pb-2 row"
+        >
+          <div
+            class="pr-0 text-left col-4"
+          >
+            <label
+              class="c2"
+            >
+              Type of taking:
+            </label>
+          </div>
+          <div
+            class="c3 text-left col"
+          >
+            <div
+              class="form-group"
+            >
+              <div>
+                <div
+                  class="multiselect-container multiSelectContainer  "
+                  id="multiselect-takingStatuses"
+                  style="width: auto; color: black;"
+                >
+                  <div
+                    class="search-wrapper searchWrapper "
+                    style="background: white; border: 1px solid #606060; padding-top: 0.8rem; padding-bottom: 0.8rem; padding-left: 1.2rem;"
+                  >
+                    <input
+                      autocomplete="off"
+                      class="searchBox "
+                      id="multiselect-takingStatuses_input"
+                      name="search_name_input"
+                      placeholder=""
+                      type="text"
+                      value=""
+                    />
+                  </div>
+                  <div
+                    class="optionListContainer displayNone"
+                  >
+                    <ul
+                      class="optionContainer"
+                    >
+                      <li
+                        class="option  highlightOption highlight  "
+                      >
+                        Unknown
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Not required
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Partial Acquisition
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Permanent SRW
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Temporary SRW
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Total Acquisition
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Lease
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Licence
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Access closure
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        By dedication
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pb-2 row"
+        >
+          <div
+            class="pr-0 text-left col-4"
+          >
+            <label
+              class="c2"
+            >
+              Expropriation risk:
+            </label>
+          </div>
+          <div
+            class="c3 text-left col"
+          >
+            <div
+              class="form-group"
+            >
+              <select
+                class="form-select form-control"
+                id="input-expropiationRiskStatusType"
+                name="expropiationRiskStatusType"
+              >
+                <option
+                  value=""
+                >
+                  Select expropiation risk
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-NIL"
+                  value="NIL"
+                >
+                  Nil
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-LOW"
+                  value="LOW"
+                >
+                  Low
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-MED"
+                  value="MED"
+                >
+                  Medium
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-HIGH"
+                  value="HIGH"
+                >
+                  High
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="c1 form-section"
+    >
+      <h2
+        class="c4"
+      >
+        <div
+          class="no-gutters row"
+        >
+          <div
+            class="col"
+          >
             Schedule
           </div>
         </div>
@@ -860,7 +1316,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                     name="assignedDate"
                     placeholder="MMM DD, YYYY"
                     type="text"
-                    value="Jun 27, 2022"
+                    value="Dec 18, 2024"
                   />
                 </div>
               </div>
@@ -1095,6 +1551,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                 class="form-control"
                 id="input-fileName"
                 name="fileName"
+                style="word-break: break-all;"
                 title="Test ACQ File"
                 value="Test ACQ File"
               />
@@ -1145,6 +1602,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                 class="form-control"
                 id="input-legacyFileNumber"
                 name="legacyFileNumber"
+                style="word-break: break-all;"
                 title="legacy file number"
                 value="legacy file number"
               />
@@ -1569,6 +2027,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                       id="input-team.0.contact.id"
                       name="team.0.contact.id"
                       placeholder="Select from Contacts"
+                      style="word-break: break-all;"
                       title="P1"
                       value="P1"
                     />
@@ -1765,6 +2224,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                       id="input-team.1.contact.id"
                       name="team.1.contact.id"
                       placeholder="Select from Contacts"
+                      style="word-break: break-all;"
                       title="P3"
                       value="P3"
                     />
@@ -2070,6 +2530,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                     id="input-owners[0].givenName"
                     name="owners[0].givenName"
                     placeholder="First name Middle name (individuals only)"
+                    style="word-break: break-all;"
                     title="John"
                     value="John"
                   />
@@ -2099,6 +2560,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                     id="input-owners[0].lastNameAndCorpName"
                     name="owners[0].lastNameAndCorpName"
                     placeholder="Individual's last name"
+                    style="word-break: break-all;"
                     title="Doe"
                     value="Doe"
                   />
@@ -2150,6 +2612,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                     id="input-owners[0].otherName"
                     name="owners[0].otherName"
                     placeholder="Alias/Doing business as etc."
+                    style="word-break: break-all;"
                     title="Jr."
                     value="Jr."
                   />
@@ -2192,6 +2655,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                           class="form-control"
                           id="input-owners[0].address.streetAddress1"
                           name="owners[0].address.streetAddress1"
+                          style="word-break: break-all;"
                           title="456 Souris Street"
                           value="456 Souris Street"
                         />
@@ -2228,6 +2692,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                           class="form-control"
                           id="input-owners[0].address.streetAddress2"
                           name="owners[0].address.streetAddress2"
+                          style="word-break: break-all;"
                           title="PO Box 250"
                           value="PO Box 250"
                         />
@@ -2267,6 +2732,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                           class="form-control"
                           id="input-owners[0].address.streetAddress3"
                           name="owners[0].address.streetAddress3"
+                          style="word-break: break-all;"
                           title="A Hoot and a holler from the A&W"
                           value="A Hoot and a holler from the A&W"
                         />
@@ -2397,6 +2863,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                       class="form-control"
                       id="input-owners[0].address.municipality"
                       name="owners[0].address.municipality"
+                      style="word-break: break-all;"
                       title="North Podunk"
                       value="North Podunk"
                     />
@@ -2548,6 +3015,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                       class="form-control"
                       id="input-owners[0].address.postal"
                       name="owners[0].address.postal"
+                      style="word-break: break-all;"
                       title="IH8 B0B"
                       value="IH8 B0B"
                     />
@@ -2582,6 +3050,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                     class="form-control"
                     id="input-owners[0].contactEmailAddress"
                     name="owners[0].contactEmailAddress"
+                    style="word-break: break-all;"
                     title="jonh.doe@gmail.com"
                     value="jonh.doe@gmail.com"
                   />
@@ -2610,6 +3079,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                     class="form-control"
                     id="input-owners[0].contactPhoneNumber"
                     name="owners[0].contactPhoneNumber"
+                    style="word-break: break-all;"
                     title="775-111-1111"
                     value="775-111-1111"
                   />
@@ -2808,6 +3278,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                     id="input-owners[1].lastNameAndCorpName"
                     name="owners[1].lastNameAndCorpName"
                     placeholder="Business' legal name"
+                    style="word-break: break-all;"
                     title="FORTIS BC"
                     value="FORTIS BC"
                   />
@@ -2859,6 +3330,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                     id="input-owners[1].otherName"
                     name="owners[1].otherName"
                     placeholder="Alias/Doing business as etc."
+                    style="word-break: break-all;"
                     title="LTD"
                     value="LTD"
                   />
@@ -2888,6 +3360,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                     id="input-owners[1].incorporationNumber"
                     name="owners[1].incorporationNumber"
                     placeholder="Incorporation #"
+                    style="word-break: break-all;"
                     title="9999"
                     value="9999"
                   />
@@ -2939,6 +3412,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                     id="input-owners[1].registrationNumber"
                     name="owners[1].registrationNumber"
                     placeholder="If no Incorporation #"
+                    style="word-break: break-all;"
                     title="12345"
                     value="12345"
                   />
@@ -2981,6 +3455,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                           class="form-control"
                           id="input-owners[1].address.streetAddress1"
                           name="owners[1].address.streetAddress1"
+                          style="word-break: break-all;"
                           title="123 Main Street"
                           value="123 Main Street"
                         />
@@ -3017,6 +3492,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                           class="form-control"
                           id="input-owners[1].address.streetAddress2"
                           name="owners[1].address.streetAddress2"
+                          style="word-break: break-all;"
                           title="PO Box 123"
                           value="PO Box 123"
                         />
@@ -3056,6 +3532,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                           class="form-control"
                           id="input-owners[1].address.streetAddress3"
                           name="owners[1].address.streetAddress3"
+                          style="word-break: break-all;"
                           title="Next to the Dairy Queen"
                           value="Next to the Dairy Queen"
                         />
@@ -3186,6 +3663,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                       class="form-control"
                       id="input-owners[1].address.municipality"
                       name="owners[1].address.municipality"
+                      style="word-break: break-all;"
                       title="East Podunk"
                       value="East Podunk"
                     />
@@ -3337,6 +3815,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                       class="form-control"
                       id="input-owners[1].address.postal"
                       name="owners[1].address.postal"
+                      style="word-break: break-all;"
                       title="I4M B0B"
                       value="I4M B0B"
                     />
@@ -3371,6 +3850,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                     class="form-control"
                     id="input-owners[1].contactEmailAddress"
                     name="owners[1].contactEmailAddress"
+                    style="word-break: break-all;"
                     title="fake@email.ca"
                     value="fake@email.ca"
                   />
@@ -3399,6 +3879,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                     class="form-control"
                     id="input-owners[1].contactPhoneNumber"
                     name="owners[1].contactPhoneNumber"
+                    style="word-break: break-all;"
                     title="775-111-1111"
                     value="775-111-1111"
                   />
@@ -3483,6 +3964,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                       id="input-ownerSolicitor.contact.id"
                       name="ownerSolicitor.contact.id"
                       placeholder="Select from Contacts"
+                      style="word-break: break-all;"
                       title="O1"
                       value="O1"
                     />
@@ -3602,6 +4084,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                       id="input-ownerRepresentative.contact.id"
                       name="ownerRepresentative.contact.id"
                       placeholder="Select from Contacts"
+                      style="word-break: break-all;"
                       title="P2"
                       value="P2"
                     />
@@ -3662,6 +4145,7 @@ exports[`UpdateAcquisitionForm component > Sub-interest files > renders as expec
                 id="input-ownerRepresentative.comment"
                 name="ownerRepresentative.comment"
                 placeholder="Remarks or additional representative(s)"
+                style="word-break: break-all;"
                 title="test representative comment"
               >
                 test representative comment
@@ -4060,6 +4544,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
   padding-bottom: 0.8rem;
   padding-left: 1.2rem;
   padding-right: 2.8rem;
+  word-break: break-all;
   background-image: none;
   color: #474543;
   border: #606060 solid 0.1rem;
@@ -4507,6 +4992,461 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
           <div
             class="col"
           >
+            Progress Statuses
+          </div>
+        </div>
+      </h2>
+      <div
+        class="collapse show"
+      >
+        <div
+          class="pb-2 row"
+        >
+          <div
+            class="pr-0 text-left col-4"
+          >
+            <label
+              class="c2"
+            >
+              File progress:
+            </label>
+          </div>
+          <div
+            class="c3 text-left col"
+          >
+            <div
+              class="form-group"
+            >
+              <div>
+                <div
+                  class="multiselect-container multiSelectContainer  "
+                  id="multiselect-progressStatuses"
+                  style="width: auto; color: black;"
+                >
+                  <div
+                    class="search-wrapper searchWrapper "
+                    style="background: white; border: 1px solid #606060; padding-top: 0.8rem; padding-bottom: 0.8rem; padding-left: 1.2rem;"
+                  >
+                    <input
+                      autocomplete="off"
+                      class="searchBox "
+                      id="multiselect-progressStatuses_input"
+                      name="search_name_input"
+                      placeholder=""
+                      type="text"
+                      value=""
+                    />
+                  </div>
+                  <div
+                    class="optionListContainer displayNone"
+                  >
+                    <ul
+                      class="optionContainer"
+                    >
+                      <li
+                        class="option  highlightOption highlight  "
+                      >
+                        Not required
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        No longer required
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Acquired by others
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Preliminary design stage
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Approved for acquisition
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Owner contacted
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Waiting for PA plan
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        PA plan received
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Waiting for ancillary plan
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Waiting for appraisal / other report
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Negotiating
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Offer made
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Contract signed
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Out for conveyancing
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Possession for construction
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Ownership (tenure)
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Expropriated
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Settled
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        File complete (return to MoTT)
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pb-2 row"
+        >
+          <div
+            class="pr-0 text-left col-4"
+          >
+            <label
+              class="c2"
+            >
+              Appraisal:
+            </label>
+          </div>
+          <div
+            class="c3 text-left col"
+          >
+            <div
+              class="form-group"
+            >
+              <select
+                class="form-select form-control"
+                id="input-appraisalStatusType"
+                name="appraisalStatusType"
+              >
+                <option
+                  value=""
+                >
+                  Select appraisal
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-NOTREQ"
+                  value="NOTREQ"
+                >
+                  Not required
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-ORDERED"
+                  value="ORDERED"
+                >
+                  Ordered
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-RECEIVED"
+                  value="RECEIVED"
+                >
+                  Received
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-OWNERCOMM"
+                  value="OWNERCOMM"
+                >
+                  Owner Commission
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pb-2 row"
+        >
+          <div
+            class="pr-0 text-left col-4"
+          >
+            <label
+              class="c2"
+            >
+              Legal survey:
+            </label>
+          </div>
+          <div
+            class="c3 text-left col"
+          >
+            <div
+              class="form-group"
+            >
+              <select
+                class="form-select form-control"
+                id="input-legalSurveyStatusType"
+                name="legalSurveyStatusType"
+              >
+                <option
+                  value=""
+                >
+                  Select legal survey
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-NOTREQ"
+                  value="NOTREQ"
+                >
+                  Not required
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-ORDERED"
+                  value="ORDERED"
+                >
+                  Ordered
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-RECEIVED"
+                  value="RECEIVED"
+                >
+                  Received
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-OUT4SIGN"
+                  value="OUT4SIGN"
+                >
+                  Out for Signatures
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-REGISTRD"
+                  value="REGISTRD"
+                >
+                  Registered
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pb-2 row"
+        >
+          <div
+            class="pr-0 text-left col-4"
+          >
+            <label
+              class="c2"
+            >
+              Type of taking:
+            </label>
+          </div>
+          <div
+            class="c3 text-left col"
+          >
+            <div
+              class="form-group"
+            >
+              <div>
+                <div
+                  class="multiselect-container multiSelectContainer  "
+                  id="multiselect-takingStatuses"
+                  style="width: auto; color: black;"
+                >
+                  <div
+                    class="search-wrapper searchWrapper "
+                    style="background: white; border: 1px solid #606060; padding-top: 0.8rem; padding-bottom: 0.8rem; padding-left: 1.2rem;"
+                  >
+                    <input
+                      autocomplete="off"
+                      class="searchBox "
+                      id="multiselect-takingStatuses_input"
+                      name="search_name_input"
+                      placeholder=""
+                      type="text"
+                      value=""
+                    />
+                  </div>
+                  <div
+                    class="optionListContainer displayNone"
+                  >
+                    <ul
+                      class="optionContainer"
+                    >
+                      <li
+                        class="option  highlightOption highlight  "
+                      >
+                        Unknown
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Not required
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Partial Acquisition
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Permanent SRW
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Temporary SRW
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Total Acquisition
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Lease
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Licence
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        Access closure
+                      </li>
+                      <li
+                        class="option    "
+                      >
+                        By dedication
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="pb-2 row"
+        >
+          <div
+            class="pr-0 text-left col-4"
+          >
+            <label
+              class="c2"
+            >
+              Expropriation risk:
+            </label>
+          </div>
+          <div
+            class="c3 text-left col"
+          >
+            <div
+              class="form-group"
+            >
+              <select
+                class="form-select form-control"
+                id="input-expropiationRiskStatusType"
+                name="expropiationRiskStatusType"
+              >
+                <option
+                  value=""
+                >
+                  Select expropiation risk
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-NIL"
+                  value="NIL"
+                >
+                  Nil
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-LOW"
+                  value="LOW"
+                >
+                  Low
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-MED"
+                  value="MED"
+                >
+                  Medium
+                </option>
+                <option
+                  class="option"
+                  data-testid="select-option-HIGH"
+                  value="HIGH"
+                >
+                  High
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="c1 form-section"
+    >
+      <h2
+        class="c4"
+      >
+        <div
+          class="no-gutters row"
+        >
+          <div
+            class="col"
+          >
             Schedule
           </div>
         </div>
@@ -4554,7 +5494,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                     name="assignedDate"
                     placeholder="MMM DD, YYYY"
                     type="text"
-                    value="Jun 27, 2022"
+                    value="Dec 18, 2024"
                   />
                 </div>
               </div>
@@ -4789,6 +5729,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                 class="form-control"
                 id="input-fileName"
                 name="fileName"
+                style="word-break: break-all;"
                 title="Test ACQ File"
                 value="Test ACQ File"
               />
@@ -4839,6 +5780,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                 class="form-control"
                 id="input-legacyFileNumber"
                 name="legacyFileNumber"
+                style="word-break: break-all;"
                 title="legacy file number"
                 value="legacy file number"
               />
@@ -5159,6 +6101,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                       id="input-team.0.contact.id"
                       name="team.0.contact.id"
                       placeholder="Select from Contacts"
+                      style="word-break: break-all;"
                       title="P1"
                       value="P1"
                     />
@@ -5355,6 +6298,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                       id="input-team.1.contact.id"
                       name="team.1.contact.id"
                       placeholder="Select from Contacts"
+                      style="word-break: break-all;"
                       title="P3"
                       value="P3"
                     />
@@ -5660,6 +6604,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                     id="input-owners[0].givenName"
                     name="owners[0].givenName"
                     placeholder="First name Middle name (individuals only)"
+                    style="word-break: break-all;"
                     title="John"
                     value="John"
                   />
@@ -5689,6 +6634,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                     id="input-owners[0].lastNameAndCorpName"
                     name="owners[0].lastNameAndCorpName"
                     placeholder="Individual's last name"
+                    style="word-break: break-all;"
                     title="Doe"
                     value="Doe"
                   />
@@ -5740,6 +6686,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                     id="input-owners[0].otherName"
                     name="owners[0].otherName"
                     placeholder="Alias/Doing business as etc."
+                    style="word-break: break-all;"
                     title="Jr."
                     value="Jr."
                   />
@@ -5782,6 +6729,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                           class="form-control"
                           id="input-owners[0].address.streetAddress1"
                           name="owners[0].address.streetAddress1"
+                          style="word-break: break-all;"
                           title="456 Souris Street"
                           value="456 Souris Street"
                         />
@@ -5818,6 +6766,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                           class="form-control"
                           id="input-owners[0].address.streetAddress2"
                           name="owners[0].address.streetAddress2"
+                          style="word-break: break-all;"
                           title="PO Box 250"
                           value="PO Box 250"
                         />
@@ -5857,6 +6806,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                           class="form-control"
                           id="input-owners[0].address.streetAddress3"
                           name="owners[0].address.streetAddress3"
+                          style="word-break: break-all;"
                           title="A Hoot and a holler from the A&W"
                           value="A Hoot and a holler from the A&W"
                         />
@@ -5987,6 +6937,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                       class="form-control"
                       id="input-owners[0].address.municipality"
                       name="owners[0].address.municipality"
+                      style="word-break: break-all;"
                       title="North Podunk"
                       value="North Podunk"
                     />
@@ -6138,6 +7089,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                       class="form-control"
                       id="input-owners[0].address.postal"
                       name="owners[0].address.postal"
+                      style="word-break: break-all;"
                       title="IH8 B0B"
                       value="IH8 B0B"
                     />
@@ -6172,6 +7124,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                     class="form-control"
                     id="input-owners[0].contactEmailAddress"
                     name="owners[0].contactEmailAddress"
+                    style="word-break: break-all;"
                     title="jonh.doe@gmail.com"
                     value="jonh.doe@gmail.com"
                   />
@@ -6200,6 +7153,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                     class="form-control"
                     id="input-owners[0].contactPhoneNumber"
                     name="owners[0].contactPhoneNumber"
+                    style="word-break: break-all;"
                     title="775-111-1111"
                     value="775-111-1111"
                   />
@@ -6398,6 +7352,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                     id="input-owners[1].lastNameAndCorpName"
                     name="owners[1].lastNameAndCorpName"
                     placeholder="Business' legal name"
+                    style="word-break: break-all;"
                     title="FORTIS BC"
                     value="FORTIS BC"
                   />
@@ -6449,6 +7404,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                     id="input-owners[1].otherName"
                     name="owners[1].otherName"
                     placeholder="Alias/Doing business as etc."
+                    style="word-break: break-all;"
                     title="LTD"
                     value="LTD"
                   />
@@ -6478,6 +7434,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                     id="input-owners[1].incorporationNumber"
                     name="owners[1].incorporationNumber"
                     placeholder="Incorporation #"
+                    style="word-break: break-all;"
                     title="9999"
                     value="9999"
                   />
@@ -6529,6 +7486,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                     id="input-owners[1].registrationNumber"
                     name="owners[1].registrationNumber"
                     placeholder="If no Incorporation #"
+                    style="word-break: break-all;"
                     title="12345"
                     value="12345"
                   />
@@ -6571,6 +7529,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                           class="form-control"
                           id="input-owners[1].address.streetAddress1"
                           name="owners[1].address.streetAddress1"
+                          style="word-break: break-all;"
                           title="123 Main Street"
                           value="123 Main Street"
                         />
@@ -6607,6 +7566,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                           class="form-control"
                           id="input-owners[1].address.streetAddress2"
                           name="owners[1].address.streetAddress2"
+                          style="word-break: break-all;"
                           title="PO Box 123"
                           value="PO Box 123"
                         />
@@ -6646,6 +7606,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                           class="form-control"
                           id="input-owners[1].address.streetAddress3"
                           name="owners[1].address.streetAddress3"
+                          style="word-break: break-all;"
                           title="Next to the Dairy Queen"
                           value="Next to the Dairy Queen"
                         />
@@ -6776,6 +7737,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                       class="form-control"
                       id="input-owners[1].address.municipality"
                       name="owners[1].address.municipality"
+                      style="word-break: break-all;"
                       title="East Podunk"
                       value="East Podunk"
                     />
@@ -6927,6 +7889,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                       class="form-control"
                       id="input-owners[1].address.postal"
                       name="owners[1].address.postal"
+                      style="word-break: break-all;"
                       title="I4M B0B"
                       value="I4M B0B"
                     />
@@ -6961,6 +7924,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                     class="form-control"
                     id="input-owners[1].contactEmailAddress"
                     name="owners[1].contactEmailAddress"
+                    style="word-break: break-all;"
                     title="fake@email.ca"
                     value="fake@email.ca"
                   />
@@ -6989,6 +7953,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                     class="form-control"
                     id="input-owners[1].contactPhoneNumber"
                     name="owners[1].contactPhoneNumber"
+                    style="word-break: break-all;"
                     title="775-111-1111"
                     value="775-111-1111"
                   />
@@ -7073,6 +8038,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                       id="input-ownerSolicitor.contact.id"
                       name="ownerSolicitor.contact.id"
                       placeholder="Select from Contacts"
+                      style="word-break: break-all;"
                       title="O1"
                       value="O1"
                     />
@@ -7192,6 +8158,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                       id="input-ownerRepresentative.contact.id"
                       name="ownerRepresentative.contact.id"
                       placeholder="Select from Contacts"
+                      style="word-break: break-all;"
                       title="P2"
                       value="P2"
                     />
@@ -7252,6 +8219,7 @@ exports[`UpdateAcquisitionForm component > renders as expected 1`] = `
                 id="input-ownerRepresentative.comment"
                 name="ownerRepresentative.comment"
                 placeholder="Remarks or additional representative(s)"
+                style="word-break: break-all;"
                 title="test representative comment"
               >
                 test representative comment

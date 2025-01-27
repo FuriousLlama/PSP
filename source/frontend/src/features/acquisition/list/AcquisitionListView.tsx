@@ -4,9 +4,12 @@ import { Col, Row } from 'react-bootstrap';
 import { FaFileExcel, FaPlus } from 'react-icons/fa';
 import { useHistory } from 'react-router';
 import { toast } from 'react-toastify';
+import styled from 'styled-components';
 
+import AcquisitionFileIcon from '@/assets/images/acquisition-icon.svg?react';
 import { StyledIconButton } from '@/components/common/buttons/IconButton';
 import { StyledAddButton } from '@/components/common/styles';
+import * as CommonStyled from '@/components/common/styles';
 import TooltipWrapper from '@/components/common/TooltipWrapper';
 import Claims from '@/constants/claims';
 import { useApiAcquisitionFile } from '@/hooks/pims-api/useApiAcquisitionFile';
@@ -95,7 +98,20 @@ export const AcquisitionListView: React.FunctionComponent<
   return (
     <Styled.ListPage>
       <Styled.Scrollable>
-        <Styled.PageHeader>Acquisition Files</Styled.PageHeader>
+        <CommonStyled.H1>
+          <FlexDiv>
+            <div>
+              <AcquisitionFileIcon title="Acquisition file icon" fill="currentColor" />
+              <span className="ml-2">Acquisition Files</span>
+            </div>
+            {hasClaim(Claims.ACQUISITION_ADD) && (
+              <StyledAddButton onClick={() => history.push('/mapview/sidebar/acquisition/new')}>
+                <FaPlus />
+                &nbsp;Create an Acquisition File
+              </StyledAddButton>
+            )}
+          </FlexDiv>
+        </CommonStyled.H1>
         <Styled.PageToolbar>
           <Row>
             <Col>
@@ -114,12 +130,7 @@ export const AcquisitionListView: React.FunctionComponent<
             </Col>
           </Row>
         </Styled.PageToolbar>
-        {hasClaim(Claims.ACQUISITION_ADD) && (
-          <StyledAddButton onClick={() => history.push('/mapview/sidebar/acquisition/new')}>
-            <FaPlus />
-            &nbsp;Create an acquisition file
-          </StyledAddButton>
-        )}
+
         <AcquisitionSearchResults
           results={results.map(a => AcquisitionSearchResultModel.fromApi(a))}
           totalItems={totalItems}
@@ -138,3 +149,11 @@ export const AcquisitionListView: React.FunctionComponent<
 };
 
 export default AcquisitionListView;
+
+const FlexDiv = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+`;

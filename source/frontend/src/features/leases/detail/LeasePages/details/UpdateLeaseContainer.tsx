@@ -82,6 +82,24 @@ export const UpdateLeaseContainer: React.FunctionComponent<UpdateLeaseContainerP
   useEffect(() => {
     fetchLease();
   }, [fetchLease]);
+  const leaseId = lease?.id;
+
+  const refreshCompleteLease = useCallback(
+    async (leaseId?: number) => {
+      if (isValidId(leaseId)) {
+        const lease = await getCompleteLease();
+        formikRef?.current?.resetForm({ values: LeaseFormModel.fromApi(lease) });
+      }
+    },
+    [formikRef, getCompleteLease],
+  );
+
+  useDeepCompareEffect(() => {
+    const exec = async () => {
+      await refreshCompleteLease(leaseId);
+    };
+    exec();
+  }, [leaseId, consultationTypes, refreshCompleteLease]);
 
   const afterSubmit = useCallback(
     (updatedLease?: ApiGen_Concepts_Lease) => {
@@ -112,6 +130,10 @@ export const UpdateLeaseContainer: React.FunctionComponent<UpdateLeaseContainerP
         message: e.response.data.error,
         okButtonText: 'Close',
         variant: 'error',
+        handleOk: async () => {
+          await refreshCompleteLease(leaseId);
+          setDisplayModal(false);
+        },
       });
       setDisplayModal(true);
     } else {

@@ -3,7 +3,7 @@ import { Col, Row } from 'react-bootstrap';
 import { FiCheck, FiMinus, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 
-import { EditButton } from '@/components/common/EditButton';
+import { EditButton } from '@/components/common/buttons/EditButton';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { Section } from '@/components/common/Section/Section';
 import { SectionField } from '@/components/common/Section/SectionField';
@@ -44,7 +44,9 @@ export const ChecklistView: React.FC<IChecklistViewProps> = ({
       <LoadingBackdrop show={isLoading} parentScreen />
       {canEdit && (
         <StyledEditWrapper className="mr-3 my-1">
-          <EditButton title="Edit checklist" onClick={onEdit} />
+          {keycloak.hasClaim(editClaim) ? (
+            <EditButton title="Edit checklist" onClick={onEdit} style={{ float: 'right' }} />
+          ) : null}
         </StyledEditWrapper>
       )}
       {lastUpdated && (

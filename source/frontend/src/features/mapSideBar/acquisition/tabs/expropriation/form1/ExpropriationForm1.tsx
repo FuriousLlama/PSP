@@ -1,14 +1,16 @@
 import { Formik, FormikHelpers, FormikProps } from 'formik';
 import { Fragment } from 'react';
 import { Col, Row } from 'react-bootstrap';
+import { FaFileContract } from 'react-icons/fa';
 import styled from 'styled-components';
 
 import { Button } from '@/components/common/buttons';
-import { Input } from '@/components/common/form';
+import { FastDatePicker, Input } from '@/components/common/form';
 import { ContactInputContainer } from '@/components/common/form/ContactInput/ContactInputContainer';
 import ContactInputView from '@/components/common/form/ContactInput/ContactInputView';
 import FormItem from '@/components/common/form/FormItem';
 import { SectionField } from '@/components/common/Section/SectionField';
+import { StyledAddButton } from '@/components/common/styles';
 import { RestrictContactType } from '@/components/contact/ContactManagerView/ContactFilterComponent/ContactFilterComponent';
 import FilePropertiesTable from '@/components/filePropertiesTable/FilePropertiesTable';
 import { ApiGen_Concepts_AcquisitionFile } from '@/models/api/generated/ApiGen_Concepts_AcquisitionFile';
@@ -93,6 +95,9 @@ export const ExpropriationForm1: React.FC<IExpropriationForm1Props> = ({
           <SectionField label="Purpose of expropriation">
             <Input field="purpose" />
           </SectionField>
+          <SectionField label="Expropriation notice served date">
+            <FastDatePicker field="expropriationNoticeServedDate" formikProps={formikProps} />
+          </SectionField>
 
           <RightFlexRow>
             <Col xs="auto" className="pr-4">
@@ -101,7 +106,10 @@ export const ExpropriationForm1: React.FC<IExpropriationForm1Props> = ({
               </Button>
             </Col>
             <Col xs="auto">
-              <Button onClick={() => onGenerateClick(formikProps)}>Generate</Button>
+              <StyledAddButton title="Download File" onClick={() => onGenerateClick(formikProps)}>
+                <FaFileContract size={28} className="mr-2" />
+                Generate Form 1
+              </StyledAddButton>
             </Col>
           </RightFlexRow>
         </Fragment>

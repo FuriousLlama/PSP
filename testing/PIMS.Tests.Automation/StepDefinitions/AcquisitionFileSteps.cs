@@ -492,7 +492,7 @@ namespace PIMS.Tests.Automation.StepDefinitions
                     else
                     {
                         //Click on edit the Interest Stakeholder button
-                        stakeholders.EditStakeholderNonInterestsButton();
+                        stakeholders.EditStakeholderInterestsButton();
 
                         //Add new Interest Stakeholder to the Acquisition File
                         stakeholders.AddNonInterestStakeholderButton();
@@ -551,7 +551,7 @@ namespace PIMS.Tests.Automation.StepDefinitions
             h120.NavigateCompensationTab();
 
             //Verify initial Compensation Tab List View
-            h120.VerifyCompensationInitTabView();
+            h120.VerifyCompensationInitTabView("Acquisition");
 
             //Update Allowable Compensation Amount
             h120.UpdateTotalAllowableCompensation(acquisitionFile.AcquisitionCompensationTotalAllowableAmount);
@@ -1036,9 +1036,8 @@ namespace PIMS.Tests.Automation.StepDefinitions
 
             //Acquisition Team
             if (acquisitionFile.AcquisitionTeamStartRow != 0 && acquisitionFile.AcquisitionTeamCount != 0)
-            {
                 PopulateTeamsCollection(acquisitionFile.AcquisitionTeamStartRow, acquisitionFile.AcquisitionTeamCount);
-            }
+
 
             //Owner
             acquisitionFile.OwnerStartRow = int.Parse(ExcelDataContext.ReadData(rowNumber, "OwnerStartRow"));
@@ -1291,7 +1290,7 @@ namespace PIMS.Tests.Automation.StepDefinitions
                 stakeholder.InterestHolder = ExcelDataContext.ReadData(i, "InterestHolder");
                 stakeholder.InterestType = ExcelDataContext.ReadData(i, "InterestType");
                 stakeholder.StakeholderContactType = ExcelDataContext.ReadData(i, "StakeholderContactType");
-                stakeholder.PrimaryContact = ExcelDataContext.ReadData(i, "PrimaryContact");
+                stakeholder.PrimaryContact = ExcelDataContext.ReadData(i, "StakeholderPrimaryContact");
                 stakeholder.PayeeName = ExcelDataContext.ReadData(i, "PayeeName");
                 stakeholder.StakeholderIndex = int.Parse(ExcelDataContext.ReadData(i, "StakeholderIndex"));
 
@@ -1331,9 +1330,7 @@ namespace PIMS.Tests.Automation.StepDefinitions
                 compensation.ActivitiesCount = int.Parse(ExcelDataContext.ReadData(i, "ActivitiesCount"));
 
                 if (compensation.ActivitiesStartRow != 0 && compensation.ActivitiesCount != 0)
-                {
                     PopulateActivitiesCollection(compensation.ActivitiesStartRow, compensation.ActivitiesCount, compensation.CompensationActivities);
-                }
 
                 acquisitionFile.AcquisitionCompensations.Add(compensation);
             }

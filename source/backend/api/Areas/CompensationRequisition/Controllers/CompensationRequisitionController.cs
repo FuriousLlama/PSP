@@ -4,17 +4,17 @@ using MapsterMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Pims.Core.Api.Exceptions;
 using Pims.Api.Models.CodeTypes;
 using Pims.Api.Models.Concepts.AcquisitionFile;
 using Pims.Api.Models.Concepts.CompensationRequisition;
 using Pims.Api.Models.Concepts.Lease;
-using Pims.Core.Api.Policies;
 using Pims.Api.Services;
+using Pims.Core.Api.Exceptions;
+using Pims.Core.Api.Policies;
 using Pims.Core.Extensions;
 using Pims.Core.Json;
-using Pims.Dal.Entities;
 using Pims.Core.Security;
+using Pims.Dal.Entities;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Pims.Api.Areas.CompensationRequisition.Controllers
@@ -189,7 +189,7 @@ namespace Pims.Api.Areas.CompensationRequisition.Controllers
         [ProducesResponseType(typeof(List<CompensationRequisitionModel>), 200)]
         [SwaggerOperation(Tags = new[] { "compensation-requisition" })]
         [TypeFilter(typeof(NullJsonResultFilter))]
-        public IActionResult GetFileCompensations([FromRoute]FileTypes fileType, [FromRoute]long fileId)
+        public IActionResult GetFileCompensations([FromRoute] FileTypes fileType, [FromRoute] long fileId)
         {
             _logger.LogInformation(
                 "Request received by Controller: {Controller}, Action: {ControllerAction}, User: {User}, DateTime: {DateTime}",
@@ -224,6 +224,27 @@ namespace Pims.Api.Areas.CompensationRequisition.Controllers
             var compReqFinancials = _compensationRequisitionService.GetCompensationRequisitionFinancials(id);
 
             return new JsonResult(_mapper.Map<IEnumerable<CompensationFinancialModel>>(compReqFinancials));
+        }
+
+        [HttpGet("{id:long}/payees")]
+        [HasPermission(Permissions.CompensationRequisitionView)]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(List<CompReqPayeeModel>), 200)]
+        [SwaggerOperation(Tags = new[] { "compensation-requisition" })]
+        [TypeFilter(typeof(NullJsonResultFilter))]
+        public IActionResult GetCompensationRequisitionPayees([FromRoute] long id)
+        {
+            _logger.LogInformation(
+                "Request received by Controller: {Controller}, Action: {ControllerAction}, User: {User}, DateTime: {DateTime}",
+                nameof(CompensationRequisitionController),
+                nameof(GetCompensationRequisitionPayees),
+                User.GetUsername(),
+                DateTime.Now);
+            _logger.LogInformation("Dispatching to service: {Service}", _compensationRequisitionService.GetType());
+
+            var compReqPayees = _compensationRequisitionService.GetCompensationRequisitionPayees(id);
+
+            return new JsonResult(_mapper.Map<IEnumerable<CompReqPayeeModel>>(compReqPayees));
         }
     }
 }

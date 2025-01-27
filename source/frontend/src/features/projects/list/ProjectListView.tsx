@@ -1,8 +1,10 @@
 import { useCallback } from 'react';
 import { Col, Row } from 'react-bootstrap';
-import { FaPlus } from 'react-icons/fa';
+import { FaBriefcase, FaPlus } from 'react-icons/fa';
 import { useHistory } from 'react-router-dom';
+import styled from 'styled-components';
 
+import * as CommonStyled from '@/components/common/styles';
 import { StyledAddButton } from '@/components/common/styles';
 import { Claims } from '@/constants/claims';
 import { useApiProjects } from '@/hooks/pims-api/useApiProjects';
@@ -54,7 +56,21 @@ export const ProjectListView: React.FunctionComponent<React.PropsWithChildren<un
   return (
     <Styled.ListPage>
       <Styled.Scrollable>
-        <Styled.PageHeader>Projects</Styled.PageHeader>
+        <CommonStyled.H1>
+          <FlexDiv>
+            <div>
+              <FaBriefcase title="Project icon" fill="currentColor" className={'pb-1'} />
+              <span className="ml-2">Projects</span>
+            </div>
+
+            {hasClaim(Claims.PROJECT_ADD) && (
+              <StyledAddButton onClick={() => history.push('/mapview/sidebar/project/new')}>
+                <FaPlus />
+                &nbsp;Create Project
+              </StyledAddButton>
+            )}
+          </FlexDiv>
+        </CommonStyled.H1>
         <Styled.PageToolbar>
           <Row>
             <Col>
@@ -66,12 +82,7 @@ export const ProjectListView: React.FunctionComponent<React.PropsWithChildren<un
             </Col>
           </Row>
         </Styled.PageToolbar>
-        {hasClaim(Claims.PROJECT_ADD) && (
-          <StyledAddButton onClick={() => history.push('/mapview/sidebar/project/new')}>
-            <FaPlus />
-            &nbsp;Create Project
-          </StyledAddButton>
-        )}
+
         <ProjectSearchResults
           results={results.map(x => ProjectSearchResultModel.fromApi(x))}
           totalItems={totalItems}
@@ -90,3 +101,11 @@ export const ProjectListView: React.FunctionComponent<React.PropsWithChildren<un
 };
 
 export default ProjectListView;
+
+const FlexDiv = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+`;

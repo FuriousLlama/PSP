@@ -350,7 +350,7 @@ exports[`DepositsContainer > renders as expected 1`] = `
             </span>
           </div>
           <div
-            class="pl-8 d-flex align-items-end col-auto"
+            class="pl-2 d-flex align-items-end col-auto"
           >
             <svg
               class="c4"
@@ -388,6 +388,7 @@ exports[`DepositsContainer > renders as expected 1`] = `
             id="input-returnNotes"
             name="returnNotes"
             rows="5"
+            style="word-break: break-all;"
             title="Tenant no longer has a dog, deposit returned, less fee for carpet cleaning"
           >
             Tenant no longer has a dog, deposit returned, less fee for carpet cleaning

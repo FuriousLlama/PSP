@@ -602,7 +602,7 @@ namespace PIMS.Tests.Automation.PageObjects
         public void VerifyMaximumFields()
         {
             //Get previous inserted data
-            var acquisitionFileName = webDriver.FindElement(acquisitionFileNameInput).GetAttribute("value");
+            var acquisitionFileName = webDriver.FindElement(acquisitionFileNameInput).GetDomProperty("value");
 
             //Verify File Name Input
             webDriver.FindElement(acquisitionFileNameInput).SendKeys("Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus");
@@ -658,7 +658,6 @@ namespace PIMS.Tests.Automation.PageObjects
 
             Wait();
             var teamMemberIndex = webDriver.FindElements(acquisitionFileTeamMembersGroup).Count() -1;
-            //var teamMemberCount = webDriver.FindElements(acquisitionFileTeamMembersGroup).Count();
 
             WaitUntilVisible(By.CssSelector("select[id='input-team."+ teamMemberIndex +".contactTypeCode']"));
             ChooseSpecificSelectOption(By.CssSelector("select[id='input-team."+ teamMemberIndex +".contactTypeCode']"), teamMember.TeamMemberRole);
