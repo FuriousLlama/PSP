@@ -27,29 +27,7 @@ export const LeaseDetailSummaryView: React.FunctionComponent<
     : '';
 
   return (
-    <Section
-      header={
-        <SimpleSectionHeader title="Details">
-          {hasClaim(Claims.LEASE_VIEW) &&
-            exists(leaseTypeCode) &&
-            leaseTypeCode === ApiGen_CodeTypes_LeaseLicenceTypes.LOOBCTFA && (
-              <StyledAddButton title="Download File" onClick={() => onGenerate(lease)}>
-                <FaFileContract size={28} id={`generate-h1005-a`} className="mr-2" />
-                Generate H-1005(a)
-              </StyledAddButton>
-            )}
-
-          {hasClaim(Claims.LEASE_VIEW) &&
-            exists(leaseTypeCode) &&
-            leaseTypeCode === ApiGen_CodeTypes_LeaseLicenceTypes.LIPPUBHWY && (
-              <StyledAddButton title="Download File" onClick={() => onGenerate(lease)}>
-                <FaFileContract size={28} id={`generate-h1005`} className="mr-2" />
-                Generate H-1005
-              </StyledAddButton>
-            )}
-        </SimpleSectionHeader>
-      }
-    >
+    <Section header="Details">
       <SectionField label="Ministry project" labelWidth="3">
         {projectName}
       </SectionField>

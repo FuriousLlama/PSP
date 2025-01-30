@@ -3,7 +3,7 @@ import noop from 'lodash/noop';
 import React from 'react';
 import styled from 'styled-components';
 
-import EditButton from '@/components/common/EditButton';
+import EditButton from '@/components/common/buttons/EditButton';
 import { StyledEditWrapper } from '@/components/common/Section/SectionStyles';
 import { ApiGen_CodeTypes_LeaseStatusTypes } from '@/models/api/generated/ApiGen_CodeTypes_LeaseStatusTypes';
 import { ApiGen_Concepts_Lease } from '@/models/api/generated/ApiGen_Concepts_Lease';

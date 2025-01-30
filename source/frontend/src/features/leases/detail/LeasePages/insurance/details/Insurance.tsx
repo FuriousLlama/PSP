@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import EditButton from '@/components/common/EditButton';
+import EditButton from '@/components/common/buttons/EditButton';
 import { Section } from '@/components/common/Section/Section';
 import { StyledEditWrapper } from '@/components/common/Section/SectionStyles';
 import { ApiGen_Concepts_Insurance } from '@/models/api/generated/ApiGen_Concepts_Insurance';
@@ -35,7 +35,7 @@ const InsuranceDetailsView: React.FunctionComponent<
     <>
       {canEdit && (
         <StyledEditWrapper className="mr-3 my-1">
-          <EditButton title="Edit Improvements" onClick={onEdit} />
+          <EditButton title="Edit Insurance" onClick={onEdit} style={{ float: 'right' }} />
         </StyledEditWrapper>
       )}
       {sortedInsuranceList.length > 0 && (

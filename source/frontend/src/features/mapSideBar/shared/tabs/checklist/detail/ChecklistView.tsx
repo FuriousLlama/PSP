@@ -44,9 +44,7 @@ export const ChecklistView: React.FC<IChecklistViewProps> = ({
       <LoadingBackdrop show={isLoading} parentScreen />
       {canEdit && (
         <StyledEditWrapper className="mr-3 my-1">
-          {keycloak.hasClaim(editClaim) ? (
-            <EditButton title="Edit checklist" onClick={onEdit} style={{ float: 'right' }} />
-          ) : null}
+          <EditButton title="Edit checklist" onClick={onEdit} style={{ float: 'right' }} />
         </StyledEditWrapper>
       )}
       {lastUpdated && (

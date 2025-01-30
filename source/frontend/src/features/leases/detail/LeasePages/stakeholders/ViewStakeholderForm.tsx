@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import EditButton from '@/components/common/EditButton';
+import EditButton from '@/components/common/buttons/EditButton';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { Section } from '@/components/common/Section/Section';
 import { StyledEditWrapper } from '@/components/common/Section/SectionStyles';
@@ -30,7 +30,7 @@ export const LeaseStakeholderView: React.FunctionComponent<
     <>
       {canEdit && (
         <StyledEditWrapper className="mr-3 my-1">
-          <EditButton title="Edit checklist" onClick={onEdit} />
+          <EditButton title="Edit checklist" onClick={onEdit} style={{ float: 'right' }} />
         </StyledEditWrapper>
       )}
       <>

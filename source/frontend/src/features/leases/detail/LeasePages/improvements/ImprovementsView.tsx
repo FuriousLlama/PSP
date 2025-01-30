@@ -1,4 +1,4 @@
-import EditButton from '@/components/common/EditButton';
+import EditButton from '@/components/common/buttons/EditButton';
 import LoadingBackdrop from '@/components/common/LoadingBackdrop';
 import { Section } from '@/components/common/Section/Section';
 import { StyledEditWrapper } from '@/components/common/Section/SectionStyles';
@@ -46,7 +46,7 @@ export const ImprovementsView: React.FunctionComponent<IImprovementsViewProps> =
     <>
       {canEdit && (
         <StyledEditWrapper className="mr-3 my-1">
-          <EditButton title="Edit Improvements" onClick={onEdit} />
+          <EditButton title="Edit Improvements" onClick={onEdit} style={{ float: 'right' }} />
         </StyledEditWrapper>
       )}
       {!improvements?.length && (
@@ -57,7 +57,7 @@ export const ImprovementsView: React.FunctionComponent<IImprovementsViewProps> =
           </p>
         </Section>
       )}
-      {improvements?.length && (
+      {improvements?.length > 0 && (
         <>
           <LoadingBackdrop show={loading} parentScreen />
           {formImprovements.map((improvement: ILeaseImprovementForm) => (

@@ -82,31 +82,13 @@ export const UpdateLeaseContainer: React.FunctionComponent<UpdateLeaseContainerP
   useEffect(() => {
     fetchLease();
   }, [fetchLease]);
-  const leaseId = lease?.id;
-
-  const refreshCompleteLease = useCallback(
-    async (leaseId?: number) => {
-      if (isValidId(leaseId)) {
-        const lease = await getCompleteLease();
-        formikRef?.current?.resetForm({ values: LeaseFormModel.fromApi(lease) });
-      }
-    },
-    [formikRef, getCompleteLease],
-  );
-
-  useDeepCompareEffect(() => {
-    const exec = async () => {
-      await refreshCompleteLease(leaseId);
-    };
-    exec();
-  }, [leaseId, consultationTypes, refreshCompleteLease]);
 
   const afterSubmit = useCallback(
     (updatedLease?: ApiGen_Concepts_Lease) => {
       if (isValidId(updatedLease?.id)) {
         //mapMachine.refreshMapProperties();
         setStaleFile(true);
-        pathResolver.showDetail('lease', leaseId, TabRouteType.fileDetails);
+        pathResolver.showDetail('lease', leaseId, TabRouteType.fileDetails, true);
       }
     },
     [leaseId, pathResolver, setStaleFile],
@@ -131,7 +113,7 @@ export const UpdateLeaseContainer: React.FunctionComponent<UpdateLeaseContainerP
         okButtonText: 'Close',
         variant: 'error',
         handleOk: async () => {
-          await refreshCompleteLease(leaseId);
+          //await refreshCompleteLease(leaseId);
           setDisplayModal(false);
         },
       });
@@ -143,7 +125,7 @@ export const UpdateLeaseContainer: React.FunctionComponent<UpdateLeaseContainerP
 
   const onClose = () => {
     console.log('closing');
-    pathResolver.showDetail('lease', leaseId, TabRouteType.fileDetails);
+    pathResolver.showDetail('lease', leaseId, TabRouteType.fileDetails, true);
   };
 
   if (!exists(lease)) {

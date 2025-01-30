@@ -5,9 +5,9 @@ import { FaCaretRight } from 'react-icons/fa';
 import { matchPath, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 
+import EditButton from '@/components/common/buttons/EditButton';
 import { EditPropertiesIcon } from '@/components/common/buttons/EditPropertiesButton';
 import { LinkButton } from '@/components/common/buttons/LinkButton';
-import EditButton from '@/components/common/EditButton';
 import TooltipIcon from '@/components/common/TooltipIcon';
 import { ApiGen_Concepts_FileProperty } from '@/models/api/generated/ApiGen_Concepts_FileProperty';
 import { exists, getFilePropertyName } from '@/utils';

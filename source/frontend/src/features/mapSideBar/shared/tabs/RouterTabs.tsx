@@ -87,18 +87,15 @@ export const RouterTabs: React.FunctionComponent<React.PropsWithChildren<IRouter
   const { hasClaim } = useKeycloakWrapper();
 
   const detailType = match.params['detailType'];
-  debugger;
 
   useEffect(() => {
     const tab = tabs.find(tab => tab.key === detailType);
-    debugger;
     if (exists(tab)) {
       setActiveTabKey(tab.key);
     }
   }, [activeTabKey, detailType, tabs]);
 
   useEffect(() => {
-    debugger;
     const tab = tabs.find(tab => tab.key === detailType);
     if (exists(tab)) {
       if (tab.isFullWidth === true) {
