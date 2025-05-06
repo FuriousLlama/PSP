@@ -1,5 +1,7 @@
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text.Json;
+using DocumentFormat.OpenXml.Spreadsheet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -59,6 +61,19 @@ namespace Pims.Dal
             foreach (var entry in modifiedEntries)
             {
                 entry.UpdateAppAuditProperties(username, key, directory);
+
+                if (entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Unchanged;
+                    string user = "some_cool_user";
+                    //string user = username; change after testing
+                    string schema = GetSchemaName(entry.Entity);
+                    long primarykey = GetPrimaryKey(entry.Entity);
+                    string tableName = GetTableName(entry.Entity);
+                    var result = PimsStaticVariables.FromSql(
+                        $"EXECUTE dbo.PIM_DELETION_HISTORY @prmUserID={user}, @prmHstSchema={schema}, @prmBizSchema={schema}, @prmBizTblNm={tableName}, @prmPKValue={primarykey}, @modeDebug={0}").FirstOrDefault();
+
+                }
             }
 
             return base.SaveChanges();
@@ -125,6 +140,30 @@ namespace Pims.Dal
             }
 
             base.OnConfiguring(optionsBuilder);
+        }
+
+        // Entity Framework Core
+        protected virtual long GetPrimaryKey<T>(T entity)
+        {
+            var entityType = entity.GetType();
+            var entityType2 = Model.FindEntityType(entityType);
+            var keyName = entityType2.FindPrimaryKey().Properties
+                .Select(x => x.Name).Single();
+
+            return (long)entityType.GetProperty(keyName).GetValue(entity, null);
+        }
+
+        protected string GetTableName<T>(T entity)
+        {
+            var entityType = entity.GetType();
+            var modelEntityType = Model.FindEntityType(entityType);
+
+            return modelEntityType.GetSchemaQualifiedTableName();
+        }
+
+        protected string GetSchemaName<T>(T entity)
+        {
+            return "dbo";
         }
         #endregion
     }
