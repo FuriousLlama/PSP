@@ -64,14 +64,13 @@ namespace Pims.Dal
 
                 if (entry.State == EntityState.Deleted)
                 {
-                    entry.State = EntityState.Unchanged;
-                    string user = "some_cool_user";
-                    //string user = username; change after testing
+                    entry.State = EntityState.Detached;
+                    string user = username;
                     string schema = GetSchemaName(entry.Entity);
                     long primarykey = GetPrimaryKey(entry.Entity);
                     string tableName = GetTableName(entry.Entity);
-                    var result = PimsStaticVariables.FromSql(
-                        $"EXECUTE dbo.PIM_DELETION_HISTORY @prmUserID={user}, @prmHstSchema={schema}, @prmBizSchema={schema}, @prmBizTblNm={tableName}, @prmPKValue={primarykey}, @modeDebug={0}").FirstOrDefault();
+                    Database.ExecuteSql(
+                        $"EXECUTE dbo.PIM_DELETION_HISTORY @prmUserID={user}, @prmHstSchema={schema}, @prmBizSchema={schema}, @prmBizTblNm={tableName}, @prmPKValue={primarykey}, @modeDebug={0}");
 
                 }
             }

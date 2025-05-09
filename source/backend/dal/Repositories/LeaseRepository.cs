@@ -556,6 +556,26 @@ namespace Pims.Dal.Repositories
             .ToList();
             lastUpdatedByAggregate.AddRange(periodPaymentHistoryLastUpdatedBy);
 
+            // Lease Deleted Renewals
+            // This is needed to get the renewals last-updated-by when deleted
+            var deletedRenewals = this.Context.PimsLeaseRenewalHists.AsNoTracking()
+            .Where(aph => aph.LeaseId == leaseId)
+            .GroupBy(aph => aph.LeaseRenewalId)
+            .Select(gaph => gaph.OrderByDescending(a => a.EffectiveDateHist).FirstOrDefault()).ToList();
+
+            var renewalHistoryLastUpdatedBy = deletedRenewals
+            .Select(aph => new LastUpdatedByModel()
+            {
+                ParentId = leaseId,
+                AppLastUpdateUserid = aph.AppLastUpdateUserid, // TODO: Update this once the DB tracks the user
+                AppLastUpdateUserGuid = aph.AppLastUpdateUserGuid, // TODO: Update this once the DB tracks the user
+                AppLastUpdateTimestamp = aph.EndDateHist ?? DateTime.UnixEpoch,
+            })
+            .OrderByDescending(lu => lu.AppLastUpdateTimestamp)
+            .Take(1)
+            .ToList();
+            lastUpdatedByAggregate.AddRange(renewalHistoryLastUpdatedBy);
+
             // Lease Documents
             var documentsUpdatedBy = this.Context.PimsLeaseDocuments.AsNoTracking()
                 .Where(ap => ap.LeaseId == leaseId)
